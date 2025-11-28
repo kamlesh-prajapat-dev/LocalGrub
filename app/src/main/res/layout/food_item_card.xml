@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="8dp"
+    app:cardCornerRadius="12dp"
+    app:cardElevation="4dp">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="16dp">
+
+        <!-- Dish Image -->
+        <ImageView
+            android:id="@+id/dishImageView"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:importantForAccessibility="no"
+            android:scaleType="centerCrop"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:srcCompat="@tools:sample/backgrounds/scenic" />
+
+        <!-- Select Item Checkbox -->
+        <com.google.android.material.checkbox.MaterialCheckBox
+            android:id="@+id/selectItemCheckBox"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <!-- Dish Name -->
+        <TextView
+            android:id="@+id/dishNameTextView"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="8dp"
+            android:text="Paneer Butter Masala"
+            android:maxLines="2"
+            android:textAppearance="?attr/textAppearanceHeadline6"
+            app:layout_constraintEnd_toStartOf="@+id/selectItemCheckBox"
+            app:layout_constraintStart_toEndOf="@id/dishImageView"
+            app:layout_constraintTop_toTopOf="@id/dishImageView" />
+
+        <!-- Dish Description -->
+        <TextView
+            android:id="@+id/dishDescriptionTextView"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:ellipsize="end"
+            android:maxLines="2"
+            android:text="A creamy and tangy gravy with soft paneer chunks."
+            android:textAppearance="?attr/textAppearanceBody2"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="@id/dishNameTextView"
+            app:layout_constraintTop_toBottomOf="@id/dishNameTextView" />
+
+        <!-- Price -->
+        <TextView
+            android:id="@+id/priceTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="Rs. 250"
+            android:textAppearance="?attr/textAppearanceSubtitle1"
+            android:textStyle="bold"
+            app:layout_constraintStart_toStartOf="@id/dishNameTextView"
+            app:layout_constraintTop_toBottomOf="@id/dishDescriptionTextView" />
+
+        <!-- Quantity Controls -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/increaseQuantityButton"
+            style="?attr/materialButtonOutlinedStyle"
+            android:layout_marginTop="8dp"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:insetLeft="0dp"
+            android:insetTop="0dp"
+            android:insetRight="0dp"
+            android:insetBottom="0dp"
+            android:padding="0dp"
+            android:text="+"
+            app:layout_constraintBottom_toBottomOf="@id/priceTextView"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@id/priceTextView" />
+
+        <TextView
+            android:id="@+id/quantityTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="8dp"
+            android:textAlignment="center"
+            android:text="01"
+            android:maxLength="2"
+            android:textAppearance="?attr/textAppearanceHeadline6"
+            app:layout_constraintBottom_toBottomOf="@id/increaseQuantityButton"
+            app:layout_constraintEnd_toStartOf="@id/increaseQuantityButton"
+            app:layout_constraintTop_toTopOf="@id/increaseQuantityButton"/>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/decreaseQuantityButton"
+            style="?attr/materialButtonOutlinedStyle"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_marginEnd="8dp"
+            android:insetLeft="0dp"
+            android:insetTop="0dp"
+            android:insetRight="0dp"
+            android:insetBottom="0dp"
+            android:padding="0dp"
+            android:text="-"
+            app:layout_constraintBottom_toBottomOf="@id/increaseQuantityButton"
+            app:layout_constraintEnd_toStartOf="@id/quantityTextView"
+            app:layout_constraintTop_toTopOf="@id/increaseQuantityButton" />
+
+        <!-- Add-ons Section -->
+        <TextView
+            android:id="@+id/addOnsLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="Add-ons"
+            android:textAppearance="?attr/textAppearanceSubtitle1"
+            android:textStyle="bold"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/dishImageView"
+            android:visibility="gone"/>
+
+        <com.google.android.material.checkbox.MaterialCheckBox
+            android:id="@+id/firstAddOns"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Curd (+Rs. 20)"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/addOnsLabel"
+            android:visibility="gone"/>
+
+        <com.google.android.material.checkbox.MaterialCheckBox
+            android:id="@+id/secondAddOns"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:text="Sauce (+Rs. 10)"
+            app:layout_constraintBottom_toBottomOf="@id/firstAddOns"
+            app:layout_constraintStart_toEndOf="@id/firstAddOns"
+            app:layout_constraintTop_toTopOf="@id/firstAddOns"
+            android:visibility="gone"/>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</com.google.android.material.card.MaterialCardView>

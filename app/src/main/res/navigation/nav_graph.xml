@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_host_fragment_container"
+    app:startDestination="@id/splashFragment">
+
+    <fragment
+        android:id="@+id/splashFragment"
+        android:name="com.example.roti999.ui.fragment.SplashFragment"
+        android:label="Splash Fragment"
+        tools:layout="@layout/fragment_splash">
+        <action
+            android:id="@+id/action_splashFragment_to_authenticationFragment"
+            app:destination="@id/authenticationFragment"
+            app:popUpTo="@id/splashFragment"
+            app:popUpToInclusive="true"/>
+
+        <action
+            android:id="@+id/action_splashFragment_to_homeFragment"
+            app:destination="@id/homeFragment"
+            app:popUpTo="@id/splashFragment"
+            app:popUpToInclusive="true"/>
+    </fragment>
+
+    <fragment
+        android:id="@+id/authenticationFragment"
+        android:name="com.example.roti999.ui.fragment.AuthenticationFragment"
+        android:label="Authentication Fragment"
+        tools:layout="@layout/fragment_authentication">
+        <action
+            android:id="@+id/action_authenticationFragment_to_homeFragment"
+            app:destination="@id/homeFragment"
+            app:popUpTo="@id/authenticationFragment"
+            app:popUpToInclusive="true"/>
+    </fragment>
+
+    <fragment
+        android:id="@+id/homeFragment"
+        android:name="com.example.roti999.ui.fragment.HomeFragment"
+        android:label="Home Fragment"
+        tools:layout="@layout/fragment_home" >
+
+        <action
+            android:id="@+id/action_homeFragment_to_createYourProfileFragment"
+            app:destination="@id/createYourProfileFragment"/>
+
+        <action
+            android:id="@+id/action_homeFragment_to_orderFragment"
+            app:destination="@id/orderFragment"/>
+    </fragment>
+
+    <fragment
+        android:id="@+id/createYourProfileFragment"
+        android:name="com.example.roti999.ui.fragment.CreateYourProfileFragment"
+        android:label="Create Your Profile Fragment"
+        tools:layout="@layout/fragment_create_your_profile">
+
+        <action
+            android:id="@+id/action_createYourProfileFragment_to_orderFragment"
+            app:destination="@id/orderFragment"
+            app:popUpTo="@id/createYourProfileFragment"
+            app:popUpToInclusive="true"/>
+    </fragment>
+
+    <fragment
+        android:id="@+id/orderFragment"
+        android:name="com.example.roti999.ui.fragment.OrderFragment"
+        android:label="Order Fragment"
+        tools:layout="@layout/fragment_order">
+    </fragment>
+
+</navigation>
