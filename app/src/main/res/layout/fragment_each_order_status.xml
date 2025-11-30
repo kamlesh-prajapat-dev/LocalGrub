@@ -1,0 +1,378 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".ui.fragment.EachOrderStatusFragment">
+
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/appBarLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/topAppBar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            app:navigationIcon="@drawable/ic_arrow_back"
+            android:background="@color/orange"
+            app:titleTextColor="@color/white"
+            app:navigationIconTint="@color/white"
+            app:title="Order Details" />
+
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <!-- Status Tracker -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="4dp">
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="16dp">
+
+                    <!-- Step 1: Order Placed -->
+                    <ImageView
+                        android:id="@+id/step1_icon"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:contentDescription="TODO"
+                        android:src="@drawable/stepper_background_complete"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <TextView
+                        android:id="@+id/step1_title"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="16dp"
+                        android:text="Order Placed"
+                        android:textAppearance="?attr/textAppearanceSubtitle1"
+                        android:textStyle="bold"
+                        android:textColor="@color/green"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toEndOf="@id/step1_icon"
+                        app:layout_constraintTop_toTopOf="@id/step1_icon" />
+
+                    <View
+                        android:id="@+id/step1_line"
+                        android:layout_width="2dp"
+                        android:layout_height="30dp"
+                        android:background="@color/green"
+                        app:layout_constraintEnd_toEndOf="@id/step1_icon"
+                        app:layout_constraintStart_toStartOf="@id/step1_icon"
+                        app:layout_constraintTop_toBottomOf="@id/step1_icon" />
+
+                    <!-- Step 2: Order Confirmed -->
+                    <ImageView
+                        android:id="@+id/step2_icon"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:contentDescription="TODO"
+                        android:src="@drawable/stepper_background_incomplete"
+                        app:layout_constraintEnd_toEndOf="@id/step1_line"
+                        app:layout_constraintStart_toStartOf="@id/step1_line"
+                        app:layout_constraintTop_toBottomOf="@id/step1_line" />
+
+                    <TextView
+                        android:id="@+id/step2_title"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="16dp"
+                        android:text="Order Confirmed"
+                        android:textAppearance="?attr/textAppearanceSubtitle1"
+                        android:textStyle="bold"
+                        android:textColor="@color/orange"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toEndOf="@id/step2_icon"
+                        app:layout_constraintTop_toTopOf="@+id/step2_icon" />
+
+                    <View
+                        android:id="@+id/step2_line"
+                        android:layout_width="2dp"
+                        android:layout_height="30dp"
+                        android:background="@color/orange"
+                        app:layout_constraintEnd_toEndOf="@id/step2_icon"
+                        app:layout_constraintStart_toStartOf="@id/step2_icon"
+                        app:layout_constraintTop_toBottomOf="@+id/step2_icon" />
+
+                    <!-- Step 3: Order Preparing -->
+                    <ImageView
+                        android:id="@+id/step3_icon"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:contentDescription="TODO"
+                        android:src="@drawable/stepper_background_incomplete"
+                        app:layout_constraintEnd_toEndOf="@id/step2_line"
+                        app:layout_constraintStart_toStartOf="@id/step2_line"
+                        app:layout_constraintTop_toBottomOf="@id/step2_line" />
+
+                    <TextView
+                        android:id="@+id/step3_title"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="16dp"
+                        android:text="Order Preparing"
+                        android:textColor="@color/orange"
+                        android:textAppearance="?attr/textAppearanceSubtitle1"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toEndOf="@id/step3_icon"
+                        app:layout_constraintTop_toTopOf="@+id/step3_icon" />
+
+                    <View
+                        android:id="@+id/step3_line"
+                        android:layout_width="2dp"
+                        android:layout_height="30dp"
+                        android:background="@color/orange"
+                        app:layout_constraintEnd_toEndOf="@id/step3_icon"
+                        app:layout_constraintStart_toStartOf="@id/step3_icon"
+                        app:layout_constraintTop_toBottomOf="@+id/step3_icon" />
+
+                    <!-- Step 4: Out for Delivery -->
+                    <ImageView
+                        android:id="@+id/step4_icon"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:contentDescription="TODO"
+                        android:src="@drawable/stepper_background_incomplete"
+                        app:layout_constraintEnd_toEndOf="@id/step3_line"
+                        app:layout_constraintStart_toStartOf="@id/step3_line"
+                        app:layout_constraintTop_toBottomOf="@id/step3_line" />
+
+                    <TextView
+                        android:id="@+id/step4_title"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="16dp"
+                        android:text="Out for Delivery"
+                        android:textColor="@color/orange"
+                        android:textAppearance="?attr/textAppearanceSubtitle1"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toEndOf="@id/step4_icon"
+                        app:layout_constraintTop_toTopOf="@+id/step4_icon" />
+
+                    <View
+                        android:id="@+id/step4_line"
+                        android:layout_width="2dp"
+                        android:layout_height="30dp"
+                        android:background="@color/orange"
+                        app:layout_constraintEnd_toEndOf="@id/step4_icon"
+                        app:layout_constraintStart_toStartOf="@id/step4_icon"
+                        app:layout_constraintTop_toBottomOf="@+id/step4_icon" />
+
+                    <!-- Step 3: Delivered -->
+                    <ImageView
+                        android:id="@+id/step5_icon"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:contentDescription="TODO"
+                        android:src="@drawable/stepper_background_incomplete"
+                        app:layout_constraintEnd_toEndOf="@id/step4_line"
+                        app:layout_constraintStart_toStartOf="@id/step4_line"
+                        app:layout_constraintTop_toBottomOf="@id/step4_line" />
+
+                    <TextView
+                        android:id="@+id/step5_title"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="16dp"
+                        android:text="Delivered"
+                        android:textColor="@color/orange"
+                        android:textAppearance="?attr/textAppearanceSubtitle1"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toEndOf="@id/step5_icon"
+                        app:layout_constraintTop_toTopOf="@+id/step5_icon" />
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Order Details -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                app:cardCornerRadius="12dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Dishes"
+                        android:textAppearance="?attr/textAppearanceHeadline6" />
+
+                    <androidx.constraintlayout.widget.ConstraintLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content">
+
+                        <androidx.core.widget.NestedScrollView
+                            android:id="@+id/orderItemsRecyclerViewContainer"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:padding="8dp"
+                            android:fillViewport="false"
+                            app:layout_behavior="@string/appbar_scrolling_view_behavior"
+                            app:layout_constraintTop_toTopOf="parent"
+                            app:layout_constraintHeight_max="120dp">
+
+                            <androidx.recyclerview.widget.RecyclerView
+                                android:id="@+id/orderedItemsRecyclerView"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:nestedScrollingEnabled="false"
+                                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                                tools:listitem="@layout/order_item_summary_row" />
+                        </androidx.core.widget.NestedScrollView>
+
+                    </androidx.constraintlayout.widget.ConstraintLayout>
+
+                </LinearLayout>
+
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Shipping Address -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                app:cardCornerRadius="12dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Shipping Address"
+                        android:textAppearance="?attr/textAppearanceHeadline6" />
+
+                    <TextView
+                        android:id="@+id/addressTextView"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:lineSpacingExtra="4dp"
+                        android:textAppearance="?attr/textAppearanceBody1"
+                        tools:text=""
+                        android:maxLines="3"
+                        android:ellipsize="end"/>
+                </LinearLayout>
+
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Bill Summary -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                app:cardCornerRadius="12dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Bill Summary"
+                        android:textAppearance="?attr/textAppearanceHeadline6" />
+
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Item Total"
+                            android:layout_alignParentStart="true" />
+
+                        <TextView
+                            android:id="@+id/itemTotalTextView"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentEnd="true"
+                            tools:text="Rs. 520" />
+                    </RelativeLayout>
+
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Delivery Fee"
+                            android:layout_alignParentStart="true"/>
+
+                        <TextView
+                            android:id="@+id/deliveryFeeTextView"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentEnd="true"
+                            tools:text="Rs. 30" />
+                    </RelativeLayout>
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_marginTop="8dp"
+                        android:background="?android:attr/listDivider" />
+
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Grand Total"
+                            android:textStyle="bold"
+                            android:textAppearance="?attr/textAppearanceSubtitle1"
+                            android:layout_alignParentStart="true" />
+
+                        <TextView
+                            android:id="@+id/grandTotalTextView"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textStyle="bold"
+                            android:textAppearance="?attr/textAppearanceSubtitle1"
+                            android:layout_alignParentEnd="true"
+                            tools:text="Rs. 550" />
+                    </RelativeLayout>
+
+                </LinearLayout>
+
+            </com.google.android.material.card.MaterialCardView>
+
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

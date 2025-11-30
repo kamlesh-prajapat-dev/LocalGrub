@@ -23,7 +23,6 @@ class CreateYourProfileFragment : Fragment() {
     private val viewModel: CreateYourProfileViewModel by viewModels()
     private var _binding: FragmentCreateYourProfileBinding? = null
     private val binding get() = _binding!!
-
     private val sharedHCOViewModel: SharedHCOViewModel by activityViewModels()
 
     override fun onCreateView(
@@ -45,42 +44,48 @@ class CreateYourProfileFragment : Fragment() {
         binding.saveProfileButton.setOnClickListener {
             val name = binding.nameEditText.text.toString().trim()
             val address = binding.addressEditText.text.toString().trim()
-            viewModel.createUser(name, address)
+            viewModel.editUser(name, address)
         }
     }
 
     private fun observeViewModel() {
 
-        viewModel.user.observe(viewLifecycleOwner) {
-            if (it != null) {
-                binding.phoneNumberEditText.setText(it.phoneNumber)
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.user.collect {
+                if (it != null) {
+                    binding.phoneNumberEditText.setText(it.phoneNumber)
+                    binding.nameEditText.setText(it.name)
+                    binding.addressEditText.setText(it.address)
+                }
             }
         }
 
-        viewModel.profileState.observe(viewLifecycleOwner) { state ->
-            when (state) {
-                is CreateYourProfileViewModel.ProfileState.Idle -> {
-                    setLoading(false)
-                }
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.profileState.collect { state ->
+                when (state) {
+                    is CreateYourProfileViewModel.ProfileState.Idle -> {
+                        setLoading(false)
+                    }
 
-                is CreateYourProfileViewModel.ProfileState.Loading -> {
-                    setLoading(true)
-                }
+                    is CreateYourProfileViewModel.ProfileState.Loading -> {
+                        setLoading(true)
+                    }
 
-                is CreateYourProfileViewModel.ProfileState.Success -> {
-                    Toast.makeText(
-                        requireContext(),
-                        "Profile saved successfully",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                    sharedHCOViewModel.onSetUser(user = viewModel.user.value)
-                    setLoading(false)
-                    findNavController().navigate(R.id.action_createYourProfileFragment_to_orderFragment) // Assuming you have this action
-                }
+                    is CreateYourProfileViewModel.ProfileState.Success -> {
+                        Toast.makeText(
+                            requireContext(),
+                            "Profile saved successfully",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                        sharedHCOViewModel.onSetUser(user = viewModel.user.value)
+                        setLoading(false)
+                        findNavController().navigate(R.id.action_createYourProfileFragment_to_orderFragment) // Assuming you have this action
+                    }
 
-                is CreateYourProfileViewModel.ProfileState.Error -> {
-                    setLoading(false)
-                    Toast.makeText(requireContext(), state.message, Toast.LENGTH_SHORT).show()
+                    is CreateYourProfileViewModel.ProfileState.Error -> {
+                        setLoading(false)
+                        Toast.makeText(requireContext(), state.message, Toast.LENGTH_SHORT).show()
+                    }
                 }
             }
         }

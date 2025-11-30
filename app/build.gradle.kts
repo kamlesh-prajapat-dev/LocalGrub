@@ -85,4 +85,7 @@ dependencies {
 
     // Glide Library For image
     implementation("com.github.bumptech.glide:glide:4.16.0")
+
+    // Gson
+    implementation("com.google.code.gson:gson:2.10.1")
 }

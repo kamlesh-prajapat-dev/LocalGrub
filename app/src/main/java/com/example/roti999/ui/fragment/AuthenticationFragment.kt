@@ -1,5 +1,6 @@
 package com.example.roti999.ui.fragment
 
+import android.app.AlertDialog
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -43,18 +44,26 @@ class AuthenticationFragment : Fragment() {
 
     private fun setupClickListeners() {
         binding.sendOtpButton.setOnClickListener {
-            val phoneNumber = binding.phoneNumberEditText.text.toString().trim()
-            if (validatePhoneNumber(phoneNumber)) {
-                viewModel.sendOtp(phoneNumber, requireActivity())
+            if (viewModel.isInternetAvailable()) {
+                val phoneNumber = binding.phoneNumberEditText.text.toString().trim()
+                if (validatePhoneNumber(phoneNumber)) {
+                    viewModel.sendOtp(phoneNumber, requireActivity())
+                }
+            } else {
+                showNoInternetDialog()
             }
         }
 
         binding.verifyOtpButton.setOnClickListener {
-            val otp = binding.otpEditText.text.toString().trim()
-            if (validateOtp(otp)) {
-                verificationId?.let {
-                    viewModel.verifyOtp(otp, it)
+            if (viewModel.isInternetAvailable()) {
+                val otp = binding.otpEditText.text.toString().trim()
+                if (validateOtp(otp)) {
+                    verificationId?.let {
+                        viewModel.verifyOtp(otp, it)
+                    }
                 }
+            } else {
+                showNoInternetDialog()
             }
         }
     }
@@ -130,6 +139,17 @@ class AuthenticationFragment : Fragment() {
             binding.otpInputLayout.error = "Please enter a valid 6-digit OTP"
             false
         }
+    }
+
+    private fun showNoInternetDialog() {
+        AlertDialog.Builder(requireContext())
+            .setTitle(R.string.no_internet_connection)
+            .setMessage(R.string.check_internet_connection)
+            .setPositiveButton(R.string.ok) { dialog, _ ->
+                dialog.dismiss()
+            }
+            .create()
+            .show()
     }
 
     override fun onDestroyView() {

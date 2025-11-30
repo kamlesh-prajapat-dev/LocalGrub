@@ -24,13 +24,18 @@
             app:layout_constraintTop_toTopOf="parent"
             tools:srcCompat="@tools:sample/backgrounds/scenic" />
 
-        <!-- Select Item Checkbox -->
-        <com.google.android.material.checkbox.MaterialCheckBox
-            android:id="@+id/selectItemCheckBox"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
+        <!-- Price -->
+        <TextView
+            android:id="@+id/priceTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Rs. 250"
+            android:padding="4dp"
+            android:textAppearance="?attr/textAppearanceSubtitle1"
+            android:textStyle="bold"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/dishDescriptionTextView" />
 
         <!-- Dish Name -->
         <TextView
@@ -38,11 +43,11 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
-            android:layout_marginEnd="8dp"
-            android:text="Paneer Butter Masala"
+            android:layout_marginEnd="16dp"
+            android:text="Paneer Butter"
             android:maxLines="2"
-            android:textAppearance="?attr/textAppearanceHeadline6"
-            app:layout_constraintEnd_toStartOf="@+id/selectItemCheckBox"
+            android:textAppearance="@style/TextAppearance.MaterialComponents.Headline6"
+            app:layout_constraintEnd_toStartOf="@+id/priceTextView"
             app:layout_constraintStart_toEndOf="@id/dishImageView"
             app:layout_constraintTop_toTopOf="@id/dishImageView" />
 
@@ -51,105 +56,113 @@
             android:id="@+id/dishDescriptionTextView"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
+            android:layout_marginTop="8dp"
             android:ellipsize="end"
             android:maxLines="2"
             android:text="A creamy and tangy gravy with soft paneer chunks."
             android:textAppearance="?attr/textAppearanceBody2"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="@id/dishNameTextView"
-            app:layout_constraintTop_toBottomOf="@id/dishNameTextView" />
+            app:layout_constraintTop_toBottomOf="@+id/dishNameTextView" />
 
-        <!-- Price -->
-        <TextView
-            android:id="@+id/priceTextView"
+        <!-- Add Button -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/addBtn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:text="Rs. 250"
-            android:textAppearance="?attr/textAppearanceSubtitle1"
-            android:textStyle="bold"
-            app:layout_constraintStart_toStartOf="@id/dishNameTextView"
+            android:backgroundTint="@color/green"
+            android:letterSpacing="0"
+            android:text="Add"
+            android:textColor="@color/white"
+            app:icon="@drawable/ic_add"
+            app:iconGravity="textEnd"
+            app:iconPadding="2dp"
+            app:iconSize="16dp"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@id/dishDescriptionTextView" />
 
         <!-- Quantity Controls -->
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/increaseQuantityButton"
-            style="?attr/materialButtonOutlinedStyle"
-            android:layout_marginTop="8dp"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
-            android:insetLeft="0dp"
-            android:insetTop="0dp"
-            android:insetRight="0dp"
-            android:insetBottom="0dp"
-            android:padding="0dp"
-            android:text="+"
-            app:layout_constraintBottom_toBottomOf="@id/priceTextView"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="@id/priceTextView" />
-
-        <TextView
-            android:id="@+id/quantityTextView"
+        <LinearLayout
+            android:id="@+id/quantityControlsLayout"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginHorizontal="8dp"
-            android:textAlignment="center"
-            android:text="01"
-            android:maxLength="2"
-            android:textAppearance="?attr/textAppearanceHeadline6"
-            app:layout_constraintBottom_toBottomOf="@id/increaseQuantityButton"
-            app:layout_constraintEnd_toStartOf="@id/increaseQuantityButton"
-            app:layout_constraintTop_toTopOf="@id/increaseQuantityButton"/>
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            app:layout_constraintBottom_toBottomOf="@id/addBtn"
+            app:layout_constraintStart_toStartOf="@+id/dishDescriptionTextView"
+            app:layout_constraintTop_toBottomOf="@+id/dishDescriptionTextView">
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/decreaseQuantityButton"
-            style="?attr/materialButtonOutlinedStyle"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
-            android:layout_marginEnd="8dp"
-            android:insetLeft="0dp"
-            android:insetTop="0dp"
-            android:insetRight="0dp"
-            android:insetBottom="0dp"
-            android:padding="0dp"
-            android:text="-"
-            app:layout_constraintBottom_toBottomOf="@id/increaseQuantityButton"
-            app:layout_constraintEnd_toStartOf="@id/quantityTextView"
-            app:layout_constraintTop_toTopOf="@id/increaseQuantityButton" />
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/decreaseQuantityButton"
+                style="?attr/materialButtonOutlinedStyle"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:insetLeft="0dp"
+                android:insetTop="0dp"
+                android:insetRight="0dp"
+                android:insetBottom="0dp"
+                android:padding="0dp"
+                android:text="-"
+                app:shapeAppearanceOverlay="@style/ShapeAppearance.Material3.SmallComponent" />
 
-        <!-- Add-ons Section -->
-        <TextView
-            android:id="@+id/addOnsLabel"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:text="Add-ons"
-            android:textAppearance="?attr/textAppearanceSubtitle1"
-            android:textStyle="bold"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/dishImageView"
-            android:visibility="gone"/>
+            <TextView
+                android:id="@+id/quantityTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="8dp"
+                android:maxLength="2"
+                android:textAlignment="center"
+                android:textAppearance="?attr/textAppearanceHeadline6"
+                tools:text="01" />
 
-        <com.google.android.material.checkbox.MaterialCheckBox
-            android:id="@+id/firstAddOns"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Curd (+Rs. 20)"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/addOnsLabel"
-            android:visibility="gone"/>
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/increaseQuantityButton"
+                style="?attr/materialButtonOutlinedStyle"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:insetLeft="0dp"
+                android:insetTop="0dp"
+                android:insetRight="0dp"
+                android:insetBottom="0dp"
+                android:padding="0dp"
+                android:text="+"
+                app:shapeAppearanceOverlay="@style/ShapeAppearance.Material3.SmallComponent" />
 
-        <com.google.android.material.checkbox.MaterialCheckBox
-            android:id="@+id/secondAddOns"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:text="Sauce (+Rs. 10)"
-            app:layout_constraintBottom_toBottomOf="@id/firstAddOns"
-            app:layout_constraintStart_toEndOf="@id/firstAddOns"
-            app:layout_constraintTop_toTopOf="@id/firstAddOns"
-            android:visibility="gone"/>
+        </LinearLayout>
 
+<!--        &lt;!&ndash; Add-ons Section &ndash;&gt;-->
+<!--        <TextView-->
+<!--            android:id="@+id/addOnsLabel"-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:layout_marginTop="16dp"-->
+<!--            android:text="Add-ons"-->
+<!--            android:textAppearance="?attr/textAppearanceSubtitle1"-->
+<!--            android:textStyle="bold"-->
+<!--            app:layout_constraintStart_toStartOf="parent"-->
+<!--            app:layout_constraintTop_toBottomOf="@id/dishImageView"-->
+<!--            android:visibility="visible"/>-->
+
+<!--        <com.google.android.material.checkbox.MaterialCheckBox-->
+<!--            android:id="@+id/firstAddOns"-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:text="Curd (+Rs. 20)"-->
+<!--            app:layout_constraintStart_toStartOf="parent"-->
+<!--            app:layout_constraintTop_toBottomOf="@id/addOnsLabel"-->
+<!--            android:visibility="visible"/>-->
+
+<!--        <com.google.android.material.checkbox.MaterialCheckBox-->
+<!--            android:id="@+id/secondAddOns"-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:layout_marginStart="16dp"-->
+<!--            android:text="Sauce (+Rs. 10)"-->
+<!--            app:layout_constraintBottom_toBottomOf="@id/firstAddOns"-->
+<!--            app:layout_constraintStart_toEndOf="@id/firstAddOns"-->
+<!--            app:layout_constraintTop_toTopOf="@id/firstAddOns"-->
+<!--            android:visibility="visible"/>-->
     </androidx.constraintlayout.widget.ConstraintLayout>
+
 </com.google.android.material.card.MaterialCardView>

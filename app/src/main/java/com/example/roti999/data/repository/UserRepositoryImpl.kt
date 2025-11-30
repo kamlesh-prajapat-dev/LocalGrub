@@ -23,9 +23,7 @@ class UserRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun getUserByPhoneNumber(
-        onResult: (User?) -> Unit
-    ) {
+    override suspend fun getUserByPhoneNumber(onResult: (User?) -> Unit) {
         try {
             val currentUser = auth.currentUser
             if (currentUser != null) {
@@ -35,13 +33,38 @@ class UserRepositoryImpl @Inject constructor(
                     .limit(1)
                     .get()
                     .await()
+
                 if (!snapshot.isEmpty)
                     onResult(snapshot.documents[0].toObject(User::class.java))
                 else
                     onResult(null)
+            } else {
+                onResult(null)
+            }
+        }catch (e: Exception) {
+            onResult(null)
+        }
+    }
+
+    override suspend fun getCurrentUser(onResult: (User?) -> Unit) {
+        try {
+            val currentUser = auth.currentUser
+            if (currentUser != null) {
+                onResult(
+                    User(
+                        uid = currentUser.uid,
+                        phoneNumber = currentUser.phoneNumber ?: ""
+                    )
+                )
+            } else {
+                onResult(null)
             }
         } catch (e: Exception) {
             onResult(null)
         }
+    }
+
+    override suspend fun logout() {
+        auth.signOut()
     }
 }

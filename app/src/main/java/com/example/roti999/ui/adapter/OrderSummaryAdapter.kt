@@ -1,15 +1,13 @@
-package com.example.roti999.adapter
+package com.example.roti999.ui.adapter
 
 import android.annotation.SuppressLint
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import android.widget.TextView
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.example.roti999.R
-import com.example.roti999.domain.model.FoodItem
 import com.example.roti999.databinding.OrderItemSummaryRowBinding
+import com.example.roti999.domain.model.FoodItem
 
 class OrderSummaryAdapter : ListAdapter<FoodItem, OrderSummaryAdapter.OrderItemViewHolder>(FoodItemDiffCallback()) {
 
@@ -29,20 +27,6 @@ class OrderSummaryAdapter : ListAdapter<FoodItem, OrderSummaryAdapter.OrderItemV
         fun bind(item: FoodItem) {
             binding.itemNameAndQuantityTextView.text = "${item.name} (x${item.quantity})"
             binding.itemPriceTextView.text = "Rs. ${item.price * item.quantity}"
-
-            binding.addOnsContainer.removeAllViews() // Clear previous add-ons
-
-            for (addOn in item.addOns) {
-                val addOnView = LayoutInflater.from(itemView.context)
-                    .inflate(R.layout.add_on_item_row, binding.addOnsContainer, false)
-                val addOnNameTextView = addOnView.findViewById<TextView>(R.id.addOnNameTextView)
-                val addOnPriceTextView = addOnView.findViewById<TextView>(R.id.addOnPriceTextView)
-
-                addOnNameTextView.text = "- ${addOn.name}"
-                addOnPriceTextView.text = "Rs. ${addOn.price}"
-
-                binding.addOnsContainer.addView(addOnView)
-            }
         }
     }
 

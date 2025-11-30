@@ -16,6 +16,7 @@ class DishesRepositoryImpl @Inject constructor(
     override suspend fun getDishes(): DishesResult {
         return try {
             val snapshot = firestore.collection("dishes")
+                .whereEqualTo("isAvailable", true)
                 .get()
                 .await()
             val dishes = snapshot.documents.map {
@@ -29,13 +30,7 @@ class DishesRepositoryImpl @Inject constructor(
                         name = it.name,
                         description = it.description,
                         price = it.price,
-                        imageUrl = it.thumbnail,
-                        addOns = it.addOns.map { addOn ->
-                            com.example.roti999.domain.model.AddOn(
-                                name = addOn.addOnsName,
-                                price = addOn.price
-                            )
-                        }
+                        imageUrl = it.thumbnail
                     )
                 }
             )

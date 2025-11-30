@@ -4,21 +4,20 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.fragment.HomeFragment">
+    tools:context=".ui.fragment.HistoryFragment">
 
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/appBarLayout"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@color/white">
+        android:layout_height="wrap_content">
 
         <com.google.android.material.appbar.MaterialToolbar
             android:id="@+id/topAppBar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            app:title="Menu"
-            app:menu="@menu/home_menu"
-            app:titleTextColor="@color/orange"/>
+            app:titleTextColor="@color/white"
+            android:background="@color/orange"
+            app:title="Order History" />
 
     </com.google.android.material.appbar.AppBarLayout>
 
@@ -26,28 +25,16 @@
         android:id="@+id/orderItemsRecyclerViewContainer"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:padding="8dp"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
         <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/foodItemsRecyclerView"
+            android:id="@+id/orderHistoryRecyclerView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:clipToPadding="false"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-            tools:listitem="@layout/food_item_card"
-            android:paddingBottom="80dp"/>
+            tools:listitem="@layout/order_history_item" />
     </androidx.core.widget.NestedScrollView>
-
-    <androidx.appcompat.widget.AppCompatButton
-        android:id="@+id/viewCartButton"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom"
-        android:layout_margin="16dp"
-        android:background="@drawable/button_background"
-        android:text="View Cart"
-        android:textColor="@android:color/white"
-        android:visibility="gone"
-        tools:visibility="visible" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -1,31 +1,28 @@
 package com.example.roti999.ui.viewmodel
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.example.roti999.data.model.User
+import com.example.roti999.data.model.Order
 import com.example.roti999.domain.model.FoodItem
+import com.example.roti999.domain.repository.OrderRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import javax.inject.Inject
 
-class SharedHCOViewModel: ViewModel() {
+@HiltViewModel
+class EachOrderStatusViewModel @Inject constructor(
+    private val orderRepository: OrderRepository
+) : ViewModel() {
 
     private val _selectItemList = MutableStateFlow<List<FoodItem>>(emptyList())
     val selectItemList: StateFlow<List<FoodItem>> get() = _selectItemList
 
-    private val _user = MutableStateFlow<User?>(null)
-    val user: StateFlow<User?> get() = _user.asStateFlow()
-
-    fun onSetUser(user: User?) {
-        _user.value = user
-    }
-
     fun onSetSelectItemList(selectItemList: List<FoodItem>) {
         _selectItemList.value = selectItemList
     }
+    private var order: Order? = null
 
-    fun clearSelectItemList() {
-        _selectItemList.value = emptyList()
+    fun onSetOrder(order: Order) {
+        this.order = order
     }
 }
