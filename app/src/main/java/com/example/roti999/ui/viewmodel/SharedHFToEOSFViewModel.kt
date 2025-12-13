@@ -10,7 +10,7 @@ class SharedHFToEOSFViewModel: ViewModel() {
     private val _order = MutableStateFlow<Order?>(null)
     val order: StateFlow<Order?> get() = _order.asStateFlow()
 
-    fun onSetOrder(order: Order) {
+    fun onSetOrder(order: Order?) {
         _order.value = order
     }
 }

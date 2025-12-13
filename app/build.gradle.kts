@@ -71,6 +71,9 @@ dependencies {
     // Firebase Firestore Database
     implementation(libs.firebase.firestore)
 
+    // Firebase Cloud Messaging
+    implementation("com.google.firebase:firebase-messaging:25.0.1")
+
     // Dagger and ksp
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)

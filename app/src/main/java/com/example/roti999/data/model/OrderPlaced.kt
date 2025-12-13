@@ -1,8 +1,6 @@
 package com.example.roti999.data.model
 
-import com.example.roti999.domain.model.FoodItem
 import com.google.firebase.Timestamp
-import java.time.LocalDate
 
 data class OrderPlaced(
     val userId: String = "",

@@ -1,7 +1,8 @@
 package com.example.roti999.data.repository
 
-import com.example.roti999.data.model.User
+import com.example.roti999.domain.model.User
 import com.example.roti999.domain.repository.UserRepository
+import com.example.roti999.util.TokenManager
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.tasks.await
@@ -16,8 +17,20 @@ class UserRepositoryImpl @Inject constructor(
 
     override suspend fun createUser(user: User, onResult: (Boolean) -> Unit) {
         try {
-            firestore.collection("users").document(user.uid).set(user).await()
-            onResult(true)
+            val token = TokenManager.getFCMToken()
+            if (token != null) {
+                val userWithFCMToken = com.example.roti999.data.model.User(
+                    uid = user.uid,
+                    name = user.name,
+                    phoneNumber = user.phoneNumber,
+                    address = user.address,
+                    fcmToken = hashMapOf(
+                        Pair(token, true)
+                    )
+                )
+                firestore.collection("users").document(user.uid).set(userWithFCMToken).await()
+                onResult(true)
+            }
         } catch (e: Exception) {
             onResult(false)
         }
@@ -61,6 +74,18 @@ class UserRepositoryImpl @Inject constructor(
             }
         } catch (e: Exception) {
             onResult(null)
+        }
+    }
+
+    override suspend fun saveNewToken(
+        userWithFCMToken: com.example.roti999.data.model.User,
+        onResult: (Boolean) -> Unit
+    ) {
+        try {
+            firestore.collection("users").document(userWithFCMToken.uid).set(userWithFCMToken).await()
+            onResult(true)
+        } catch (e: Exception) {
+            onResult(false)
         }
     }
 

@@ -15,13 +15,18 @@ class OrderRepositoryImpl @Inject constructor(
 ): OrderRepository {
     override suspend fun placeOrder(
         orderPlaced: OrderPlaced,
-        onResult: (Boolean) -> Unit
+        onResult: (String?) -> Unit
     ) {
         try {
-            firestore.collection("orders").add(orderPlaced).await()
-            onResult(true)
+            var docId: String? = null
+            firestore.collection("orders").add(orderPlaced)
+                .addOnSuccessListener { documentReference ->
+                    docId = documentReference.id
+                }
+                .await()
+            onResult(docId)
         } catch (e: Exception) {
-            onResult(false)
+            onResult(null)
         }
     }
 

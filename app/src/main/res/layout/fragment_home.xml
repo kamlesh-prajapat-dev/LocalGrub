@@ -18,9 +18,18 @@
             android:layout_height="?attr/actionBarSize"
             app:title="Menu"
             app:menu="@menu/home_menu"
-            app:titleTextColor="@color/orange"/>
+            android:background="@color/orange"
+            app:titleTextColor="@color/white"/>
 
     </com.google.android.material.appbar.AppBarLayout>
+
+    <com.google.android.material.loadingindicator.LoadingIndicator
+        android:id="@+id/loadingIndicator"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:elevation="10dp"
+        android:visibility="gone"/>
 
     <androidx.core.widget.NestedScrollView
         android:id="@+id/orderItemsRecyclerViewContainer"

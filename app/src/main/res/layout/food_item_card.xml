@@ -91,7 +91,7 @@
             android:orientation="horizontal"
             app:layout_constraintBottom_toBottomOf="@id/addBtn"
             app:layout_constraintStart_toStartOf="@+id/dishDescriptionTextView"
-            app:layout_constraintTop_toBottomOf="@+id/dishDescriptionTextView">
+            app:layout_constraintTop_toTopOf="@+id/addBtn">
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/decreaseQuantityButton"
@@ -131,38 +131,6 @@
 
         </LinearLayout>
 
-<!--        &lt;!&ndash; Add-ons Section &ndash;&gt;-->
-<!--        <TextView-->
-<!--            android:id="@+id/addOnsLabel"-->
-<!--            android:layout_width="wrap_content"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:layout_marginTop="16dp"-->
-<!--            android:text="Add-ons"-->
-<!--            android:textAppearance="?attr/textAppearanceSubtitle1"-->
-<!--            android:textStyle="bold"-->
-<!--            app:layout_constraintStart_toStartOf="parent"-->
-<!--            app:layout_constraintTop_toBottomOf="@id/dishImageView"-->
-<!--            android:visibility="visible"/>-->
-
-<!--        <com.google.android.material.checkbox.MaterialCheckBox-->
-<!--            android:id="@+id/firstAddOns"-->
-<!--            android:layout_width="wrap_content"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:text="Curd (+Rs. 20)"-->
-<!--            app:layout_constraintStart_toStartOf="parent"-->
-<!--            app:layout_constraintTop_toBottomOf="@id/addOnsLabel"-->
-<!--            android:visibility="visible"/>-->
-
-<!--        <com.google.android.material.checkbox.MaterialCheckBox-->
-<!--            android:id="@+id/secondAddOns"-->
-<!--            android:layout_width="wrap_content"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:layout_marginStart="16dp"-->
-<!--            android:text="Sauce (+Rs. 10)"-->
-<!--            app:layout_constraintBottom_toBottomOf="@id/firstAddOns"-->
-<!--            app:layout_constraintStart_toEndOf="@id/firstAddOns"-->
-<!--            app:layout_constraintTop_toTopOf="@id/firstAddOns"-->
-<!--            android:visibility="visible"/>-->
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 </com.google.android.material.card.MaterialCardView>

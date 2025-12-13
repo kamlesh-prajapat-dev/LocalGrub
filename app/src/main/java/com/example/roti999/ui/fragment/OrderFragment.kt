@@ -18,6 +18,7 @@ import com.example.roti999.ui.adapter.OrderSummaryAdapter
 import com.example.roti999.databinding.FragmentOrderBinding
 import com.example.roti999.ui.viewmodel.OrderViewModel
 import com.example.roti999.ui.viewmodel.SharedHCOViewModel
+import com.example.roti999.ui.viewmodel.SharedHFToEOSFViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
@@ -26,6 +27,7 @@ class OrderFragment : Fragment() {
     private var _binding: FragmentOrderBinding? = null
     private val binding get() = _binding!!
     private val sharedHCOViewModel: SharedHCOViewModel by activityViewModels()
+    private val sharedHFToEOSFViewModel: SharedHFToEOSFViewModel by activityViewModels()
     private val viewModel: OrderViewModel by viewModels()
     private lateinit var orderSummaryAdapter: OrderSummaryAdapter
 
@@ -63,10 +65,10 @@ class OrderFragment : Fragment() {
                     is OrderViewModel.OrderUIState.Success -> {
                         setLoading(false)
                         Toast.makeText(requireContext(), "Order Placed", Toast.LENGTH_SHORT).show()
-                        // Optionally navigate away
-                        // findNavController().navigate(...)
+
+                        sharedHFToEOSFViewModel.onSetOrder(viewModel.newOrder.value)
                         sharedHCOViewModel.clearSelectItemList()
-                        val action = OrderFragmentDirections.actionOrderFragmentToHomeFragment()
+                        val action = OrderFragmentDirections.actionOrderFragmentToEachOrderStatusFragment()
                         findNavController().navigate(action)
                     }
                     is OrderViewModel.OrderUIState.Error -> {

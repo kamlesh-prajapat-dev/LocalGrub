@@ -6,8 +6,10 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.example.roti999.R
 import com.example.roti999.data.model.Order
 import com.example.roti999.databinding.OrderHistoryItemBinding
+import com.example.roti999.util.Constant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
@@ -40,6 +42,12 @@ class OrderHistoryItemAdapter(private val listener: OrderHistoryItemClickListene
             binding.orderDateTextView.text = localDate.format(formatter)
             binding.totalPriceTextView.text = "Rs. ${item.totalPrice}"
             binding.orderStatusTextView.text = item.status
+
+            if (item.status == Constant.DELIVERED.name) {
+                binding.orderStatusTextView.setBackgroundResource(R.drawable.green_status_background)
+            } else {
+                binding.orderStatusTextView.setBackgroundResource(R.drawable.orange_status_background)
+            }
 
             binding.viewDetailsButton.setOnClickListener { listener.onViewDetailsOrderHistoryItem(item = item) }
         }

@@ -3,9 +3,10 @@ package com.example.roti999.ui.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.roti999.data.model.DishItem
+import com.example.roti999.data.model.Order
 import com.example.roti999.data.model.OrderPlaced
 import com.example.roti999.data.model.SelectedDishItem
-import com.example.roti999.data.model.User
+import com.example.roti999.domain.model.User
 import com.example.roti999.domain.model.FoodItem
 import com.example.roti999.domain.repository.OrderRepository
 import com.example.roti999.util.Constant
@@ -32,6 +33,9 @@ class OrderViewModel @Inject constructor(
 
     private val _orderUIState = MutableStateFlow<OrderUIState>(OrderUIState.Idle)
     val orderUIState: StateFlow<OrderUIState> = _orderUIState
+
+    private val _newOrder = MutableStateFlow<Order?>(null)
+    val newOrder: StateFlow<Order?> get() = _newOrder
 
     private val _totalPrice = MutableStateFlow(0.0)
     val totalPrice: StateFlow<Double> = _totalPrice
@@ -92,7 +96,18 @@ class OrderViewModel @Inject constructor(
             )
 
             orderRepository.placeOrder(orderPlaced) {
-                if (it) {
+                if (it != null) {
+                    _newOrder.value = Order(
+                        id = it,
+                        userId = orderPlaced.userId,
+                        userName = orderPlaced.userName,
+                        userAddress = orderPlaced.userAddress,
+                        userPhoneNumber = orderPlaced.userPhoneNumber,
+                        items = orderPlaced.items,
+                        totalPrice = orderPlaced.totalPrice,
+                        placeAt = orderPlaced.placeAt,
+                        status = orderPlaced.status
+                    )
                     _orderUIState.value = OrderUIState.Success
                 } else {
                     _orderUIState.value =

@@ -2,6 +2,7 @@ package com.example.roti999.ui.adapter
 
 import android.annotation.SuppressLint
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.DiffUtil
@@ -35,7 +36,6 @@ class FoodItemAdapter(private val listener: FoodItemClickListener) : ListAdapter
             binding.dishNameTextView.text = item.name
             binding.dishDescriptionTextView.text = item.description
             binding.priceTextView.text = "Rs. ${item.price}"
-            binding.quantityTextView.text = item.quantity.toString()
 
             val rawImageUrl = item.imageUrl.replace("github.com", "raw.githubusercontent.com").replace("/blob/", "/")
 
@@ -50,19 +50,36 @@ class FoodItemAdapter(private val listener: FoodItemClickListener) : ListAdapter
                 binding.addBtn.text = "Add"
                 binding.addBtn.setIconResource(R.drawable.ic_add)
                 binding.addBtn.setBackgroundColor(ContextCompat.getColor(context,R.color.green))
+                resetVisibilityOfQty()
             } else {
                 binding.addBtn.text = "Added"
                 binding.addBtn.setIconResource(R.drawable.ic_right)
                 binding.addBtn.setIconTintResource(R.color.green)
                 binding.addBtn.setBackgroundColor(ContextCompat.getColor(context,R.color.orange))
+
+                setVisibilityOfQty()
+
+                binding.quantityTextView.text = item.quantity.toString()
+
+                binding.increaseQuantityButton.setOnClickListener { listener.onIncreaseQuantity(item) }
+                binding.decreaseQuantityButton.setOnClickListener { listener.onDecreaseQuantity(item) }
             }
 
-            binding.increaseQuantityButton.setOnClickListener { listener.onIncreaseQuantity(item) }
-            binding.decreaseQuantityButton.setOnClickListener { listener.onDecreaseQuantity(item) }
             binding.addBtn.setOnClickListener { listener.onSelectItem(item = item, isSelected = !item.isSelected) }
         }
-    }
 
+        private fun setVisibilityOfQty() {
+            binding.quantityTextView.visibility = View.VISIBLE
+            binding.increaseQuantityButton.visibility = View.VISIBLE
+            binding.decreaseQuantityButton.visibility = View.VISIBLE
+        }
+
+        private fun resetVisibilityOfQty() {
+            binding.quantityTextView.visibility = View.GONE
+            binding.increaseQuantityButton.visibility = View.GONE
+            binding.decreaseQuantityButton.visibility = View.GONE
+        }
+    }
     class FoodItemDiffCallback : DiffUtil.ItemCallback<FoodItem>() {
         override fun areItemsTheSame(oldItem: FoodItem, newItem: FoodItem): Boolean {
             return oldItem.id == newItem.id

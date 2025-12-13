@@ -3,7 +3,7 @@ package com.example.roti999.ui.viewmodel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.example.roti999.data.model.User
+import com.example.roti999.domain.model.User
 import com.example.roti999.domain.model.FoodItem
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow

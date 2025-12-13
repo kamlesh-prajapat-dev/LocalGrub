@@ -13,10 +13,11 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.example.roti999.R
-import com.example.roti999.data.model.User
+import com.example.roti999.domain.model.User
 import com.example.roti999.ui.adapter.FoodItemAdapter
 import com.example.roti999.domain.model.FoodItem
 import com.example.roti999.databinding.FragmentHomeBinding
+import com.example.roti999.domain.model.DishesResult
 import com.example.roti999.ui.viewmodel.HomeViewModel
 import com.example.roti999.ui.viewmodel.SharedHCOViewModel
 import dagger.hilt.android.AndroidEntryPoint
@@ -42,6 +43,7 @@ class HomeFragment : Fragment(), FoodItemAdapter.FoodItemClickListener {
 
     override fun onResume() {
         super.onResume()
+        viewModel.fetchFoodItems()
         viewModel.loadUser()
     }
 
@@ -109,8 +111,30 @@ class HomeFragment : Fragment(), FoodItemAdapter.FoodItemClickListener {
         binding.foodItemsRecyclerView.adapter = foodAdapter
     }
     private fun observeViewModel() {
-        viewModel.foodItems.observe(viewLifecycleOwner) { items ->
-            foodAdapter.submitList(items)
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.fetchResult.collect {
+                when (it) {
+                    is DishesResult.Success -> {
+                        viewModel.onChangeFoodItems(it.dishes)
+                        onSetLoading(false)
+                    }
+                    is DishesResult.Error -> {
+                        onSetLoading(false)
+                    }
+                    is DishesResult.Loading -> {
+                        onSetLoading(true)
+                    }
+                    else -> {
+                        onSetLoading(false)
+                    }
+                }
+            }
+        }
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.foodItems.collect {
+                foodAdapter.submitList(it)
+            }
         }
 
         viewLifecycleOwner.lifecycleScope.launch {
@@ -119,12 +143,16 @@ class HomeFragment : Fragment(), FoodItemAdapter.FoodItemClickListener {
             }
         }
 
-        viewModel.isCartVisible.observe(viewLifecycleOwner) { isVisible ->
-            binding.viewCartButton.isVisible = isVisible
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.isCartVisible.collect { isVisible ->
+                binding.viewCartButton.isVisible = isVisible
+            }
         }
 
-        viewModel.user.observe(viewLifecycleOwner) {
-            user = it
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.user.collect {
+                user = it
+            }
         }
     }
 
@@ -151,6 +179,10 @@ class HomeFragment : Fragment(), FoodItemAdapter.FoodItemClickListener {
             }
             .create()
             .show()
+    }
+
+    private fun onSetLoading(flag: Boolean) {
+        binding.loadingIndicator.isVisible = flag
     }
 
     override fun onDestroyView() {

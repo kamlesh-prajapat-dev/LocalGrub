@@ -3,7 +3,10 @@ package com.example.roti999.di
 import android.content.Context
 import android.content.SharedPreferences
 import com.example.roti999.data.database.local.LocalDatabase
+import com.example.roti999.domain.repository.UserRepository
+import com.example.roti999.service.PushNotificationService
 import com.example.roti999.util.NetworkUtils
+import com.example.roti999.util.NotificationHelper
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -30,5 +33,11 @@ object AppModule {
     @Singleton
     fun provideSharedPreferences(@ApplicationContext context: Context): SharedPreferences {
         return context.getSharedPreferences("GlowPointPrefs", Context.MODE_PRIVATE)
+    }
+
+    @Provides
+    @Singleton
+    fun provideNotificationHelper(): NotificationHelper {
+        return NotificationHelper()
     }
 }
