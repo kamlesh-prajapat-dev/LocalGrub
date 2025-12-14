@@ -1,4 +1,4 @@
-package com.example.roti999.ui.fragment
+package com.example.roti999.ui.screens.home
 
 import android.app.AlertDialog
 import android.os.Bundle
@@ -17,9 +17,7 @@ import com.example.roti999.domain.model.User
 import com.example.roti999.ui.adapter.FoodItemAdapter
 import com.example.roti999.domain.model.FoodItem
 import com.example.roti999.databinding.FragmentHomeBinding
-import com.example.roti999.domain.model.DishesResult
-import com.example.roti999.ui.viewmodel.HomeViewModel
-import com.example.roti999.ui.viewmodel.SharedHCOViewModel
+import com.example.roti999.ui.sharedviewmodel.SharedHCOViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
@@ -43,8 +41,7 @@ class HomeFragment : Fragment(), FoodItemAdapter.FoodItemClickListener {
 
     override fun onResume() {
         super.onResume()
-        viewModel.fetchFoodItems()
-        viewModel.loadUser()
+        viewModel.loadInitialData()
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -54,6 +51,7 @@ class HomeFragment : Fragment(), FoodItemAdapter.FoodItemClickListener {
         observeViewModel()
         setupListeners()
     }
+
     private fun setupListeners() {
         binding.viewCartButton.setOnClickListener {
             // Handle the click event for the "View Cart" button here
@@ -79,6 +77,7 @@ class HomeFragment : Fragment(), FoodItemAdapter.FoodItemClickListener {
                     showPopupMenu(binding.topAppBar.findViewById(R.id.cart))
                     true
                 }
+
                 else -> false
             }
         }
@@ -95,37 +94,52 @@ class HomeFragment : Fragment(), FoodItemAdapter.FoodItemClickListener {
                     findNavController().navigate(action)
                     true
                 }
+
                 R.id.action_logout -> {
                     viewModel.logout()
                     val action = HomeFragmentDirections.actionHomeFragmentToAuthenticationFragment()
                     findNavController().navigate(action)
                     true
                 }
+
                 else -> false
             }
         }
         popup.show()
     }
+
     private fun setupRecyclerView() {
         foodAdapter = FoodItemAdapter(this)
         binding.foodItemsRecyclerView.adapter = foodAdapter
     }
+
     private fun observeViewModel() {
         viewLifecycleOwner.lifecycleScope.launch {
-            viewModel.fetchResult.collect {
+            viewModel.uiState.collect {
                 when (it) {
-                    is DishesResult.Success -> {
+                    is HomeUIState.Success -> {
                         viewModel.onChangeFoodItems(it.dishes)
                         onSetLoading(false)
                     }
-                    is DishesResult.Error -> {
+
+                    is HomeUIState.Error -> {
+                        AlertDialog.Builder(requireContext())
+                            .setTitle(R.string.error)
+                            .setMessage(it.message)
                         onSetLoading(false)
                     }
-                    is DishesResult.Loading -> {
+
+                    is HomeUIState.Loading -> {
                         onSetLoading(true)
                     }
-                    else -> {
+
+                    HomeUIState.Idle -> {
                         onSetLoading(false)
+                    }
+
+                    HomeUIState.IsInternetAvailable -> {
+                        onSetLoading(false)
+                        showNoInternetDialog()
                     }
                 }
             }
@@ -134,12 +148,6 @@ class HomeFragment : Fragment(), FoodItemAdapter.FoodItemClickListener {
         viewLifecycleOwner.lifecycleScope.launch {
             viewModel.foodItems.collect {
                 foodAdapter.submitList(it)
-            }
-        }
-
-        viewLifecycleOwner.lifecycleScope.launch {
-            viewModel.isNetworkAvailable.collect {
-                if (!it) showNoInternetDialog()
             }
         }
 
@@ -167,15 +175,14 @@ class HomeFragment : Fragment(), FoodItemAdapter.FoodItemClickListener {
     override fun onSelectItem(item: FoodItem, isSelected: Boolean) {
         viewModel.onSelectItem(item, isSelected)
     }
+
     private fun showNoInternetDialog() {
         AlertDialog.Builder(requireContext())
             .setTitle(R.string.no_internet_connection)
             .setMessage(R.string.check_internet_connection)
             .setPositiveButton(R.string.ok) { dialog, _ ->
                 dialog.dismiss()
-                viewModel.onSetIsNetworkAvailable()
-                viewModel.loadUser()
-                viewModel.fetchFoodItems()
+                viewModel.loadInitialData()
             }
             .create()
             .show()

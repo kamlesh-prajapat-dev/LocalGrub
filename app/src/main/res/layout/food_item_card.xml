@@ -18,7 +18,7 @@
             android:id="@+id/dishImageView"
             android:layout_width="100dp"
             android:layout_height="100dp"
-            android:importantForAccessibility="no"
+            android:contentDescription="@string/dish_image_content_description"
             android:scaleType="centerCrop"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
@@ -29,7 +29,7 @@
             android:id="@+id/priceTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Rs. 250"
+            android:text="@string/price_text"
             android:padding="4dp"
             android:textAppearance="?attr/textAppearanceSubtitle1"
             android:textStyle="bold"
@@ -44,7 +44,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
             android:layout_marginEnd="16dp"
-            android:text="Paneer Butter"
+            android:text="@string/dish_name"
             android:maxLines="2"
             android:textAppearance="@style/TextAppearance.MaterialComponents.Headline6"
             app:layout_constraintEnd_toStartOf="@+id/priceTextView"
@@ -59,7 +59,7 @@
             android:layout_marginTop="8dp"
             android:ellipsize="end"
             android:maxLines="2"
-            android:text="A creamy and tangy gravy with soft paneer chunks."
+            android:text="@string/dish_description"
             android:textAppearance="?attr/textAppearanceBody2"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="@id/dishNameTextView"
@@ -70,17 +70,17 @@
             android:id="@+id/addBtn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
             android:backgroundTint="@color/green"
             android:letterSpacing="0"
-            android:text="Add"
+            android:layout_marginTop="10dp"
+            android:text="@string/add_btn_text"
             android:textColor="@color/white"
             app:icon="@drawable/ic_add"
             app:iconGravity="textEnd"
             app:iconPadding="2dp"
             app:iconSize="16dp"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/dishDescriptionTextView" />
+            app:layout_constraintTop_toBottomOf="@+id/dishDescriptionTextView" />
 
         <!-- Quantity Controls -->
         <LinearLayout
@@ -88,10 +88,27 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:gravity="center_vertical"
+            android:visibility="gone"
+            android:layout_marginTop="10dp"
             android:orientation="horizontal"
-            app:layout_constraintBottom_toBottomOf="@id/addBtn"
-            app:layout_constraintStart_toStartOf="@+id/dishDescriptionTextView"
-            app:layout_constraintTop_toTopOf="@+id/addBtn">
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/dishDescriptionTextView">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="10dp"
+                android:textStyle="bold"
+                android:textSize="16sp"
+                android:text="@string/qty_text" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="30dp"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:text="@string/qty_hyphen" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/decreaseQuantityButton"
@@ -103,7 +120,7 @@
                 android:insetRight="0dp"
                 android:insetBottom="0dp"
                 android:padding="0dp"
-                android:text="-"
+                android:text="@string/decrease_btn_text"
                 app:shapeAppearanceOverlay="@style/ShapeAppearance.Material3.SmallComponent" />
 
             <TextView
@@ -126,7 +143,7 @@
                 android:insetRight="0dp"
                 android:insetBottom="0dp"
                 android:padding="0dp"
-                android:text="+"
+                android:text="@string/increase_btn_text"
                 app:shapeAppearanceOverlay="@style/ShapeAppearance.Material3.SmallComponent" />
 
         </LinearLayout>

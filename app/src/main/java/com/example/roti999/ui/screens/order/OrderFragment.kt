@@ -1,4 +1,4 @@
-package com.example.roti999.ui.fragment
+package com.example.roti999.ui.screens.order
 
 import android.annotation.SuppressLint
 import android.os.Bundle
@@ -16,9 +16,8 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import com.example.roti999.ui.adapter.OrderSummaryAdapter
 import com.example.roti999.databinding.FragmentOrderBinding
-import com.example.roti999.ui.viewmodel.OrderViewModel
-import com.example.roti999.ui.viewmodel.SharedHCOViewModel
-import com.example.roti999.ui.viewmodel.SharedHFToEOSFViewModel
+import com.example.roti999.ui.sharedviewmodel.SharedHCOViewModel
+import com.example.roti999.ui.sharedviewmodel.SharedHFToEOSFViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 

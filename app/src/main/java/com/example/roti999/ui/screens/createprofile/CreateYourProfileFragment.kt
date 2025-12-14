@@ -1,4 +1,4 @@
-package com.example.roti999.ui.fragment
+package com.example.roti999.ui.screens.createprofile
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -13,8 +13,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.example.roti999.R
 import com.example.roti999.databinding.FragmentCreateYourProfileBinding
-import com.example.roti999.ui.viewmodel.CreateYourProfileViewModel
-import com.example.roti999.ui.viewmodel.SharedHCOViewModel
+import com.example.roti999.ui.sharedviewmodel.SharedHCOViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 

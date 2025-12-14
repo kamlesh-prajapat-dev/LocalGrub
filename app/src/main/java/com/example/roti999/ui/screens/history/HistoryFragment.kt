@@ -1,4 +1,4 @@
-package com.example.roti999.ui.fragment
+package com.example.roti999.ui.screens.history
 
 import android.app.AlertDialog
 import androidx.fragment.app.viewModels
@@ -7,19 +7,14 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.view.isVisible
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.example.roti999.R
 import com.example.roti999.data.model.Order
 import com.example.roti999.databinding.FragmentHistoryBinding
-import com.example.roti999.databinding.FragmentHomeBinding
-import com.example.roti999.databinding.OrderHistoryItemBinding
-import com.example.roti999.ui.adapter.FoodItemAdapter
 import com.example.roti999.ui.adapter.OrderHistoryItemAdapter
-import com.example.roti999.ui.viewmodel.HistoryViewModel
-import com.example.roti999.ui.viewmodel.SharedHFToEOSFViewModel
+import com.example.roti999.ui.sharedviewmodel.SharedHFToEOSFViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 

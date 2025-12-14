@@ -1,4 +1,4 @@
-package com.example.roti999.ui.fragment
+package com.example.roti999.ui.screens.eachorderstatus
 
 import android.graphics.Typeface
 import android.os.Bundle
@@ -15,8 +15,7 @@ import com.example.roti999.R
 import com.example.roti999.databinding.FragmentEachOrderStatusBinding
 import com.example.roti999.domain.model.FoodItem
 import com.example.roti999.ui.adapter.OrderSummaryAdapter
-import com.example.roti999.ui.viewmodel.EachOrderStatusViewModel
-import com.example.roti999.ui.viewmodel.SharedHFToEOSFViewModel
+import com.example.roti999.ui.sharedviewmodel.SharedHFToEOSFViewModel
 import com.example.roti999.util.Constant
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch

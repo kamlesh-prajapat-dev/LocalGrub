@@ -1,10 +1,9 @@
-package com.example.roti999.ui.viewmodel
+package com.example.roti999.ui.screens.history
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.roti999.data.database.local.LocalDatabase
+import com.example.roti999.data.local.LocalDatabase
 import com.example.roti999.data.model.Order
-import com.example.roti999.domain.model.OrderHistoryResult
 import com.example.roti999.domain.repository.OrderRepository
 import com.example.roti999.util.NetworkUtils
 import dagger.hilt.android.lifecycle.HiltViewModel

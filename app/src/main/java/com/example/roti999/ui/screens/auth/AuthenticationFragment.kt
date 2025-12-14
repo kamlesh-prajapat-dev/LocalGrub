@@ -1,4 +1,4 @@
-package com.example.roti999.ui.fragment
+package com.example.roti999.ui.screens.auth
 
 import android.app.AlertDialog
 import android.os.Bundle
@@ -13,17 +13,13 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.example.roti999.R
 import com.example.roti999.databinding.FragmentAuthenticationBinding
-import com.example.roti999.domain.model.AuthUiState
-import com.example.roti999.ui.viewmodel.AuthenticationViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class AuthenticationFragment : Fragment() {
-
     private var _binding: FragmentAuthenticationBinding? = null
     private val binding get() = _binding!!
-
     private val viewModel: AuthenticationViewModel by viewModels()
     private var verificationId: String? = null
 
@@ -44,26 +40,18 @@ class AuthenticationFragment : Fragment() {
 
     private fun setupClickListeners() {
         binding.sendOtpButton.setOnClickListener {
-            if (viewModel.isInternetAvailable()) {
-                val phoneNumber = binding.phoneNumberEditText.text.toString().trim()
-                if (validatePhoneNumber(phoneNumber)) {
-                    viewModel.sendOtp(phoneNumber, requireActivity())
-                }
-            } else {
-                showNoInternetDialog()
+            val phoneNumber = binding.phoneNumberEditText.text.toString().trim()
+            if (validatePhoneNumber(phoneNumber)) {
+                viewModel.sendOtp(phoneNumber, requireActivity())
             }
         }
 
         binding.verifyOtpButton.setOnClickListener {
-            if (viewModel.isInternetAvailable()) {
-                val otp = binding.otpEditText.text.toString().trim()
-                if (validateOtp(otp)) {
-                    verificationId?.let {
-                        viewModel.verifyOtp(otp, it)
-                    }
+            val otp = binding.otpEditText.text.toString().trim()
+            if (validateOtp(otp)) {
+                verificationId?.let {
+                    viewModel.verifyOtp(otp, it)
                 }
-            } else {
-                showNoInternetDialog()
             }
         }
     }
@@ -73,35 +61,53 @@ class AuthenticationFragment : Fragment() {
             viewModel.authState.collect { state ->
                 when (state) {
                     is AuthUiState.Idle -> {
-                        setLoading(false)
+                        onSetLoading(false)
                         showPhoneNumberInput()
                     }
+
                     is AuthUiState.Loading -> {
-                        setLoading(true)
+                        onSetLoading(true)
                     }
+
                     is AuthUiState.OtpSent -> {
-                        setLoading(false)
+                        onSetLoading(false)
                         verificationId = state.verificationId
                         showOtpInput()
-                        Toast.makeText(requireContext(), "OTP has been sent", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(requireContext(), "OTP has been sent", Toast.LENGTH_SHORT)
+                            .show()
                     }
+
                     is AuthUiState.Success -> {
-                        setLoading(false)
-                        Toast.makeText(requireContext(), "Authentication successful!", Toast.LENGTH_SHORT).show()
+                        onSetLoading(false)
+                        Toast.makeText(
+                            requireContext(),
+                            "Authentication successful!",
+                            Toast.LENGTH_SHORT
+                        ).show()
                         findNavController().navigate(R.id.action_authenticationFragment_to_homeFragment)
                         viewModel.resetState()
                     }
+
                     is AuthUiState.Error -> {
-                        setLoading(false)
-                        Toast.makeText(requireContext(), "Authentication failed: ${state.message}", Toast.LENGTH_LONG).show()
+                        onSetLoading(false)
+                        Toast.makeText(
+                            requireContext(),
+                            "Authentication failed: ${state.message}",
+                            Toast.LENGTH_LONG
+                        ).show()
                         viewModel.resetState()
+                    }
+
+                    AuthUiState.IsNetworkAvailable -> {
+                        onSetLoading(false)
+                        showNoInternetDialog()
                     }
                 }
             }
         }
     }
 
-    private fun setLoading(isLoading: Boolean) {
+    private fun onSetLoading(isLoading: Boolean) {
         binding.progressBar.isVisible = isLoading
         binding.sendOtpButton.isEnabled = !isLoading
         binding.verifyOtpButton.isEnabled = !isLoading

@@ -11,5 +11,6 @@ data class Order(
     val items: List<SelectedDishItem> = emptyList(), // quantity, dishItem
     val totalPrice: Double = 0.0,
     val placeAt: Timestamp = Timestamp.now(),
-    val status: String = "Placed"
+    val status: String = "Placed",
+    val token: String = ""
 )

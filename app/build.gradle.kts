@@ -9,6 +9,9 @@ plugins {
     // Ksp plugin and Dagger hilt plugin
     alias(libs.plugins.kotlinKsp)
     alias(libs.plugins.hiltAndroid)
+
+    // Kotlin Serialization Plugin
+    kotlin("plugin.serialization") version "2.2.21"
 }
 
 android {
@@ -91,4 +94,12 @@ dependencies {
 
     // Gson
     implementation("com.google.code.gson:gson:2.10.1")
+
+    // Retrofit
+    implementation("com.squareup.retrofit2:retrofit:3.0.0")
+
+    // Kotlin Serialization
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.9.0")
+    implementation("com.jakewharton.retrofit:retrofit2-kotlinx-serialization-converter:1.0.0")
+    implementation("com.squareup.okhttp3:okhttp")
 }

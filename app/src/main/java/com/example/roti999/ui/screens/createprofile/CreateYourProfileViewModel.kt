@@ -1,16 +1,13 @@
-package com.example.roti999.ui.viewmodel
+package com.example.roti999.ui.screens.createprofile
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.roti999.data.database.local.LocalDatabase
+import com.example.roti999.data.local.LocalDatabase
 import com.example.roti999.domain.model.User
 import com.example.roti999.domain.repository.UserRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -57,10 +54,9 @@ class CreateYourProfileViewModel @Inject constructor(
                 if (currentUser != null) {
                     if (currentUser.name != name || currentUser.address != address) {
                         val user = currentUser.copy(name = name, address = address)
-                        userRepository.createUser(user) { success ->
-                            if (success) {
+                        userRepository.createUser(user) { user ->
+                            if (user != null) {
                                 _user.value = user
-                                localDatabase.setUser(user)
                                 _profileState.value = ProfileState.Success
                             } else {
                                 _profileState.value = ProfileState.Error("Failed to save profile")

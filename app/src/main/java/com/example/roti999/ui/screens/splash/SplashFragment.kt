@@ -1,4 +1,4 @@
-package com.example.roti999.ui.fragment
+package com.example.roti999.ui.screens.splash
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -10,7 +10,6 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.example.roti999.R
 import com.example.roti999.databinding.FragmentSplashBinding
-import com.example.roti999.ui.viewmodel.SplashViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -32,20 +31,25 @@ class SplashFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        observeViewModel()
+    }
+
+    private fun observeViewModel() {
         viewLifecycleOwner.lifecycleScope.launch {
             // Delay to show the splash screen for a short period
-            delay(2000)
+            delay(3000)
 
-            viewModel.navDestination.collect { destination ->
-                destination?.let {
-                    when (it) {
-                        is SplashViewModel.NavDestination.Home -> {
-                            findNavController().navigate(R.id.action_splashFragment_to_homeFragment)
-                        }
-                        is SplashViewModel.NavDestination.Authentication -> {
-                            findNavController().navigate(R.id.action_splashFragment_to_authenticationFragment)
-                        }
+            viewModel.uiState.collect {
+                when (it) {
+                    SplashNavigationState.Home -> {
+                        findNavController().navigate(R.id.action_splashFragment_to_homeFragment)
                     }
+
+                    SplashNavigationState.Authentication -> {
+                        findNavController().navigate(R.id.action_splashFragment_to_authenticationFragment)
+                    }
+
+                    SplashNavigationState.Idle -> { /* Initial State: Here Show UI */}
                 }
             }
         }

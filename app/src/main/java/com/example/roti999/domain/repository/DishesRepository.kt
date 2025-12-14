@@ -1,8 +1,9 @@
 package com.example.roti999.domain.repository
 
-import com.example.roti999.domain.model.DishesResult
+import com.example.roti999.ui.screens.home.HomeUIState
+
 
 interface DishesRepository {
 
-    suspend fun getDishes(): DishesResult
+    suspend fun getDishes(): HomeUIState
 }

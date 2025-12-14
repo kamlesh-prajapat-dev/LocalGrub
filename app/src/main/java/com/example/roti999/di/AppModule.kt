@@ -2,9 +2,8 @@ package com.example.roti999.di
 
 import android.content.Context
 import android.content.SharedPreferences
-import com.example.roti999.data.database.local.LocalDatabase
-import com.example.roti999.domain.repository.UserRepository
-import com.example.roti999.service.PushNotificationService
+import com.example.roti999.data.local.LocalDatabase
+import com.example.roti999.domain.repository.NotificationRepository
 import com.example.roti999.util.NetworkUtils
 import com.example.roti999.util.NotificationHelper
 import dagger.Module
@@ -39,5 +38,11 @@ object AppModule {
     @Singleton
     fun provideNotificationHelper(): NotificationHelper {
         return NotificationHelper()
+    }
+
+    @Provides
+    @Singleton
+    fun provideNotificationRepository(): NotificationRepository {
+        return NotificationRepository()
     }
 }

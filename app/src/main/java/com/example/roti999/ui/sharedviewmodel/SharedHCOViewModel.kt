@@ -1,7 +1,5 @@
-package com.example.roti999.ui.viewmodel
+package com.example.roti999.ui.sharedviewmodel
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.roti999.domain.model.User
 import com.example.roti999.domain.model.FoodItem

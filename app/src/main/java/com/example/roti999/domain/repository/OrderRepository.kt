@@ -1,7 +1,7 @@
 package com.example.roti999.domain.repository
 
 import com.example.roti999.data.model.OrderPlaced
-import com.example.roti999.domain.model.OrderHistoryResult
+import com.example.roti999.ui.screens.history.OrderHistoryResult
 
 interface OrderRepository {
 

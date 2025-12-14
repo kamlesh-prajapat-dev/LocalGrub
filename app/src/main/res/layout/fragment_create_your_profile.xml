@@ -6,7 +6,7 @@
     <data>
         <variable
             name="viewModel"
-            type="com.example.roti999.ui.viewmodel.CreateYourProfileViewModel" />
+            type="com.example.roti999.ui.screens.createprofile.CreateYourProfileViewModel" />
         <import type="android.view.View"/>
     </data>
 
@@ -14,7 +14,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:padding="16dp"
-        tools:context=".ui.fragment.CreateYourProfileFragment">
+        tools:context=".screens.createprofile.CreateYourProfileFragment">
 
         <ProgressBar
             android:id="@+id/progressBar"

@@ -1,7 +1,7 @@
 package com.example.roti999.service
 
 import android.util.Log
-import com.example.roti999.data.database.local.LocalDatabase
+import com.example.roti999.data.local.LocalDatabase
 import com.example.roti999.data.model.User
 import com.example.roti999.domain.repository.UserRepository
 import com.example.roti999.util.NotificationHelper
@@ -12,7 +12,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-import javax.inject.Singleton
 
 @AndroidEntryPoint
 class PushNotificationService : FirebaseMessagingService() {
@@ -52,9 +51,7 @@ class PushNotificationService : FirebaseMessagingService() {
                 name = user.name,
                 phoneNumber = user.phoneNumber,
                 address = user.address,
-                fcmToken = hashMapOf(
-                    Pair(token, true)
-                )
+                fcmToken = token
             )
             CoroutineScope(Dispatchers.IO).launch {
                 userRepository.saveNewToken(userWithToken) {

@@ -1,5 +1,6 @@
 package com.example.roti999.data.repository
 
+import com.example.roti999.data.local.LocalDatabase
 import com.example.roti999.domain.model.User
 import com.example.roti999.domain.repository.UserRepository
 import com.example.roti999.util.TokenManager
@@ -12,10 +13,11 @@ import javax.inject.Singleton
 @Singleton
 class UserRepositoryImpl @Inject constructor(
     private val firestore: FirebaseFirestore,
-    private val auth: FirebaseAuth
+    private val auth: FirebaseAuth,
+    private val localDatabase: LocalDatabase
 ) : UserRepository {
 
-    override suspend fun createUser(user: User, onResult: (Boolean) -> Unit) {
+    override suspend fun createUser(user: User, onResult: (User?) -> Unit) {
         try {
             val token = TokenManager.getFCMToken()
             if (token != null) {
@@ -24,15 +26,14 @@ class UserRepositoryImpl @Inject constructor(
                     name = user.name,
                     phoneNumber = user.phoneNumber,
                     address = user.address,
-                    fcmToken = hashMapOf(
-                        Pair(token, true)
-                    )
+                    fcmToken = token
                 )
                 firestore.collection("users").document(user.uid).set(userWithFCMToken).await()
-                onResult(true)
+                localDatabase.setUser(user.copy(fcmToken = token))
+                onResult(user.copy(fcmToken = token))
             }
         } catch (e: Exception) {
-            onResult(false)
+            onResult(null)
         }
     }
 
@@ -47,8 +48,10 @@ class UserRepositoryImpl @Inject constructor(
                     .get()
                     .await()
 
-                if (!snapshot.isEmpty)
-                    onResult(snapshot.documents[0].toObject(User::class.java))
+                if (!snapshot.isEmpty) {
+                    val document = snapshot.documents[0]
+                    onResult(document.toObject(User::class.java))
+                }
                 else
                     onResult(null)
             } else {
@@ -66,7 +69,7 @@ class UserRepositoryImpl @Inject constructor(
                 onResult(
                     User(
                         uid = currentUser.uid,
-                        phoneNumber = currentUser.phoneNumber ?: ""
+                        phoneNumber = currentUser.phoneNumber ?: "",
                     )
                 )
             } else {

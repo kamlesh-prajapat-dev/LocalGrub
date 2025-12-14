@@ -1,17 +1,23 @@
 package com.example.roti999.data.repository
 
+import com.example.roti999.data.model.NotificationRequest
 import com.example.roti999.data.model.Order
 import com.example.roti999.data.model.OrderPlaced
-import com.example.roti999.domain.model.OrderHistoryResult
+import com.example.roti999.domain.repository.NotificationRepository
+import com.example.roti999.ui.screens.history.OrderHistoryResult
 import com.example.roti999.domain.repository.OrderRepository
 import com.google.firebase.firestore.FirebaseFirestore
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
 class OrderRepositoryImpl @Inject constructor(
-    private val firestore: FirebaseFirestore
+    private val firestore: FirebaseFirestore,
+    private val notificationRepository: NotificationRepository
 ): OrderRepository {
     override suspend fun placeOrder(
         orderPlaced: OrderPlaced,
@@ -24,6 +30,22 @@ class OrderRepositoryImpl @Inject constructor(
                     docId = documentReference.id
                 }
                 .await()
+
+            CoroutineScope(Dispatchers.IO).launch {
+                val snapshot = firestore.collection("owners").document("ykqsYYKVJ8wNJ4UrvKKm").get().await()
+                val token = snapshot.getString("token") ?: ""
+
+                notificationRepository.sendNotification(
+                    NotificationRequest(
+                        token = token,
+                        title = "New Order Placed",
+                        body = "Your order has been placed successfully.",
+                        orderId = docId ?: ""
+                    )
+                )
+            }
+
+
             onResult(docId)
         } catch (e: Exception) {
             onResult(null)

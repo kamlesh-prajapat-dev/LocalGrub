@@ -1,10 +1,9 @@
-package com.example.roti999.ui.viewmodel
+package com.example.roti999.ui.screens.home
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.roti999.data.database.local.LocalDatabase
+import com.example.roti999.data.local.LocalDatabase
 import com.example.roti999.domain.model.User
-import com.example.roti999.domain.model.DishesResult
 import com.example.roti999.domain.model.FoodItem
 import com.example.roti999.domain.repository.DishesRepository
 import com.example.roti999.domain.repository.UserRepository
@@ -26,8 +25,8 @@ class HomeViewModel @Inject constructor(
     private val networkUtils: NetworkUtils
 ) : ViewModel() {
 
-    private val _fetchResult = MutableStateFlow<DishesResult>(DishesResult.Idle)
-    val fetchResult: StateFlow<DishesResult> get() = _fetchResult.asStateFlow()
+    private val _uiState = MutableStateFlow<HomeUIState>(HomeUIState.Idle)
+    val uiState: StateFlow<HomeUIState> get() = _uiState.asStateFlow()
 
     private val _foodItems = MutableStateFlow<List<FoodItem>>(emptyList())
     val foodItems: StateFlow<List<FoodItem>> get() = _foodItems.asStateFlow()
@@ -42,58 +41,41 @@ class HomeViewModel @Inject constructor(
     private val _user = MutableStateFlow<User?>(null)
     val user: StateFlow<User?> get() = _user.asStateFlow()
 
-    private val _isNetworkAvailable = MutableStateFlow(true)
-    val isNetworkAvailable: StateFlow<Boolean> get() = _isNetworkAvailable.asStateFlow()
-
-    fun onSetIsNetworkAvailable() {
-        _isNetworkAvailable.value = true
+    fun loadInitialData() {
+        if (networkUtils.isInternetAvailable()) {
+            loadUser()
+            fetchFoodItems()
+        } else {
+            _uiState.value = HomeUIState.IsInternetAvailable
+        }
     }
 
-    fun loadUser() {
+    private fun loadUser() {
         viewModelScope.launch(Dispatchers.IO) {
             val user = localDatabase.getUser()
             if (user != null) {
-                _user.update {
-                    user
-                }
+                _user.update { user }
                 return@launch
             }
 
-            val isNetworkAvailable = isNetworkAvailable.value
-            if (isNetworkAvailable) {
-                userRepository.getUserByPhoneNumber { user ->
-                    if (user != null) {
-                        _user.update {
-                            user
-                        }
-                        localDatabase.setUser(user)
-                    } else {
-                        _user.update { null }
+            userRepository.getUserByPhoneNumber { user ->
+                if (user != null) {
+                    _user.update {
+                        user
                     }
+                    localDatabase.setUser(user)
+                } else {
+                    _user.update { null }
                 }
             }
         }
     }
 
-    fun fetchFoodItems() {
+    private fun fetchFoodItems() {
         viewModelScope.launch(Dispatchers.IO) {
-            if (networkUtils.isInternetAvailable()) {
-                _fetchResult.update { DishesResult.Loading }
-                _isNetworkAvailable.value = true
-                val fetchResult = dishesRepository.getDishes()
-                when (fetchResult) {
-                    is DishesResult.Success -> {
-                        _fetchResult.update { fetchResult }
-                    }
-                    is DishesResult.Error -> {
-                        _fetchResult.update { fetchResult }
-                    }
-                    else -> {}
-                }
-            } else {
-                _isNetworkAvailable.value = false
-                _fetchResult.update { DishesResult.Idle }
-            }
+            _uiState.update { HomeUIState.Loading }
+            val fetchResult = dishesRepository.getDishes()
+            _uiState.update { fetchResult }
         }
     }
 
@@ -109,11 +91,16 @@ class HomeViewModel @Inject constructor(
     }
 
     fun onDecreaseQuantity(item: FoodItem) {
-        if (item.quantity > 1) {
-            val currentList = _foodItems.value.toMutableList()
-            val index: Int = currentList.indexOf(item)
-            if (index != -1) {
-                val newQty = if (item.quantity <= 1) 9 else item.quantity - 1
+        val currentList = _foodItems.value.toMutableList()
+        val index: Int = currentList.indexOf(item)
+        if (index != -1) {
+            val newQty = if (item.quantity <= 0) 9 else item.quantity - 1
+            if (newQty == 0) {
+                val updatedItem = item.copy(quantity = newQty, isSelected = false)
+                currentList[index] = updatedItem
+                _foodItems.value = currentList
+                updateCartVisibility()
+            } else {
                 val updatedItem = item.copy(quantity = newQty)
                 currentList[index] = updatedItem
                 _foodItems.value = currentList

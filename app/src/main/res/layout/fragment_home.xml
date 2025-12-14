@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.fragment.HomeFragment">
+    tools:context="com.example.roti999.ui.screens.home.HomeFragment">
 
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/appBarLayout"
@@ -54,9 +54,8 @@
         android:layout_gravity="bottom"
         android:layout_margin="16dp"
         android:background="@drawable/button_background"
-        android:text="View Cart"
+        android:text="@string/cart_btn_text"
         android:textColor="@android:color/white"
-        android:visibility="gone"
-        tools:visibility="visible" />
+        android:visibility="gone"/>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

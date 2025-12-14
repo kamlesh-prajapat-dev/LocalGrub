@@ -1,9 +1,9 @@
 package com.example.roti999.data.repository
 
 import com.example.roti999.data.model.DishItem
-import com.example.roti999.domain.model.DishesResult
 import com.example.roti999.domain.model.FoodItem
 import com.example.roti999.domain.repository.DishesRepository
+import com.example.roti999.ui.screens.home.HomeUIState
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
@@ -13,7 +13,7 @@ import javax.inject.Singleton
 class DishesRepositoryImpl @Inject constructor(
     private val firestore: FirebaseFirestore
 ): DishesRepository {
-    override suspend fun getDishes(): DishesResult {
+    override suspend fun getDishes(): HomeUIState {
         return try {
             val snapshot = firestore.collection("dishes")
                 .whereEqualTo("isAvailable", true)
@@ -23,7 +23,7 @@ class DishesRepositoryImpl @Inject constructor(
                 it.toObject(DishItem::class.java)
                     ?.copy(id = it.id) ?: DishItem()
             }
-            DishesResult.Success(
+            HomeUIState.Success(
                 dishes = dishes.map {
                     FoodItem(
                         id = it.id,
@@ -35,7 +35,7 @@ class DishesRepositoryImpl @Inject constructor(
                 }
             )
         } catch (e: Exception) {
-            DishesResult.Error(e.message ?: "Unknown error occurred")
+            HomeUIState.Error(e.message ?: "Unknown error occurred")
         }
     }
 }

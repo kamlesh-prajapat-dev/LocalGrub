@@ -1,8 +1,7 @@
-package com.example.roti999.ui.viewmodel
+package com.example.roti999.ui.screens.order
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.roti999.data.model.DishItem
 import com.example.roti999.data.model.Order
 import com.example.roti999.data.model.OrderPlaced
 import com.example.roti999.data.model.SelectedDishItem
@@ -15,7 +14,6 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
-import java.time.LocalDate
 import javax.inject.Inject
 
 @HiltViewModel
@@ -92,7 +90,8 @@ class OrderViewModel @Inject constructor(
                 },
                 totalPrice = _totalPrice.value,
                 placeAt = Timestamp.now(),
-                status = Constant.PLACED.name
+                status = Constant.PLACED.name,
+                token = user.fcmToken
             )
 
             orderRepository.placeOrder(orderPlaced) {
@@ -106,7 +105,8 @@ class OrderViewModel @Inject constructor(
                         items = orderPlaced.items,
                         totalPrice = orderPlaced.totalPrice,
                         placeAt = orderPlaced.placeAt,
-                        status = orderPlaced.status
+                        status = orderPlaced.status,
+                        token = orderPlaced.token
                     )
                     _orderUIState.value = OrderUIState.Success
                 } else {

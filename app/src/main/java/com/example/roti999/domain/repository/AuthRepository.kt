@@ -1,7 +1,7 @@
 package com.example.roti999.domain.repository
 
 import android.app.Activity
-import com.example.roti999.domain.model.AuthUiState
+import com.example.roti999.ui.screens.auth.AuthUiState
 import kotlinx.coroutines.flow.StateFlow
 
 interface AuthRepository {

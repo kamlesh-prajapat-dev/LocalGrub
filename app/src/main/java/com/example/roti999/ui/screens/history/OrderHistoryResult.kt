@@ -1,4 +1,4 @@
-package com.example.roti999.domain.model
+package com.example.roti999.ui.screens.history
 
 import com.example.roti999.data.model.Order
 

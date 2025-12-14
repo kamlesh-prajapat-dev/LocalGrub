@@ -4,7 +4,7 @@ import com.example.roti999.domain.model.User
 
 
 interface UserRepository {
-    suspend fun createUser(user: User, onResult: (Boolean) -> Unit)
+    suspend fun createUser(user: User, onResult: (User?) -> Unit)
     suspend fun getUserByPhoneNumber(onResult: (User?) -> Unit)
     suspend fun getCurrentUser(onResult: (User?) -> Unit)
     suspend fun saveNewToken(userWithFCMToken: com.example.roti999.data.model.User, onResult: (Boolean) -> Unit)

@@ -5,5 +5,5 @@ data class User(
     val name: String = "",
     val phoneNumber: String = "",
     val address: String = "",
-    val fcmToken: Map<String, Boolean> = hashMapOf()
+    val fcmToken: String = ""
 )
