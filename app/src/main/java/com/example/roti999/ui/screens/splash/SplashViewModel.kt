@@ -4,9 +4,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -22,10 +24,10 @@ class SplashViewModel @Inject constructor(
     }
     private fun checkUserLoggedIn() {
         viewModelScope.launch {
-            if (auth.currentUser != null) {
-                _uiState.value = SplashNavigationState.Home
+            _uiState.value = if (auth.currentUser != null) {
+                SplashNavigationState.Home
             } else {
-                _uiState.value = SplashNavigationState.Authentication
+                SplashNavigationState.Authentication
             }
         }
     }

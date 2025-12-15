@@ -1,6 +1,5 @@
 package com.example.roti999.data.remote
 
-
 import com.example.roti999.data.model.NotificationRequest
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import kotlinx.serialization.json.Json
@@ -10,7 +9,6 @@ import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.http.Body
 import retrofit2.http.POST
-
 
 private const val BASE_URL = "https://riverine-danna-uncannily.ngrok-free.dev/api/notifications/"
 

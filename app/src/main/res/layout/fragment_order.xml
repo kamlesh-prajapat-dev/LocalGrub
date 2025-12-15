@@ -48,8 +48,6 @@
                 style="@style/Widget.MaterialComponents.Button.TextButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:minWidth="0dp"
-                android:minHeight="0dp"
                 android:text="Edit Profile"
                 android:letterSpacing="0"
                 android:textColor="@color/green"
@@ -186,13 +184,14 @@
     </com.google.android.material.card.MaterialCardView>
 
     <!-- Place Order Button (Fixed at the Bottom) -->
-    <androidx.appcompat.widget.AppCompatButton
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/placeOrderButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@drawable/button_background"
+        app:cornerRadius="12dp"
+        android:backgroundTint="@color/button_bg_color"
+        android:textColor="@color/btn_text_color"
         android:text="Place Order"
-        android:textColor="@android:color/white"
         app:layout_constraintBottom_toBottomOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

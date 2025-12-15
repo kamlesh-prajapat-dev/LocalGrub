@@ -32,8 +32,8 @@ class OrderRepositoryImpl @Inject constructor(
                 .await()
 
             CoroutineScope(Dispatchers.IO).launch {
-                val snapshot = firestore.collection("owners").document("ykqsYYKVJ8wNJ4UrvKKm").get().await()
-                val token = snapshot.getString("token") ?: ""
+                val snapshot = firestore.collection("owners").get().await()
+                val token = snapshot.documents[0].getString("token") ?: ""
 
                 notificationRepository.sendNotification(
                     NotificationRequest(

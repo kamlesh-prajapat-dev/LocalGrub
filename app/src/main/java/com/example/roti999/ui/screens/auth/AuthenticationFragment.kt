@@ -1,18 +1,28 @@
 package com.example.roti999.ui.screens.auth
 
-import android.app.AlertDialog
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.core.view.isVisible
+import androidx.core.widget.doAfterTextChanged
+import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import com.example.roti999.R
 import com.example.roti999.databinding.FragmentAuthenticationBinding
+import com.example.roti999.ui.components.NoInternetDialogFragment
+import com.example.roti999.ui.screens.auth.AuthUIEvent.NavigateToHome
+import com.example.roti999.ui.screens.auth.AuthUIEvent.ShowNoInternetDialog
+import com.example.roti999.ui.screens.auth.AuthUIEvent.ShowToast
+import com.google.firebase.FirebaseNetworkException
+import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
@@ -23,86 +33,146 @@ class AuthenticationFragment : Fragment() {
     private val viewModel: AuthenticationViewModel by viewModels()
     private var verificationId: String? = null
 
+    private var noInternetDialog: DialogFragment? = null
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentAuthenticationBinding.inflate(inflater, container, false)
+        binding.viewModel = viewModel
+        binding.lifecycleOwner = viewLifecycleOwner
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        setupClickListeners()
         observeViewModel()
+        setupInputListeners()
+        setupClickListeners()
+    }
+
+    private fun setupInputListeners() {
+        // Validation cleanup: clear errors when user starts typing
+        binding.phoneNumberEditText.doAfterTextChanged {
+            binding.phoneNumberEditTextInputLayout.error = null
+            binding.phoneNumberEditTextInputLayout.isErrorEnabled = false
+        }
+
+        binding.otpEditText.doAfterTextChanged {
+            binding.otpEditTextInputLayout.error = null
+            binding.otpEditTextInputLayout.isErrorEnabled = false
+        }
     }
 
     private fun setupClickListeners() {
         binding.sendOtpButton.setOnClickListener {
             val phoneNumber = binding.phoneNumberEditText.text.toString().trim()
-            if (validatePhoneNumber(phoneNumber)) {
-                viewModel.sendOtp(phoneNumber, requireActivity())
-            }
+            viewModel.sendOtp(phoneNumber, requireActivity())
         }
 
         binding.verifyOtpButton.setOnClickListener {
             val otp = binding.otpEditText.text.toString().trim()
-            if (validateOtp(otp)) {
-                verificationId?.let {
-                    viewModel.verifyOtp(otp, it)
-                }
+            verificationId?.let {
+                viewModel.verifyOtp(otp, it)
             }
         }
     }
 
     private fun observeViewModel() {
         viewLifecycleOwner.lifecycleScope.launch {
-            viewModel.authState.collect { state ->
-                when (state) {
-                    is AuthUiState.Idle -> {
-                        onSetLoading(false)
-                        showPhoneNumberInput()
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.authState.collect {
+                    handleAuthUIState(it)
+                }
+            }
+        }
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.uiEvent.collect { event ->
+                    handleAuthUIEvent(event)
+                }
+            }
+        }
+    }
+
+    private fun handleAuthUIEvent(event: AuthUIEvent) {
+        when(event) {
+            is ShowToast -> Toast.makeText(requireContext(), event.message, Toast.LENGTH_SHORT).show()
+            NavigateToHome ->  {
+                Log.d("Authentication Screen: ", "Navigating to Home Screen $event")
+                findNavController().navigate(R.id.action_authenticationFragment_to_homeFragment)
+                Log.d("Authentication Screen: ", "Navigated to Home Screen")
+            }
+            ShowNoInternetDialog -> showNoInternetDialog()
+        }
+    }
+
+    private fun handleAuthUIState(state: AuthUiState) {
+        when (state) {
+            is AuthUiState.Idle -> {
+                onSetLoading(false)
+                showPhoneNumberInput()
+            }
+
+            is AuthUiState.Loading -> {
+                onSetLoading(true)
+            }
+
+            is AuthUiState.OtpSent -> {
+                verificationId = state.verificationId
+                binding.verifyOtpButton.isEnabled = true
+                onSetLoading(false)
+            }
+
+            is AuthUiState.Success -> {
+                viewModel.onSetUIEvent(ShowToast("Authentication successful!"))
+                onSetLoading(false)
+                Log.d("Authentication Screen: ", "Starting Home Screen ${viewModel.authState.value}")
+                viewModel.onSetUIEvent(NavigateToHome)
+            }
+
+            is AuthUiState.AuthFailure -> {
+                onSetLoading(false)
+                when(state.e) {
+                    is FirebaseNetworkException -> {
+                        viewModel.onSetUIEvent(ShowNoInternetDialog)
                     }
 
-                    is AuthUiState.Loading -> {
-                        onSetLoading(true)
+                    is FirebaseAuthInvalidCredentialsException -> {
+                        binding.otpEditTextInputLayout.error = "Invalid OTP"
+                        binding.otpEditTextInputLayout.isErrorEnabled = true
                     }
 
-                    is AuthUiState.OtpSent -> {
-                        onSetLoading(false)
-                        verificationId = state.verificationId
-                        showOtpInput()
-                        Toast.makeText(requireContext(), "OTP has been sent", Toast.LENGTH_SHORT)
-                            .show()
-                    }
-
-                    is AuthUiState.Success -> {
-                        onSetLoading(false)
-                        Toast.makeText(
-                            requireContext(),
-                            "Authentication successful!",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                        findNavController().navigate(R.id.action_authenticationFragment_to_homeFragment)
+                    else -> {
+                        viewModel.onSetUIEvent(ShowToast("Authentication failed: ${state.e?.message}"))
                         viewModel.resetState()
-                    }
-
-                    is AuthUiState.Error -> {
-                        onSetLoading(false)
-                        Toast.makeText(
-                            requireContext(),
-                            "Authentication failed: ${state.message}",
-                            Toast.LENGTH_LONG
-                        ).show()
-                        viewModel.resetState()
-                    }
-
-                    AuthUiState.IsNetworkAvailable -> {
-                        onSetLoading(false)
-                        showNoInternetDialog()
                     }
                 }
+            }
+
+            AuthUiState.NoInternet -> {
+                viewModel.onSetUIEvent(ShowNoInternetDialog)
+                onSetLoading(false)
+            }
+
+            is AuthUiState.ValidationError -> {
+                if (state.field) {
+                    binding.phoneNumberEditTextInputLayout.error = state.message
+                    binding.phoneNumberEditTextInputLayout.isErrorEnabled = true
+                } else {
+                    binding.otpEditTextInputLayout.error = state.message
+                    binding.otpEditTextInputLayout.isErrorEnabled = true
+                }
+                onSetLoading(false)
+            }
+
+            AuthUiState.OtpLayout -> {
+                showOtpInput()
+                viewModel.onSetUIEvent(ShowToast("OTP has been sent"))
+                onSetLoading(false)
             }
         }
     }
@@ -110,52 +180,30 @@ class AuthenticationFragment : Fragment() {
     private fun onSetLoading(isLoading: Boolean) {
         binding.progressBar.isVisible = isLoading
         binding.sendOtpButton.isEnabled = !isLoading
-        binding.verifyOtpButton.isEnabled = !isLoading
+        binding.verifyOtpButton.isEnabled = !isLoading && verificationId != null
     }
 
     private fun showPhoneNumberInput() {
         binding.phoneNumberInputLayout.isVisible = true
-        binding.sendOtpButton.isVisible = true
         binding.otpInputLayout.isVisible = false
-        binding.verifyOtpButton.isVisible = false
+        binding.appBarLayout.isVisible = false
     }
 
     private fun showOtpInput() {
         binding.phoneNumberInputLayout.isVisible = false
-        binding.sendOtpButton.isVisible = false
         binding.otpInputLayout.isVisible = true
-        binding.verifyOtpButton.isVisible = true
-    }
+        binding.appBarLayout.isVisible = true
 
-    private fun validatePhoneNumber(phoneNumber: String): Boolean {
-        return if (phoneNumber.length == 10) {
-            binding.phoneNumberInputLayout.error = null
-            true
-        } else {
-            binding.phoneNumberInputLayout.error = "Please enter a valid 10-digit phone number"
-            false
-        }
-    }
-
-    private fun validateOtp(otp: String): Boolean {
-        return if (otp.length == 6) {
-            binding.otpInputLayout.error = null
-            true
-        } else {
-            binding.otpInputLayout.error = "Please enter a valid 6-digit OTP"
-            false
+        binding.topAppBar.setNavigationOnClickListener {
+            viewModel.resetState()
+            verificationId = null
         }
     }
 
     private fun showNoInternetDialog() {
-        AlertDialog.Builder(requireContext())
-            .setTitle(R.string.no_internet_connection)
-            .setMessage(R.string.check_internet_connection)
-            .setPositiveButton(R.string.ok) { dialog, _ ->
-                dialog.dismiss()
-            }
-            .create()
-            .show()
+        if (noInternetDialog?.isAdded == true) return
+        noInternetDialog = NoInternetDialogFragment()
+        noInternetDialog?.show(childFragmentManager, "NoInternetDialog")
     }
 
     override fun onDestroyView() {
