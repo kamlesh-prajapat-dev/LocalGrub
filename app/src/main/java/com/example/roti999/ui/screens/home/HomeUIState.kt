@@ -7,5 +7,5 @@ sealed class HomeUIState {
     object Loading : HomeUIState()
     data class Success(val dishes: List<FoodItem>) : HomeUIState()
     data class Error(val message: String) : HomeUIState()
-    object IsInternetAvailable: HomeUIState()
+    object NoInternet: HomeUIState()
 }

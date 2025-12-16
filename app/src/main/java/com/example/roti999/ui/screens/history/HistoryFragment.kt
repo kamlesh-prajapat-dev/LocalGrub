@@ -7,11 +7,15 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
+import androidx.core.view.isVisible
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import com.example.roti999.R
-import com.example.roti999.data.model.Order
+import com.example.roti999.data.dto.Order
 import com.example.roti999.databinding.FragmentHistoryBinding
 import com.example.roti999.ui.adapter.OrderHistoryItemAdapter
 import com.example.roti999.ui.sharedviewmodel.SharedHFToEOSFViewModel
@@ -23,7 +27,6 @@ class HistoryFragment : Fragment(), OrderHistoryItemAdapter.OrderHistoryItemClic
 
     private var _binding: FragmentHistoryBinding? = null
     private val binding get() = _binding!!
-
     private val viewModel: HistoryViewModel by viewModels()
     private val sharedHFToEOSFViewModel: SharedHFToEOSFViewModel by activityViewModels()
     private lateinit var orderHistoryItemAdapter: OrderHistoryItemAdapter
@@ -43,6 +46,11 @@ class HistoryFragment : Fragment(), OrderHistoryItemAdapter.OrderHistoryItemClic
         observeViewModel()
     }
 
+    override fun onResume() {
+        super.onResume()
+        viewModel.loadOrderHistoryItems()
+    }
+
     private fun setupRecyclerView() {
         orderHistoryItemAdapter = OrderHistoryItemAdapter(this)
         binding.orderHistoryRecyclerView.adapter = orderHistoryItemAdapter
@@ -50,14 +58,41 @@ class HistoryFragment : Fragment(), OrderHistoryItemAdapter.OrderHistoryItemClic
 
     private fun observeViewModel() {
         viewLifecycleOwner.lifecycleScope.launch {
-            viewModel.historyOrders.collect {
-                orderHistoryItemAdapter.submitList(it)
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.historyOrders.collect {
+                    orderHistoryItemAdapter.submitList(it)
+                }
             }
         }
 
         viewLifecycleOwner.lifecycleScope.launch {
-            viewModel.isNetworkAvailable.collect {
-                if (!it) showNoInternetDialog()
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.uiState.collect {
+                    handleUIState(it)
+                }
+            }
+        }
+    }
+
+    private fun handleUIState(state: HistoryUIState) {
+        when(state) {
+            is HistoryUIState.Error -> {
+                Toast.makeText(requireContext(), state.message, Toast.LENGTH_SHORT).show()
+                onSetLoading(false)
+            }
+            HistoryUIState.Idle -> {
+                onSetLoading(false)
+            }
+            HistoryUIState.Loading -> {
+                onSetLoading(true)
+            }
+            HistoryUIState.NoInternet -> {
+                showNoInternetDialog()
+                onSetLoading(false)
+            }
+            is HistoryUIState.Success -> {
+                viewModel.onSetHistoryOrder(state.orders)
+                onSetLoading(false)
             }
         }
     }
@@ -72,6 +107,11 @@ class HistoryFragment : Fragment(), OrderHistoryItemAdapter.OrderHistoryItemClic
             .create()
             .show()
     }
+
+    private fun onSetLoading(isLoading: Boolean) {
+        binding.progressBar.isVisible = isLoading
+    }
+
 
     override fun onViewDetailsOrderHistoryItem(item: Order) {
         sharedHFToEOSFViewModel.onSetOrder(item)

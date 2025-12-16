@@ -1,11 +1,12 @@
-package com.example.roti999.data.repository
+package com.example.roti999.data.remote.firebase.repository
 
-import com.example.roti999.data.model.NotificationRequest
-import com.example.roti999.data.model.Order
-import com.example.roti999.data.model.OrderPlaced
+import com.example.roti999.data.dto.NotificationRequest
+import com.example.roti999.data.dto.Order
+import com.example.roti999.data.dto.OrderPlaced
 import com.example.roti999.domain.repository.NotificationRepository
-import com.example.roti999.ui.screens.history.OrderHistoryResult
+import com.example.roti999.ui.screens.history.HistoryUIState
 import com.example.roti999.domain.repository.OrderRepository
+import com.example.roti999.ui.screens.order.OrderUIState
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -21,10 +22,10 @@ class OrderRepositoryImpl @Inject constructor(
 ): OrderRepository {
     override suspend fun placeOrder(
         orderPlaced: OrderPlaced,
-        onResult: (String?) -> Unit
+        onResult: (OrderUIState) -> Unit
     ) {
         try {
-            var docId: String? = null
+            var docId = ""
             firestore.collection("orders").add(orderPlaced)
                 .addOnSuccessListener { documentReference ->
                     docId = documentReference.id
@@ -40,19 +41,31 @@ class OrderRepositoryImpl @Inject constructor(
                         token = token,
                         title = "New Order Placed",
                         body = "Your order has been placed successfully.",
-                        orderId = docId ?: ""
+                        orderId = docId
                     )
                 )
             }
 
-
-            onResult(docId)
+            onResult(OrderUIState.Success(
+                Order(
+                    id = docId,
+                    userId = orderPlaced.userId,
+                    userName = orderPlaced.userName,
+                    userAddress = orderPlaced.userAddress,
+                    userPhoneNumber = orderPlaced.userPhoneNumber,
+                    items = orderPlaced.items,
+                    totalPrice = orderPlaced.totalPrice,
+                    placeAt = orderPlaced.placeAt,
+                    status = orderPlaced.status,
+                    token = orderPlaced.token
+                )
+            ))
         } catch (e: Exception) {
-            onResult(null)
+            onResult(OrderUIState.Error(e))
         }
     }
 
-    override suspend fun getOrders(userId: String, onResult: (OrderHistoryResult) -> Unit) {
+    override suspend fun getOrders(userId: String, onResult: (HistoryUIState) -> Unit) {
         try {
             val snapshot = firestore.collection("orders")
                 .whereEqualTo("userId", userId)
@@ -62,9 +75,9 @@ class OrderRepositoryImpl @Inject constructor(
                 it.toObject(Order::class.java)
                     ?.copy(id = it.id) ?: Order()
             }.sortedByDescending { it.placeAt }
-            onResult(OrderHistoryResult.Success(orders))
+            onResult(HistoryUIState.Success(orders))
         } catch (e: Exception) {
-            onResult(OrderHistoryResult.Error(e.message ?: "Unknown error occurred"))
+            onResult(HistoryUIState.Error(e.message ?: "Unknown error occurred"))
         }
     }
 }

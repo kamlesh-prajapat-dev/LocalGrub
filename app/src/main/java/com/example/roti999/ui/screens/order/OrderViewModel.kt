@@ -2,10 +2,10 @@ package com.example.roti999.ui.screens.order
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.roti999.data.model.Order
-import com.example.roti999.data.model.OrderPlaced
-import com.example.roti999.data.model.SelectedDishItem
-import com.example.roti999.domain.model.User
+import com.example.roti999.data.dto.Order
+import com.example.roti999.data.dto.OrderPlaced
+import com.example.roti999.data.dto.SelectedDishItem
+import com.example.roti999.data.dto.User
 import com.example.roti999.domain.model.FoodItem
 import com.example.roti999.domain.repository.OrderRepository
 import com.example.roti999.util.Constant
@@ -13,6 +13,8 @@ import com.google.firebase.Timestamp
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -20,24 +22,11 @@ import javax.inject.Inject
 class OrderViewModel @Inject constructor(
     private val orderRepository: OrderRepository
 ) : ViewModel() {
-
-    // Represents the current state of the order placement process
-    sealed class OrderUIState {
-        object Idle: OrderUIState()
-        object Loading: OrderUIState()
-        object Success: OrderUIState()
-        data class Error(val message: String): OrderUIState()
-    }
-
     private val _orderUIState = MutableStateFlow<OrderUIState>(OrderUIState.Idle)
-    val orderUIState: StateFlow<OrderUIState> = _orderUIState
-
-    private val _newOrder = MutableStateFlow<Order?>(null)
-    val newOrder: StateFlow<Order?> get() = _newOrder
+    val orderUIState: StateFlow<OrderUIState> get() = _orderUIState.asStateFlow()
 
     private val _totalPrice = MutableStateFlow(0.0)
-    val totalPrice: StateFlow<Double> = _totalPrice
-
+    val totalPrice: StateFlow<Double> get() = _totalPrice.asStateFlow()
     private var currentUser: User? = null
     private var currentItems: List<FoodItem> = emptyList()
 
@@ -63,12 +52,12 @@ class OrderViewModel @Inject constructor(
 
             val user = currentUser
             if (user == null) {
-                _orderUIState.value = OrderUIState.Error("User details not found.")
+                _orderUIState.value = OrderUIState.ValidationError("User details not found.")
                 return@launch
             }
 
             if (currentItems.isEmpty()) {
-                _orderUIState.value = OrderUIState.Error("Your cart is empty.")
+                _orderUIState.value = OrderUIState.ValidationError("Your cart is empty.")
                 return@launch
             }
 
@@ -81,10 +70,7 @@ class OrderViewModel @Inject constructor(
                     SelectedDishItem(
                         id = it.id,
                         name = it.name,
-                        description = it.description,
                         price = it.price,
-                        thumbnail = it.imageUrl,
-                        isAvailable = true,
                         quantity = it.quantity
                     )
                 },
@@ -95,24 +81,7 @@ class OrderViewModel @Inject constructor(
             )
 
             orderRepository.placeOrder(orderPlaced) {
-                if (it != null) {
-                    _newOrder.value = Order(
-                        id = it,
-                        userId = orderPlaced.userId,
-                        userName = orderPlaced.userName,
-                        userAddress = orderPlaced.userAddress,
-                        userPhoneNumber = orderPlaced.userPhoneNumber,
-                        items = orderPlaced.items,
-                        totalPrice = orderPlaced.totalPrice,
-                        placeAt = orderPlaced.placeAt,
-                        status = orderPlaced.status,
-                        token = orderPlaced.token
-                    )
-                    _orderUIState.value = OrderUIState.Success
-                } else {
-                    _orderUIState.value =
-                        OrderUIState.Error("Failed to place order. Please try again.")
-                }
+                _orderUIState.value = it
             }
         }
     }

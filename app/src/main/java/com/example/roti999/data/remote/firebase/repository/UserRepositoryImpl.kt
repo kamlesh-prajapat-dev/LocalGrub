@@ -1,8 +1,9 @@
-package com.example.roti999.data.repository
+package com.example.roti999.data.remote.firebase.repository
 
 import com.example.roti999.data.local.LocalDatabase
-import com.example.roti999.domain.model.User
+import com.example.roti999.data.dto.User
 import com.example.roti999.domain.repository.UserRepository
+import com.example.roti999.ui.screens.createprofile.ProfileUIState
 import com.example.roti999.util.TokenManager
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
@@ -17,11 +18,11 @@ class UserRepositoryImpl @Inject constructor(
     private val localDatabase: LocalDatabase
 ) : UserRepository {
 
-    override suspend fun createUser(user: User, onResult: (User?) -> Unit) {
+    override suspend fun createUser(user: User, onResult: (ProfileUIState) -> Unit) {
         try {
             val token = TokenManager.getFCMToken()
             if (token != null) {
-                val userWithFCMToken = com.example.roti999.data.model.User(
+                val userWithFCMToken = User(
                     uid = user.uid,
                     name = user.name,
                     phoneNumber = user.phoneNumber,
@@ -30,10 +31,10 @@ class UserRepositoryImpl @Inject constructor(
                 )
                 firestore.collection("users").document(user.uid).set(userWithFCMToken).await()
                 localDatabase.setUser(user.copy(fcmToken = token))
-                onResult(user.copy(fcmToken = token))
+                onResult(ProfileUIState.UserSavedSuccess(user.copy(fcmToken = token)))
             }
         } catch (e: Exception) {
-            onResult(null)
+            onResult(ProfileUIState.Failure(e))
         }
     }
 
@@ -62,26 +63,17 @@ class UserRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun getCurrentUser(onResult: (User?) -> Unit) {
-        try {
-            val currentUser = auth.currentUser
-            if (currentUser != null) {
-                onResult(
-                    User(
-                        uid = currentUser.uid,
-                        phoneNumber = currentUser.phoneNumber ?: "",
-                    )
-                )
-            } else {
-                onResult(null)
-            }
-        } catch (e: Exception) {
-            onResult(null)
-        }
+    override suspend fun getCurrentUser(): User? {
+        val currentUser = auth.currentUser ?: return null
+
+        return User(
+            uid = currentUser.uid,
+            phoneNumber = currentUser.phoneNumber.orEmpty()
+        )
     }
 
     override suspend fun saveNewToken(
-        userWithFCMToken: com.example.roti999.data.model.User,
+        userWithFCMToken: User,
         onResult: (Boolean) -> Unit
     ) {
         try {

@@ -21,6 +21,14 @@
 
     </com.google.android.material.appbar.AppBarLayout>
 
+    <com.google.android.material.loadingindicator.LoadingIndicator
+        android:id="@+id/progressBar"
+        style="?android:attr/progressBarStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:elevation="10dp" />
+
     <androidx.core.widget.NestedScrollView
         android:id="@+id/orderItemsRecyclerViewContainer"
         android:layout_width="match_parent"

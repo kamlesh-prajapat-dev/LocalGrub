@@ -7,7 +7,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.roti999.R
-import com.example.roti999.data.model.Order
+import com.example.roti999.data.dto.Order
 import com.example.roti999.databinding.OrderHistoryItemBinding
 import com.example.roti999.util.Constant
 import java.time.ZoneId

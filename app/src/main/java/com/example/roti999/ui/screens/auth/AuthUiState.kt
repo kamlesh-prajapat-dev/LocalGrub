@@ -6,7 +6,7 @@ sealed class AuthUiState {
     object Idle : AuthUiState()
     object Loading : AuthUiState()
     object OtpLayout: AuthUiState()
-    data class OtpSent(val verificationId: String) : AuthUiState()
+    object OtpSent : AuthUiState()
     object Success : AuthUiState()
     data class AuthFailure(val e: Exception?) : AuthUiState()
 

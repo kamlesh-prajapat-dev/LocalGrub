@@ -1,9 +1,9 @@
 package com.example.roti999.di
 
-import com.example.roti999.data.repository.AuthRepositoryImpl
-import com.example.roti999.data.repository.DishesRepositoryImpl
-import com.example.roti999.data.repository.OrderRepositoryImpl
-import com.example.roti999.data.repository.UserRepositoryImpl
+import com.example.roti999.data.remote.firebase.repository.AuthRepositoryImpl
+import com.example.roti999.data.remote.firebase.repository.DishesRepositoryImpl
+import com.example.roti999.data.remote.firebase.repository.OrderRepositoryImpl
+import com.example.roti999.data.remote.firebase.repository.UserRepositoryImpl
 import com.example.roti999.domain.repository.AuthRepository
 import com.example.roti999.domain.repository.DishesRepository
 import com.example.roti999.domain.repository.OrderRepository

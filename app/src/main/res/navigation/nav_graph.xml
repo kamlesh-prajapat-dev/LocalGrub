@@ -71,6 +71,12 @@
             app:destination="@id/orderFragment"
             app:popUpTo="@id/createYourProfileFragment"
             app:popUpToInclusive="true"/>
+
+        <action
+            android:id="@+id/action_createYourProfileFragment_to_authenticationFragment"
+            app:destination="@id/authenticationFragment"
+            app:popUpTo="@id/homeFragment"
+            app:popUpToInclusive="true"/>
     </fragment>
 
     <fragment

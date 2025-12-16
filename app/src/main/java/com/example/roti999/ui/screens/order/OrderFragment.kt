@@ -14,6 +14,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
+import com.example.roti999.data.dto.SelectedDishItem
 import com.example.roti999.ui.adapter.OrderSummaryAdapter
 import com.example.roti999.databinding.FragmentOrderBinding
 import com.example.roti999.ui.sharedviewmodel.SharedHCOViewModel
@@ -42,49 +43,65 @@ class OrderFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        setLoading(true)
+        onSetLoading(true)
         onSetRecyclerView()
         observeSharedViewModel()
         observeViewModel()
         setupClickListeners()
-        setLoading(false)
+        onSetLoading(false)
     }
+
     @SuppressLint("SetTextI18n")
     private fun observeViewModel() {
         viewLifecycleOwner.lifecycleScope.launch {
-            viewModel.totalPrice.collect {
-                binding.totalPriceTextView.text = "Rs. $it"
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.totalPrice.collect {
+                    binding.totalPriceTextView.text = "Rs. $it"
+                }
             }
         }
 
         viewLifecycleOwner.lifecycleScope.launch {
-            viewModel.orderUIState.collect { state ->
-                // Here you would handle UI changes for loading, success, error
-                when(state) {
-                    is OrderViewModel.OrderUIState.Success -> {
-                        setLoading(false)
-                        Toast.makeText(requireContext(), "Order Placed", Toast.LENGTH_SHORT).show()
-
-                        sharedHFToEOSFViewModel.onSetOrder(viewModel.newOrder.value)
-                        sharedHCOViewModel.clearSelectItemList()
-                        val action = OrderFragmentDirections.actionOrderFragmentToEachOrderStatusFragment()
-                        findNavController().navigate(action)
-                    }
-                    is OrderViewModel.OrderUIState.Error -> {
-                        setLoading(false)
-                        Toast.makeText(requireContext(), state.message, Toast.LENGTH_SHORT).show()
-                    }
-                    is OrderViewModel.OrderUIState.Loading -> {
-                        // Handle Idle and Loading states, e.g., show a progress bar
-                        setLoading(true)
-                    }
-                    is OrderViewModel.OrderUIState.Idle -> {
-                        setLoading(false)
-                    }
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.orderUIState.collect { state ->
+                    // Here you would handle UI changes for loading, success, error
+                    handleUIState(state)
                 }
             }
         }
     }
+    private fun handleUIState(state: OrderUIState) {
+        when (state) {
+            is OrderUIState.Success -> {
+                sharedHFToEOSFViewModel.onSetOrder(state.order)
+                sharedHCOViewModel.clearSelectItemList()
+                Toast.makeText(requireContext(), "Order Placed", Toast.LENGTH_SHORT).show()
+                val action = OrderFragmentDirections.actionOrderFragmentToEachOrderStatusFragment()
+                findNavController().navigate(action)
+                onSetLoading(false)
+            }
+
+            is OrderUIState.Error -> {
+                onSetLoading(false)
+                Toast.makeText(requireContext(), state.e.message, Toast.LENGTH_SHORT).show()
+            }
+
+            is OrderUIState.Loading -> {
+                // Handle Idle and Loading states, e.g., show a progress bar
+                onSetLoading(true)
+            }
+
+            is OrderUIState.Idle -> {
+                onSetLoading(false)
+            }
+
+            is OrderUIState.ValidationError -> {
+                Toast.makeText(requireContext(), state.message, Toast.LENGTH_SHORT).show()
+                onSetLoading(false)
+            }
+        }
+    }
+
     private fun observeSharedViewModel() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -100,12 +117,23 @@ class OrderFragment : Fragment() {
         }
 
         viewLifecycleOwner.lifecycleScope.launch {
-            sharedHCOViewModel.selectItemList.collect { items ->
-                orderSummaryAdapter.submitList(items)
-                viewModel.updateOrderDetails(items)
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                sharedHCOViewModel.selectItemList.collect { items ->
+                    val itemList = items.map {
+                        SelectedDishItem(
+                            id = it.id,
+                            price = it.price,
+                            quantity = it.quantity,
+                            name = it.name
+                        )
+                    }
+                    orderSummaryAdapter.submitList(itemList)
+                    viewModel.updateOrderDetails(items)
+                }
             }
         }
     }
+
     private fun setupClickListeners() {
         binding.placeOrderButton.setOnClickListener {
             viewModel.placeOrder()
@@ -120,7 +148,7 @@ class OrderFragment : Fragment() {
         orderSummaryAdapter = OrderSummaryAdapter()
         binding.orderItemsRecyclerView.adapter = orderSummaryAdapter
     }
-    private fun setLoading(isLoading: Boolean) {
+    private fun onSetLoading(isLoading: Boolean) {
         // You would show/hide a progress bar here
         binding.progressBar.isVisible = isLoading
     }

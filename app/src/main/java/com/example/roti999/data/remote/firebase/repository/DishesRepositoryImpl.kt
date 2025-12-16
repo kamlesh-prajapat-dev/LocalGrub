@@ -1,6 +1,6 @@
-package com.example.roti999.data.repository
+package com.example.roti999.data.remote.firebase.repository
 
-import com.example.roti999.data.model.DishItem
+import com.example.roti999.data.dto.DishItem
 import com.example.roti999.domain.model.FoodItem
 import com.example.roti999.domain.repository.DishesRepository
 import com.example.roti999.ui.screens.home.HomeUIState
@@ -21,16 +21,16 @@ class DishesRepositoryImpl @Inject constructor(
                 .await()
             val dishes = snapshot.documents.map {
                 it.toObject(DishItem::class.java)
-                    ?.copy(id = it.id) ?: DishItem()
+                    ?.copy(id = it.id)
             }
             HomeUIState.Success(
                 dishes = dishes.map {
                     FoodItem(
-                        id = it.id,
-                        name = it.name,
-                        description = it.description,
-                        price = it.price,
-                        imageUrl = it.thumbnail
+                        id = it?.id ?: "",
+                        name = it?.name ?: "",
+                        description = it?.description ?: "",
+                        price = it?.price ?: 0,
+                        imageUrl = it?.thumbnail ?: ""
                     )
                 }
             )

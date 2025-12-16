@@ -1,4 +1,4 @@
-package com.example.roti999.data.repository
+package com.example.roti999.data.remote.firebase.repository
 
 import android.app.Activity
 import com.example.roti999.domain.repository.AuthRepository
@@ -12,6 +12,7 @@ import com.google.firebase.auth.PhoneAuthProvider
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
@@ -23,20 +24,29 @@ class AuthRepositoryImpl @Inject constructor(
     private val _authState = MutableStateFlow<AuthUiState>(AuthUiState.Idle)
     override val authState: StateFlow<AuthUiState> get() = _authState.asStateFlow()
 
-    private val callbacks = object : PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
-        override fun onVerificationCompleted(credential: PhoneAuthCredential) {
-            _authState.value = AuthUiState.Success
-        }
+    private val _verificationId = MutableStateFlow<String?>(null)
+    override val verificationId: StateFlow<String?> get() = _verificationId.asStateFlow()
 
-        override fun onVerificationFailed(e: FirebaseException) {
-            _authState.value = AuthUiState.AuthFailure(e)
-        }
+    private var token: PhoneAuthProvider.ForceResendingToken? = null
 
-        override fun onCodeSent(
-            verificationId: String,
-            token: PhoneAuthProvider.ForceResendingToken
-        ) {
-            _authState.value = AuthUiState.OtpSent(verificationId)
+    private fun createCallbacks(): PhoneAuthProvider.OnVerificationStateChangedCallbacks {
+        return object : PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
+            override fun onVerificationCompleted(credential: PhoneAuthCredential) {
+                _authState.update { AuthUiState.Success }
+            }
+
+            override fun onVerificationFailed(e: FirebaseException) {
+                _authState.update { AuthUiState.AuthFailure(e) }
+            }
+
+            override fun onCodeSent(
+                verificationId: String,
+                token: PhoneAuthProvider.ForceResendingToken
+            ) {
+                _verificationId.update { verificationId }
+                this@AuthRepositoryImpl.token = token
+                _authState.update { AuthUiState.OtpSent }
+            }
         }
     }
 
@@ -45,16 +55,18 @@ class AuthRepositoryImpl @Inject constructor(
 
         val validationResult = validatePhoneNumber(phoneNumber)
         if (validationResult != null) {
-            _authState.value = AuthUiState.ValidationError(validationResult, true)
+            _authState.update { AuthUiState.ValidationError(validationResult, true) }
             return
         }
 
         if (!networkUtils.isInternetAvailable()) {
-            _authState.value = AuthUiState.NoInternet
+            _authState.update { AuthUiState.NoInternet }
             return
         }
 
-        _authState.value = AuthUiState.OtpLayout
+        _authState.update { AuthUiState.OtpLayout }
+
+        val callbacks = createCallbacks()
 
         val options = PhoneAuthOptions.newBuilder(auth)
             .setPhoneNumber("+91$phoneNumber") // Phone number to verify
@@ -66,16 +78,16 @@ class AuthRepositoryImpl @Inject constructor(
     }
 
     override suspend fun verifyOtp(otp: String, verificationId: String) {
-        _authState.value = AuthUiState.Loading
+        _authState.update {  AuthUiState.Loading }
 
         val validationResult = validateOtp(otp)
         if (validationResult != null) {
-            _authState.value = AuthUiState.ValidationError(validationResult, false)
+            _authState.update { AuthUiState.ValidationError(validationResult, false) }
             return
         }
 
         if (!networkUtils.isInternetAvailable()) {
-            _authState.value = AuthUiState.NoInternet
+            _authState.update { AuthUiState.NoInternet }
             return
         }
 
@@ -87,15 +99,16 @@ class AuthRepositoryImpl @Inject constructor(
         auth.signInWithCredential(credential)
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
-                    _authState.value = AuthUiState.Success
+                    _authState.update { AuthUiState.Success }
                 } else {
-                    _authState.value = AuthUiState.AuthFailure(task.exception)
+                    _authState.update { AuthUiState.AuthFailure(task.exception) }
                 }
             }
     }
 
     override fun resetState() {
-        _authState.value = AuthUiState.Idle
+        _authState.update { AuthUiState.Idle }
+        _verificationId.update { null }
     }
 
     private fun validatePhoneNumber(phoneNumber: String): String? {

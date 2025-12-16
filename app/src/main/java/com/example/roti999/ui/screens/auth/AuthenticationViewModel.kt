@@ -18,23 +18,28 @@ class AuthenticationViewModel @Inject constructor(
 ) : ViewModel() {
     val authState: StateFlow<AuthUiState> = authRepository.authState
 
+    val verificationId: StateFlow<String?> = authRepository.verificationId
+
     private val _uiEvent = MutableSharedFlow<AuthUIEvent>()
     val uiEvent = _uiEvent.asSharedFlow()
 
     fun onSetUIEvent(event: AuthUIEvent) {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.Default) {
             _uiEvent.emit(event)
         }
     }
     fun sendOtp(phoneNumber: String, activity: Activity) {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch {
             authRepository.sendOtp(phoneNumber, activity)
         }
     }
 
-    fun verifyOtp(otp: String, verificationId: String) {
-        viewModelScope.launch(Dispatchers.IO) {
-            authRepository.verifyOtp(otp, verificationId)
+    fun verifyOtp(otp: String) {
+        val verificationId = verificationId.value
+        if (verificationId != null) {
+            viewModelScope.launch {
+                authRepository.verifyOtp(otp, verificationId)
+            }
         }
     }
 

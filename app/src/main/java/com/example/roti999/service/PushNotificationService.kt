@@ -2,7 +2,7 @@ package com.example.roti999.service
 
 import android.util.Log
 import com.example.roti999.data.local.LocalDatabase
-import com.example.roti999.data.model.User
+import com.example.roti999.data.dto.User
 import com.example.roti999.domain.repository.UserRepository
 import com.example.roti999.util.NotificationHelper
 import com.google.firebase.messaging.FirebaseMessagingService

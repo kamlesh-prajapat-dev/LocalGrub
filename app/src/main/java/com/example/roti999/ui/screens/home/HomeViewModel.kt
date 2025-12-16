@@ -3,7 +3,7 @@ package com.example.roti999.ui.screens.home
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.roti999.data.local.LocalDatabase
-import com.example.roti999.domain.model.User
+import com.example.roti999.data.dto.User
 import com.example.roti999.domain.model.FoodItem
 import com.example.roti999.domain.repository.DishesRepository
 import com.example.roti999.domain.repository.UserRepository
@@ -46,7 +46,7 @@ class HomeViewModel @Inject constructor(
             loadUser()
             fetchFoodItems()
         } else {
-            _uiState.value = HomeUIState.IsInternetAvailable
+            _uiState.value = HomeUIState.NoInternet
         }
     }
 
@@ -73,9 +73,9 @@ class HomeViewModel @Inject constructor(
 
     private fun fetchFoodItems() {
         viewModelScope.launch(Dispatchers.IO) {
-            _uiState.update { HomeUIState.Loading }
+            _uiState.value = HomeUIState.Loading
             val fetchResult = dishesRepository.getDishes()
-            _uiState.update { fetchResult }
+            _uiState.value = fetchResult
         }
     }
 
@@ -128,5 +128,9 @@ class HomeViewModel @Inject constructor(
             localDatabase.setUser(null)
             userRepository.logout()
         }
+    }
+
+    fun reset() {
+        _uiState.value = HomeUIState.Idle
     }
 }

@@ -7,16 +7,20 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.widget.PopupMenu
 import androidx.core.view.isVisible
+import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import com.example.roti999.R
-import com.example.roti999.domain.model.User
+import com.example.roti999.data.dto.User
 import com.example.roti999.ui.adapter.FoodItemAdapter
 import com.example.roti999.domain.model.FoodItem
 import com.example.roti999.databinding.FragmentHomeBinding
+import com.example.roti999.ui.components.NoInternetDialogFragment
 import com.example.roti999.ui.sharedviewmodel.SharedHCOViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
@@ -30,6 +34,8 @@ class HomeFragment : Fragment(), FoodItemAdapter.FoodItemClickListener {
     private val sharedHCOViewModel: SharedHCOViewModel by activityViewModels()
     private lateinit var foodAdapter: FoodItemAdapter
     private var user: User? = null
+    private var noInternetDialog: DialogFragment? = null
+
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -115,51 +121,72 @@ class HomeFragment : Fragment(), FoodItemAdapter.FoodItemClickListener {
 
     private fun observeViewModel() {
         viewLifecycleOwner.lifecycleScope.launch {
-            viewModel.uiState.collect {
-                when (it) {
-                    is HomeUIState.Success -> {
-                        viewModel.onChangeFoodItems(it.dishes)
-                        onSetLoading(false)
-                    }
-
-                    is HomeUIState.Error -> {
-                        AlertDialog.Builder(requireContext())
-                            .setTitle(R.string.error)
-                            .setMessage(it.message)
-                        onSetLoading(false)
-                    }
-
-                    is HomeUIState.Loading -> {
-                        onSetLoading(true)
-                    }
-
-                    HomeUIState.Idle -> {
-                        onSetLoading(false)
-                    }
-
-                    HomeUIState.IsInternetAvailable -> {
-                        onSetLoading(false)
-                        showNoInternetDialog()
-                    }
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.uiState.collect {
+                    handleUIState(it)
                 }
             }
         }
 
         viewLifecycleOwner.lifecycleScope.launch {
-            viewModel.foodItems.collect {
-                foodAdapter.submitList(it)
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.foodItems.collect {
+                    foodAdapter.submitList(it)
+                }
             }
         }
 
         viewLifecycleOwner.lifecycleScope.launch {
-            viewModel.isCartVisible.collect { isVisible ->
-                binding.viewCartButton.isVisible = isVisible
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.isCartVisible.collect { isVisible ->
+                    binding.viewCartButton.isVisible = isVisible
+                }
             }
         }
 
         viewLifecycleOwner.lifecycleScope.launch {
-            viewModel.user.collect {
-                user = it
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.user.collect {
+                    user = it
+                }
+            }
+        }
+    }
+
+    private fun handleUIState(state: HomeUIState) {
+        when (state) {
+            is HomeUIState.Success -> {
+                val list = state.dishes
+                if (list.isNotEmpty()) {
+                    binding.showEmptyListStateTextView.isVisible = false
+                    binding.foodItemsRecyclerView.isVisible = true
+                    viewModel.onChangeFoodItems(state.dishes)
+                } else {
+                    binding.showEmptyListStateTextView.isVisible = true
+                    binding.showEmptyListStateTextView.text = "No dishes found"
+                    binding.foodItemsRecyclerView.isVisible = false
+                }
+                onSetLoading(false)
+            }
+
+            is HomeUIState.Error -> {
+                AlertDialog.Builder(requireContext())
+                    .setTitle(R.string.error)
+                    .setMessage(state.message)
+                onSetLoading(false)
+            }
+
+            is HomeUIState.Loading -> {
+                onSetLoading(true)
+            }
+
+            HomeUIState.Idle -> {
+                onSetLoading(false)
+            }
+
+            HomeUIState.NoInternet -> {
+                onSetLoading(false)
+                showNoInternetDialog()
             }
         }
     }
@@ -177,17 +204,13 @@ class HomeFragment : Fragment(), FoodItemAdapter.FoodItemClickListener {
     }
 
     private fun showNoInternetDialog() {
-        AlertDialog.Builder(requireContext())
-            .setTitle(R.string.no_internet_connection)
-            .setMessage(R.string.check_internet_connection)
-            .setPositiveButton(R.string.ok) { dialog, _ ->
-                dialog.dismiss()
-                viewModel.loadInitialData()
-            }
-            .create()
-            .show()
+        if (noInternetDialog?.isAdded == true) return
+        noInternetDialog = NoInternetDialogFragment(onClick = {
+            viewModel.reset()
+            viewModel.loadInitialData()
+        })
+        noInternetDialog?.show(childFragmentManager, "NoInternetDialog")
     }
-
     private fun onSetLoading(flag: Boolean) {
         binding.loadingIndicator.isVisible = flag
     }

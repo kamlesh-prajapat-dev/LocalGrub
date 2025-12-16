@@ -1,5 +1,6 @@
 package com.example.roti999.ui.screens.eachorderstatus
 
+import android.annotation.SuppressLint
 import android.graphics.Typeface
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -79,18 +80,8 @@ class EachOrderStatusFragment : Fragment() {
                         }
                     }
                     val selectedItems = order.items
-                    val items = selectedItems.map { dish ->
-                        FoodItem(
-                            id = dish.id,
-                            name = dish.name,
-                            description = dish.description,
-                            price = dish.price,
-                            imageUrl = dish.thumbnail, // map thumbnail → imageUrl
-                            quantity = dish.quantity,
-                            isSelected = true
-                        )
-                    }
-                    orderSummaryAdapter.submitList(items)
+
+                    orderSummaryAdapter.submitList(selectedItems)
 
                     binding.addressTextView.text = order.userAddress
 
@@ -102,8 +93,10 @@ class EachOrderStatusFragment : Fragment() {
                     binding.deliveryFeeTextView.text = "Rs. $deliveryFee"
                     binding.grandTotalTextView.text = "Rs. ${order.totalPrice + deliveryFee}"
 
-                    viewModel.onSetSelectItemList(items)
+                    viewModel.onSetSelectItemList(selectedItems)
                     viewModel.onSetOrder(order)
+                } else {
+                    val hello = "Hello"
                 }
             }
         }

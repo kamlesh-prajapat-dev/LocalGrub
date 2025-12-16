@@ -1,4 +1,4 @@
-package com.example.roti999.data.model
+package com.example.roti999.data.dto
 
 data class DishItem(
     val id: String = "",

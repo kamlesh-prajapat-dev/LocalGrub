@@ -1,7 +1,6 @@
 package com.example.roti999.ui.screens.auth
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -18,7 +17,6 @@ import androidx.navigation.fragment.findNavController
 import com.example.roti999.R
 import com.example.roti999.databinding.FragmentAuthenticationBinding
 import com.example.roti999.ui.components.NoInternetDialogFragment
-import com.example.roti999.ui.screens.auth.AuthUIEvent.NavigateToHome
 import com.example.roti999.ui.screens.auth.AuthUIEvent.ShowNoInternetDialog
 import com.example.roti999.ui.screens.auth.AuthUIEvent.ShowToast
 import com.google.firebase.FirebaseNetworkException
@@ -31,9 +29,9 @@ class AuthenticationFragment : Fragment() {
     private var _binding: FragmentAuthenticationBinding? = null
     private val binding get() = _binding!!
     private val viewModel: AuthenticationViewModel by viewModels()
-    private var verificationId: String? = null
-
     private var noInternetDialog: DialogFragment? = null
+
+    private var verificationId: String? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -74,9 +72,11 @@ class AuthenticationFragment : Fragment() {
 
         binding.verifyOtpButton.setOnClickListener {
             val otp = binding.otpEditText.text.toString().trim()
-            verificationId?.let {
-                viewModel.verifyOtp(otp, it)
-            }
+            viewModel.verifyOtp(otp)
+        }
+
+        binding.resendOtpBtn.setOnClickListener {
+            viewModel.resetState()
         }
     }
 
@@ -96,16 +96,23 @@ class AuthenticationFragment : Fragment() {
                 }
             }
         }
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.verificationId.collect {
+                    if (it != null) {
+                        verificationId = it
+                    }
+                }
+            }
+        }
     }
 
     private fun handleAuthUIEvent(event: AuthUIEvent) {
-        when(event) {
-            is ShowToast -> Toast.makeText(requireContext(), event.message, Toast.LENGTH_SHORT).show()
-            NavigateToHome ->  {
-                Log.d("Authentication Screen: ", "Navigating to Home Screen $event")
-                findNavController().navigate(R.id.action_authenticationFragment_to_homeFragment)
-                Log.d("Authentication Screen: ", "Navigated to Home Screen")
-            }
+        when (event) {
+            is ShowToast -> Toast.makeText(requireContext(), event.message, Toast.LENGTH_SHORT)
+                .show()
+
             ShowNoInternetDialog -> showNoInternetDialog()
         }
     }
@@ -122,21 +129,19 @@ class AuthenticationFragment : Fragment() {
             }
 
             is AuthUiState.OtpSent -> {
-                verificationId = state.verificationId
-                binding.verifyOtpButton.isEnabled = true
                 onSetLoading(false)
             }
 
             is AuthUiState.Success -> {
                 viewModel.onSetUIEvent(ShowToast("Authentication successful!"))
                 onSetLoading(false)
-                Log.d("Authentication Screen: ", "Starting Home Screen ${viewModel.authState.value}")
-                viewModel.onSetUIEvent(NavigateToHome)
+                findNavController().navigate(R.id.action_authenticationFragment_to_homeFragment)
+                viewModel.resetState()
             }
 
             is AuthUiState.AuthFailure -> {
                 onSetLoading(false)
-                when(state.e) {
+                when (state.e) {
                     is FirebaseNetworkException -> {
                         viewModel.onSetUIEvent(ShowNoInternetDialog)
                     }
@@ -194,9 +199,9 @@ class AuthenticationFragment : Fragment() {
         binding.otpInputLayout.isVisible = true
         binding.appBarLayout.isVisible = true
 
+        // Set up navigation icon on Click Listener
         binding.topAppBar.setNavigationOnClickListener {
             viewModel.resetState()
-            verificationId = null
         }
     }
 

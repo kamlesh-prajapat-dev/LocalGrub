@@ -25,16 +25,26 @@
 
     <com.google.android.material.loadingindicator.LoadingIndicator
         android:id="@+id/loadingIndicator"
+        style="?android:attr/progressBarStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:elevation="10dp"
         android:visibility="gone"/>
 
+    <TextView
+        android:id="@+id/showEmptyListStateTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text=""
+        android:layout_gravity="center"
+        android:visibility="gone"/>
+
     <androidx.core.widget.NestedScrollView
         android:id="@+id/orderItemsRecyclerViewContainer"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:paddingBottom="80dp"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
         <androidx.recyclerview.widget.RecyclerView
@@ -43,8 +53,7 @@
             android:layout_height="wrap_content"
             android:clipToPadding="false"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-            tools:listitem="@layout/food_item_card"
-            android:paddingBottom="80dp"/>
+            tools:listitem="@layout/food_item_card" />
     </androidx.core.widget.NestedScrollView>
 
     <com.google.android.material.button.MaterialButton

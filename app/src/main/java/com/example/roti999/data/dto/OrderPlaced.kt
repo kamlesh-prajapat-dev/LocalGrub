@@ -1,4 +1,4 @@
-package com.example.roti999.data.model
+package com.example.roti999.data.dto
 
 import com.google.firebase.Timestamp
 

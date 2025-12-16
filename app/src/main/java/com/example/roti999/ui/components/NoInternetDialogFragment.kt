@@ -6,12 +6,15 @@ import androidx.fragment.app.DialogFragment
 import com.example.roti999.R
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 
-class NoInternetDialogFragment : DialogFragment() {
+class NoInternetDialogFragment(private val onClick: () -> Unit = {  }) : DialogFragment() {
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         return MaterialAlertDialogBuilder(requireContext())
             .setTitle(R.string.no_internet_connection)
             .setMessage(R.string.check_internet_connection)
-            .setPositiveButton(R.string.ok) { dialog, _ -> dialog.dismiss() }
+            .setPositiveButton(R.string.ok) { dialog, _ -> {
+                onClick()
+                dialog.dismiss()
+            } }
             .setCancelable(false)
             .create()
     }
