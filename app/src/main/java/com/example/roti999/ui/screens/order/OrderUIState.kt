@@ -1,6 +1,6 @@
 package com.example.roti999.ui.screens.order
 
-import com.example.roti999.data.dto.Order
+import com.example.roti999.data.model.Order
 
 sealed interface OrderUIState {
     object Idle: OrderUIState

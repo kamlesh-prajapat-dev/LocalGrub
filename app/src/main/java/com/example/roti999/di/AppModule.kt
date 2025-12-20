@@ -2,10 +2,12 @@ package com.example.roti999.di
 
 import android.content.Context
 import android.content.SharedPreferences
+import androidx.work.WorkManager
 import com.example.roti999.data.local.LocalDatabase
 import com.example.roti999.domain.repository.NotificationRepository
 import com.example.roti999.util.NetworkUtils
 import com.example.roti999.util.NotificationHelper
+import com.example.roti999.util.Validator
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -44,5 +46,11 @@ object AppModule {
     @Singleton
     fun provideNotificationRepository(): NotificationRepository {
         return NotificationRepository()
+    }
+
+    @Provides
+    @Singleton
+    fun provideValidator(): Validator {
+        return Validator()
     }
 }

@@ -3,8 +3,9 @@ package com.example.roti999.ui.screens.history
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.roti999.data.local.LocalDatabase
-import com.example.roti999.data.dto.Order
+import com.example.roti999.data.model.Order
 import com.example.roti999.domain.repository.OrderRepository
+import com.example.roti999.domain.usecase.OrderUseCase
 import com.example.roti999.util.NetworkUtils
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -16,11 +17,10 @@ import javax.inject.Inject
 
 @HiltViewModel
 class HistoryViewModel @Inject constructor(
-    private val orderRepository: OrderRepository,
+    private val orderUseCase: OrderUseCase,
     private val networkUtils: NetworkUtils,
     private val localDatabase: LocalDatabase
 ) : ViewModel() {
-
     private val _uiState = MutableStateFlow<HistoryUIState>(HistoryUIState.Idle)
     val uiState: StateFlow<HistoryUIState> get() = _uiState.asStateFlow()
 
@@ -31,26 +31,23 @@ class HistoryViewModel @Inject constructor(
         _historyOrders.value = historyOrders
     }
 
-    init {
-        loadOrderHistoryItems()
-    }
-
     fun loadOrderHistoryItems() {
         viewModelScope.launch(Dispatchers.IO) {
             if (networkUtils.isInternetAvailable()) {
                 _uiState.value = HistoryUIState.Loading
                 val currentUser = localDatabase.getUser()
                 if (currentUser != null) {
-                    orderRepository.getOrders(userId = currentUser.uid) { fetchResult ->
-                        _uiState.value = fetchResult
-                    }
-
+                    _uiState.value = orderUseCase.getOrders(userId = currentUser.uid)
                 } else {
-                    _uiState.value = HistoryUIState.Error("User not found")
+                    _uiState.value = HistoryUIState.NavigateToCreateProfile
                 }
             } else {
                 _uiState.value = HistoryUIState.NoInternet
             }
         }
+    }
+
+    fun reset() {
+        _uiState.value = HistoryUIState.Idle
     }
 }

@@ -4,6 +4,7 @@ import android.app.Activity
 import com.example.roti999.domain.repository.AuthRepository
 import com.example.roti999.ui.screens.auth.AuthUiState
 import com.example.roti999.util.NetworkUtils
+import com.example.roti999.util.Validator
 import com.google.firebase.FirebaseException
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.PhoneAuthCredential
@@ -16,9 +17,12 @@ import kotlinx.coroutines.flow.update
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
+private const val COUNTRY_CODE = "+91"
+
 class AuthRepositoryImpl @Inject constructor(
     private val auth: FirebaseAuth,
-    private val networkUtils: NetworkUtils
+    private val networkUtils: NetworkUtils,
+    private val validator: Validator
 ) : AuthRepository {
 
     private val _authState = MutableStateFlow<AuthUiState>(AuthUiState.Idle)
@@ -32,7 +36,7 @@ class AuthRepositoryImpl @Inject constructor(
     private fun createCallbacks(): PhoneAuthProvider.OnVerificationStateChangedCallbacks {
         return object : PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
             override fun onVerificationCompleted(credential: PhoneAuthCredential) {
-                _authState.update { AuthUiState.Success }
+                signInWithPhoneAuthCredential(credential)
             }
 
             override fun onVerificationFailed(e: FirebaseException) {
@@ -51,25 +55,26 @@ class AuthRepositoryImpl @Inject constructor(
     }
 
     override suspend fun sendOtp(phoneNumber: String, activity: Activity) {
+        _verificationId.value = null
         _authState.value = AuthUiState.Loading
 
-        val validationResult = validatePhoneNumber(phoneNumber)
+        val validationResult = validator.validatePhoneNumber(phoneNumber)
         if (validationResult != null) {
-            _authState.update { AuthUiState.ValidationError(validationResult, true) }
+            _authState.value = AuthUiState.ValidationError(validationResult, true)
             return
         }
 
         if (!networkUtils.isInternetAvailable()) {
-            _authState.update { AuthUiState.NoInternet }
+            _authState.value =  AuthUiState.NoInternet
             return
         }
 
-        _authState.update { AuthUiState.OtpLayout }
+        _authState.value = AuthUiState.OtpLayout
 
         val callbacks = createCallbacks()
 
         val options = PhoneAuthOptions.newBuilder(auth)
-            .setPhoneNumber("+91$phoneNumber") // Phone number to verify
+            .setPhoneNumber("$COUNTRY_CODE$phoneNumber") // Phone number to verify
             .setTimeout(60L, TimeUnit.SECONDS) // Timeout and unit
             .setActivity(activity) // Activity (for callback binding)
             .setCallbacks(callbacks) // OnVerificationStateChangedCallbacks
@@ -77,17 +82,45 @@ class AuthRepositoryImpl @Inject constructor(
         PhoneAuthProvider.verifyPhoneNumber(options)
     }
 
-    override suspend fun verifyOtp(otp: String, verificationId: String) {
-        _authState.update {  AuthUiState.Loading }
+    override suspend fun resendOtp(phoneNumber: String, activity: Activity) {
+        _verificationId.value = null
+        _authState.value = AuthUiState.Loading
 
-        val validationResult = validateOtp(otp)
+        if (!networkUtils.isInternetAvailable()) {
+            _authState.value =  AuthUiState.NoInternet
+            return
+        }
+
+        val resendToken = token
+        if (resendToken == null) {
+            // If token is not available, treat as a first-time send
+            sendOtp(phoneNumber, activity)
+            return
+        }
+
+        val callbacks = createCallbacks()
+
+        val options = PhoneAuthOptions.newBuilder(auth)
+            .setPhoneNumber("$COUNTRY_CODE$phoneNumber")
+            .setTimeout(60L, TimeUnit.SECONDS)
+            .setActivity(activity)
+            .setCallbacks(callbacks)
+            .setForceResendingToken(resendToken)
+            .build()
+        PhoneAuthProvider.verifyPhoneNumber(options)
+    }
+
+    override suspend fun verifyOtp(otp: String, verificationId: String) {
+        _authState.value = AuthUiState.Loading
+
+        val validationResult = validator.validateOtp(otp)
         if (validationResult != null) {
-            _authState.update { AuthUiState.ValidationError(validationResult, false) }
+            _authState.value =  AuthUiState.ValidationError(validationResult, false)
             return
         }
 
         if (!networkUtils.isInternetAvailable()) {
-            _authState.update { AuthUiState.NoInternet }
+            _authState.value = AuthUiState.NoInternet
             return
         }
 
@@ -99,39 +132,15 @@ class AuthRepositoryImpl @Inject constructor(
         auth.signInWithCredential(credential)
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
-                    _authState.update { AuthUiState.Success }
+                    _authState.value = AuthUiState.Success
                 } else {
-                    _authState.update { AuthUiState.AuthFailure(task.exception) }
+                    _authState.value = AuthUiState.AuthFailure(task.exception)
                 }
             }
     }
 
     override fun resetState() {
-        _authState.update { AuthUiState.Idle }
-        _verificationId.update { null }
-    }
-
-    private fun validatePhoneNumber(phoneNumber: String): String? {
-        if (phoneNumber.isBlank()) {
-            return "Phone number must not be null"
-        }
-
-        if (phoneNumber.length != 10) {
-            return "Please enter a valid 10-digit phone number"
-        }
-
-        return null
-    }
-
-    private fun validateOtp(otp: String): String? {
-        if (otp.isBlank()) {
-            return "OTP must not be null"
-        }
-
-        if (otp.length != 6) {
-            return "Please enter a valid 6-digit OTP"
-        }
-
-        return null
+        _authState.value =  AuthUiState.Idle
+        _verificationId.value =  null
     }
 }

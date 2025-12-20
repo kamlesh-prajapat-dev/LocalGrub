@@ -3,10 +3,12 @@ package com.example.roti999.di
 import com.example.roti999.data.remote.firebase.repository.AuthRepositoryImpl
 import com.example.roti999.data.remote.firebase.repository.DishesRepositoryImpl
 import com.example.roti999.data.remote.firebase.repository.OrderRepositoryImpl
+import com.example.roti999.data.remote.firebase.repository.OwnerRepositoryImpl
 import com.example.roti999.data.remote.firebase.repository.UserRepositoryImpl
 import com.example.roti999.domain.repository.AuthRepository
 import com.example.roti999.domain.repository.DishesRepository
 import com.example.roti999.domain.repository.OrderRepository
+import com.example.roti999.domain.repository.OwnerRepository
 import com.example.roti999.domain.repository.UserRepository
 import dagger.Binds
 import dagger.Module
@@ -29,4 +31,7 @@ abstract class RepositoryModule {
 
     @Binds
     abstract fun bindOrderRepository(impl: OrderRepositoryImpl): OrderRepository
+
+    @Binds
+    abstract fun bindOwnerRepository(impl: OwnerRepositoryImpl): OwnerRepository
 }

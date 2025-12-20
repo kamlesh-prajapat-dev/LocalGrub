@@ -2,34 +2,31 @@ package com.example.roti999.ui.screens.order
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.roti999.data.dto.Order
-import com.example.roti999.data.dto.OrderPlaced
-import com.example.roti999.data.dto.SelectedDishItem
-import com.example.roti999.data.dto.User
+import com.example.roti999.data.model.OrderPlaced
+import com.example.roti999.data.model.SelectedDishItem
+import com.example.roti999.data.model.User
 import com.example.roti999.domain.model.FoodItem
 import com.example.roti999.domain.repository.OrderRepository
+import com.example.roti999.domain.usecase.OrderUseCase
 import com.example.roti999.util.Constant
 import com.google.firebase.Timestamp
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class OrderViewModel @Inject constructor(
-    private val orderRepository: OrderRepository
+    private val orderUseCase: OrderUseCase
 ) : ViewModel() {
     private val _orderUIState = MutableStateFlow<OrderUIState>(OrderUIState.Idle)
     val orderUIState: StateFlow<OrderUIState> get() = _orderUIState.asStateFlow()
-
     private val _totalPrice = MutableStateFlow(0.0)
     val totalPrice: StateFlow<Double> get() = _totalPrice.asStateFlow()
     private var currentUser: User? = null
     private var currentItems: List<FoodItem> = emptyList()
-
     fun updateUserData(user: User) {
         currentUser = user
     }
@@ -80,9 +77,8 @@ class OrderViewModel @Inject constructor(
                 token = user.fcmToken
             )
 
-            orderRepository.placeOrder(orderPlaced) {
-                _orderUIState.value = it
-            }
+            val result = orderUseCase.placeOrder(orderPlaced)
+            _orderUIState.value = result
         }
     }
 }

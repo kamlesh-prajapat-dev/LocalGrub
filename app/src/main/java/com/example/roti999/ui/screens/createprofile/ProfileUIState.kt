@@ -1,6 +1,6 @@
 package com.example.roti999.ui.screens.createprofile
 
-import com.example.roti999.data.dto.User
+import com.example.roti999.data.model.User
 
 sealed interface ProfileUIState {
 

@@ -11,7 +11,7 @@ import com.example.roti999.ui.activity.MainActivity
 
 class NotificationHelper {
 
-    fun showOrderStatusNotification(context: Context, orderId: String, status: String) {
+    fun showOrderStatusNotification(context: Context, orderId: String, body: String, title: String) {
 
         val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
@@ -28,8 +28,8 @@ class NotificationHelper {
 
         val notification = NotificationCompat.Builder(context, "ORDER_STATUS_CHANNEL")
             .setSmallIcon(R.drawable.ic_cart) // You can use your app's icon here
-            .setContentTitle("Order Status Updated")
-            .setContentText("Your order #$orderId is now $status")
+            .setContentTitle(title)
+            .setContentText(body)
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
             .setContentIntent(pendingIntent)
             .setAutoCancel(true)

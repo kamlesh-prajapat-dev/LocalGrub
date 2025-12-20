@@ -14,7 +14,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
-import com.example.roti999.data.dto.SelectedDishItem
+import com.example.roti999.data.model.SelectedDishItem
 import com.example.roti999.ui.adapter.OrderSummaryAdapter
 import com.example.roti999.databinding.FragmentOrderBinding
 import com.example.roti999.ui.sharedviewmodel.SharedHCOViewModel

@@ -1,7 +1,8 @@
 package com.example.roti999.data.remote.firebase.repository
 
 import com.example.roti999.data.local.LocalDatabase
-import com.example.roti999.data.dto.User
+import com.example.roti999.data.model.User
+import com.example.roti999.domain.model.UserResult
 import com.example.roti999.domain.repository.UserRepository
 import com.example.roti999.ui.screens.createprofile.ProfileUIState
 import com.example.roti999.util.TokenManager
@@ -14,32 +15,20 @@ import javax.inject.Singleton
 @Singleton
 class UserRepositoryImpl @Inject constructor(
     private val firestore: FirebaseFirestore,
-    private val auth: FirebaseAuth,
-    private val localDatabase: LocalDatabase
+    private val auth: FirebaseAuth
 ) : UserRepository {
 
-    override suspend fun createUser(user: User, onResult: (ProfileUIState) -> Unit) {
-        try {
-            val token = TokenManager.getFCMToken()
-            if (token != null) {
-                val userWithFCMToken = User(
-                    uid = user.uid,
-                    name = user.name,
-                    phoneNumber = user.phoneNumber,
-                    address = user.address,
-                    fcmToken = token
-                )
-                firestore.collection("users").document(user.uid).set(userWithFCMToken).await()
-                localDatabase.setUser(user.copy(fcmToken = token))
-                onResult(ProfileUIState.UserSavedSuccess(user.copy(fcmToken = token)))
-            }
+    override suspend fun createUser(user: User): UserResult {
+        return try {
+            firestore.collection("users").document(user.uid).set(user).await()
+            UserResult.Success(user)
         } catch (e: Exception) {
-            onResult(ProfileUIState.Failure(e))
+            UserResult.Error(e)
         }
     }
 
-    override suspend fun getUserByPhoneNumber(onResult: (User?) -> Unit) {
-        try {
+    override suspend fun getUserByPhoneNumber(): UserResult {
+        return try {
             val currentUser = auth.currentUser
             if (currentUser != null) {
                 val snapshot = FirebaseFirestore.getInstance()
@@ -49,21 +38,22 @@ class UserRepositoryImpl @Inject constructor(
                     .get()
                     .await()
 
-                if (!snapshot.isEmpty) {
-                    val document = snapshot.documents[0]
-                    onResult(document.toObject(User::class.java))
+                val documents = snapshot.documents
+                if (documents.isNotEmpty()) {
+                    val user = documents[0].toObject(User::class.java)
+                    UserResult.Success(user)
+                } else {
+                    UserResult.Success(null)
                 }
-                else
-                    onResult(null)
             } else {
-                onResult(null)
+                UserResult.NavigateToLogin
             }
-        }catch (e: Exception) {
-            onResult(null)
+        } catch (e: Exception) {
+            UserResult.Error(e)
         }
     }
 
-    override suspend fun getCurrentUser(): User? {
+    override fun getCurrentUser(): User? {
         val currentUser = auth.currentUser ?: return null
 
         return User(
@@ -73,18 +63,20 @@ class UserRepositoryImpl @Inject constructor(
     }
 
     override suspend fun saveNewToken(
-        userWithFCMToken: User,
-        onResult: (Boolean) -> Unit
-    ) {
-        try {
-            firestore.collection("users").document(userWithFCMToken.uid).set(userWithFCMToken).await()
-            onResult(true)
+        user: User
+    ): UserResult {
+        return try {
+            firestore.collection("users")
+                .document(user.uid)
+                .update("fcmToken", user.fcmToken)
+                .await()
+            UserResult.Success(user)
         } catch (e: Exception) {
-            onResult(false)
+            UserResult.Error(e)
         }
     }
 
-    override suspend fun logout() {
+    override fun logout() {
         auth.signOut()
     }
 }

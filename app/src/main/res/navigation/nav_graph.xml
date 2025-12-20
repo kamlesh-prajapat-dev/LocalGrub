@@ -104,6 +104,10 @@
         tools:layout="@layout/fragment_history">
 
         <action
+            android:id="@+id/action_historyFragment_to_createYourProfileFragment"
+            app:destination="@+id/createYourProfileFragment"/>
+
+        <action
             android:id="@+id/action_historyFragment_to_eachOrderStatusFragment"
             app:destination="@+id/eachOrderStatusFragment"/>
     </fragment>

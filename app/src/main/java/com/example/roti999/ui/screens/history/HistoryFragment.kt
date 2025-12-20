@@ -15,20 +15,21 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import com.example.roti999.R
-import com.example.roti999.data.dto.Order
+import com.example.roti999.data.model.Order
 import com.example.roti999.databinding.FragmentHistoryBinding
 import com.example.roti999.ui.adapter.OrderHistoryItemAdapter
+import com.example.roti999.ui.sharedviewmodel.SharedHFToCPFViewModel
 import com.example.roti999.ui.sharedviewmodel.SharedHFToEOSFViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class HistoryFragment : Fragment(), OrderHistoryItemAdapter.OrderHistoryItemClickListener {
-
     private var _binding: FragmentHistoryBinding? = null
     private val binding get() = _binding!!
     private val viewModel: HistoryViewModel by viewModels()
     private val sharedHFToEOSFViewModel: SharedHFToEOSFViewModel by activityViewModels()
+    private val sharedHFToCPFViewModel: SharedHFToCPFViewModel by activityViewModels()
     private lateinit var orderHistoryItemAdapter: OrderHistoryItemAdapter
 
     override fun onCreateView(
@@ -77,7 +78,7 @@ class HistoryFragment : Fragment(), OrderHistoryItemAdapter.OrderHistoryItemClic
     private fun handleUIState(state: HistoryUIState) {
         when(state) {
             is HistoryUIState.Error -> {
-                Toast.makeText(requireContext(), state.message, Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), state.e.message, Toast.LENGTH_SHORT).show()
                 onSetLoading(false)
             }
             HistoryUIState.Idle -> {
@@ -93,6 +94,13 @@ class HistoryFragment : Fragment(), OrderHistoryItemAdapter.OrderHistoryItemClic
             is HistoryUIState.Success -> {
                 viewModel.onSetHistoryOrder(state.orders)
                 onSetLoading(false)
+            }
+
+            HistoryUIState.NavigateToCreateProfile -> {
+                sharedHFToCPFViewModel.onSetIsNavigate(true)
+                val action = HistoryFragmentDirections.actionHistoryFragmentToCreateYourProfileFragment()
+                findNavController().navigate(action)
+                viewModel.reset()
             }
         }
     }
@@ -117,5 +125,11 @@ class HistoryFragment : Fragment(), OrderHistoryItemAdapter.OrderHistoryItemClic
         sharedHFToEOSFViewModel.onSetOrder(item)
         val action = HistoryFragmentDirections.actionHistoryFragmentToEachOrderStatusFragment()
         findNavController().navigate(action)
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        _binding = null
+        viewModel.reset()
     }
 }

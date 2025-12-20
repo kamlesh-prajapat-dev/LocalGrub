@@ -16,7 +16,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import com.example.roti999.R
-import com.example.roti999.data.dto.User
+import com.example.roti999.data.model.User
 import com.example.roti999.ui.adapter.FoodItemAdapter
 import com.example.roti999.domain.model.FoodItem
 import com.example.roti999.databinding.FragmentHomeBinding
@@ -27,7 +27,6 @@ import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class HomeFragment : Fragment(), FoodItemAdapter.FoodItemClickListener {
-
     private var _binding: FragmentHomeBinding? = null
     private val binding get() = _binding!!
     private val viewModel: HomeViewModel by viewModels()
@@ -167,12 +166,14 @@ class HomeFragment : Fragment(), FoodItemAdapter.FoodItemClickListener {
                     binding.foodItemsRecyclerView.isVisible = false
                 }
                 onSetLoading(false)
+                viewModel.loadUser()
             }
 
             is HomeUIState.Error -> {
                 AlertDialog.Builder(requireContext())
                     .setTitle(R.string.error)
-                    .setMessage(state.message)
+                    .setMessage(state.e.message)
+                    .show()
                 onSetLoading(false)
             }
 
@@ -188,7 +189,30 @@ class HomeFragment : Fragment(), FoodItemAdapter.FoodItemClickListener {
                 onSetLoading(false)
                 showNoInternetDialog()
             }
+
+            is HomeUIState.SuccessUser -> {
+                val user = state.user
+                viewModel.setUser(user)
+               onSetLoading(false)
+            }
+
+            HomeUIState.NavigateToLogin -> {
+                onSetLoading(false)
+                val action = HomeFragmentDirections.actionHomeFragmentToAuthenticationFragment()
+                findNavController().navigate(action)
+            }
         }
+    }
+    private fun showNoInternetDialog() {
+        if (noInternetDialog?.isAdded == true) return
+        noInternetDialog = NoInternetDialogFragment(onClick = {
+            viewModel.reset()
+            viewModel.loadInitialData()
+        })
+        noInternetDialog?.show(childFragmentManager, "NoInternetDialog")
+    }
+    private fun onSetLoading(flag: Boolean) {
+        binding.loadingIndicator.isVisible = flag
     }
 
     override fun onIncreaseQuantity(item: FoodItem) {
@@ -201,18 +225,6 @@ class HomeFragment : Fragment(), FoodItemAdapter.FoodItemClickListener {
 
     override fun onSelectItem(item: FoodItem, isSelected: Boolean) {
         viewModel.onSelectItem(item, isSelected)
-    }
-
-    private fun showNoInternetDialog() {
-        if (noInternetDialog?.isAdded == true) return
-        noInternetDialog = NoInternetDialogFragment(onClick = {
-            viewModel.reset()
-            viewModel.loadInitialData()
-        })
-        noInternetDialog?.show(childFragmentManager, "NoInternetDialog")
-    }
-    private fun onSetLoading(flag: Boolean) {
-        binding.loadingIndicator.isVisible = flag
     }
 
     override fun onDestroyView() {

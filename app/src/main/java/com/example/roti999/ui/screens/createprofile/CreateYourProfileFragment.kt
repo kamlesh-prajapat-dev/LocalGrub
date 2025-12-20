@@ -16,6 +16,7 @@ import androidx.navigation.fragment.findNavController
 import com.example.roti999.R
 import com.example.roti999.databinding.FragmentCreateYourProfileBinding
 import com.example.roti999.ui.sharedviewmodel.SharedHCOViewModel
+import com.example.roti999.ui.sharedviewmodel.SharedHFToCPFViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
@@ -25,6 +26,7 @@ class CreateYourProfileFragment : Fragment() {
     private var _binding: FragmentCreateYourProfileBinding? = null
     private val binding get() = _binding!!
     private val sharedHCOViewModel: SharedHCOViewModel by activityViewModels()
+    private val sharedHFToCPFViewModel: SharedHFToCPFViewModel by activityViewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -97,14 +99,14 @@ class CreateYourProfileFragment : Fragment() {
             }
 
             is ProfileUIState.UserSavedSuccess -> {
+                viewModel.onSetUser(user = state.user)
+                sharedHCOViewModel.onSetUser(user = viewModel.user.value)
                 Toast.makeText(
                     requireContext(),
                     "Profile saved successfully",
                     Toast.LENGTH_SHORT
                 ).show()
-                viewModel.onSetUser(user = state.user)
-                sharedHCOViewModel.onSetUser(user = viewModel.user.value)
-                findNavController().navigate(R.id.action_createYourProfileFragment_to_orderFragment) // Assuming you have this action
+                navigateAction()
                 setLoading(false)
             }
 
@@ -114,9 +116,23 @@ class CreateYourProfileFragment : Fragment() {
             }
 
             ProfileUIState.NavigateToLogin -> {
-                val action = CreateYourProfileFragmentDirections.actionCreateYourProfileFragmentToAuthenticationFragment()
                 setLoading(false)
+                val action = CreateYourProfileFragmentDirections.actionCreateYourProfileFragmentToAuthenticationFragment()
                 findNavController().navigate(action)
+            }
+        }
+    }
+
+    private fun navigateAction() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                sharedHFToCPFViewModel.isNavigate.collect {
+                    if (it) {
+                        findNavController().navigateUp()
+                    } else {
+                        findNavController().navigate(R.id.action_createYourProfileFragment_to_orderFragment)
+                    }
+                }
             }
         }
     }
@@ -136,5 +152,7 @@ class CreateYourProfileFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+
+        sharedHFToCPFViewModel.reset()
     }
 }

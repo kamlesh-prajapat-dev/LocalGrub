@@ -9,6 +9,7 @@ interface AuthRepository {
     val authState: StateFlow<AuthUiState>
     val verificationId: StateFlow<String?>
     suspend fun sendOtp(phoneNumber: String, activity: Activity)
+    suspend fun resendOtp(phoneNumber: String, activity: Activity)
     suspend fun verifyOtp(otp: String, verificationId: String)
     fun resetState()
 }

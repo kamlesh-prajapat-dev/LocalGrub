@@ -2,7 +2,7 @@ package com.example.roti999.data.local
 
 import android.content.SharedPreferences
 import androidx.core.content.edit
-import com.example.roti999.data.dto.User
+import com.example.roti999.data.model.User
 import com.google.gson.Gson
 import javax.inject.Inject
 import javax.inject.Singleton

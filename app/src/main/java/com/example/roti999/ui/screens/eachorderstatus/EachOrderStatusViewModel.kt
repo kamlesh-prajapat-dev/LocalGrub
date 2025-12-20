@@ -1,8 +1,8 @@
 package com.example.roti999.ui.screens.eachorderstatus
 
 import androidx.lifecycle.ViewModel
-import com.example.roti999.data.dto.Order
-import com.example.roti999.data.dto.SelectedDishItem
+import com.example.roti999.data.model.Order
+import com.example.roti999.data.model.SelectedDishItem
 import com.example.roti999.domain.repository.OrderRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow

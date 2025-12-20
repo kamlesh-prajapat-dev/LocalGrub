@@ -6,7 +6,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.example.roti999.data.dto.SelectedDishItem
+import com.example.roti999.data.model.SelectedDishItem
 import com.example.roti999.databinding.OrderItemSummaryRowBinding
 
 class OrderSummaryAdapter : ListAdapter<SelectedDishItem, OrderSummaryAdapter.OrderItemViewHolder>(FoodItemDiffCallback()) {

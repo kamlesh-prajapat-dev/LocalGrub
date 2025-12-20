@@ -1,10 +1,15 @@
 package com.example.roti999.service
 
 import android.util.Log
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.WorkManager
+import androidx.work.workDataOf
 import com.example.roti999.data.local.LocalDatabase
-import com.example.roti999.data.dto.User
+import com.example.roti999.data.model.User
 import com.example.roti999.domain.repository.UserRepository
+import com.example.roti999.domain.usecase.UserUseCase
 import com.example.roti999.util.NotificationHelper
+import com.example.roti999.worker.FCMTokenWorker
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import dagger.hilt.android.AndroidEntryPoint
@@ -15,53 +20,33 @@ import javax.inject.Inject
 
 @AndroidEntryPoint
 class PushNotificationService : FirebaseMessagingService() {
-
     @Inject
     lateinit var notificationHelper: NotificationHelper
 
     @Inject
-    lateinit var localDatabase: LocalDatabase
-
-    @Inject
-    lateinit var userRepository: UserRepository
-
+    lateinit var workManager: WorkManager
     companion object {
         private const val TAG = "PushNotificationService"
     }
 
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
-        // Check if message contains a notification payload.
         remoteMessage.notification?.let {
-            // For simplicity, we'll use the orderId from the data payload
             val orderId = remoteMessage.data["orderId"] ?: "Unknown Order"
-            val status = it.body ?: ""
-            notificationHelper.showOrderStatusNotification(applicationContext, orderId, status)
+            val body = it.body ?: "Order Status"
+            val title = it.title ?: "Order Status"
+            notificationHelper.showOrderStatusNotification(applicationContext, orderId, body, title)
         }
     }
 
     override fun onNewToken(token: String) {
-        // This is where you would send the token to your server.
-        // For now, we'll just log it.
         Log.d(TAG, "Refreshed token: $token")
 
-        val user = localDatabase.getUser()
-        if (user != null) {
-            val userWithToken = User(
-                uid = user.uid,
-                name = user.name,
-                phoneNumber = user.phoneNumber,
-                address = user.address,
-                fcmToken = token
+        val workRequest = OneTimeWorkRequestBuilder< FCMTokenWorker>()
+            .setInputData(
+                workDataOf("FCM_TOKEN" to token)
             )
-            CoroutineScope(Dispatchers.IO).launch {
-                userRepository.saveNewToken(userWithToken) {
-                    if (it) {
-                        Log.d(TAG, "New token saved successfully")
-                    } else {
-                        Log.e(TAG, "Failed to save new token")
-                    }
-                }
-            }
-        }
+            .build()
+
+        workManager.enqueue(workRequest)
     }
 }

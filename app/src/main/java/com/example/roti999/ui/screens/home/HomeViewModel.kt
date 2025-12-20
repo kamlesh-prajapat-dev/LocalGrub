@@ -3,10 +3,11 @@ package com.example.roti999.ui.screens.home
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.roti999.data.local.LocalDatabase
-import com.example.roti999.data.dto.User
+import com.example.roti999.data.model.User
 import com.example.roti999.domain.model.FoodItem
-import com.example.roti999.domain.repository.DishesRepository
 import com.example.roti999.domain.repository.UserRepository
+import com.example.roti999.domain.usecase.DishesUseCase
+import com.example.roti999.domain.usecase.UserUseCase
 import com.example.roti999.util.NetworkUtils
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -19,15 +20,13 @@ import javax.inject.Inject
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
-    private val dishesRepository: DishesRepository,
+    private val userUseCase: UserUseCase,
+    private val dishesUseCase: DishesUseCase,
     private val localDatabase: LocalDatabase,
-    private val userRepository: UserRepository,
     private val networkUtils: NetworkUtils
 ) : ViewModel() {
-
     private val _uiState = MutableStateFlow<HomeUIState>(HomeUIState.Idle)
     val uiState: StateFlow<HomeUIState> get() = _uiState.asStateFlow()
-
     private val _foodItems = MutableStateFlow<List<FoodItem>>(emptyList())
     val foodItems: StateFlow<List<FoodItem>> get() = _foodItems.asStateFlow()
 
@@ -41,40 +40,35 @@ class HomeViewModel @Inject constructor(
     private val _user = MutableStateFlow<User?>(null)
     val user: StateFlow<User?> get() = _user.asStateFlow()
 
+    fun setUser(user: User?) {
+        _user.value = user
+    }
+
     fun loadInitialData() {
         if (networkUtils.isInternetAvailable()) {
-            loadUser()
             fetchFoodItems()
         } else {
             _uiState.value = HomeUIState.NoInternet
         }
     }
 
-    private fun loadUser() {
-        viewModelScope.launch(Dispatchers.IO) {
-            val user = localDatabase.getUser()
-            if (user != null) {
-                _user.update { user }
-                return@launch
-            }
+    fun loadUser() {
+        val user = localDatabase.getUser()
+        if (user != null) {
+            _user.value = user
+            return
+        }
 
-            userRepository.getUserByPhoneNumber { user ->
-                if (user != null) {
-                    _user.update {
-                        user
-                    }
-                    localDatabase.setUser(user)
-                } else {
-                    _user.update { null }
-                }
-            }
+        viewModelScope.launch(Dispatchers.IO) {
+            val fetchResult = userUseCase.getUserByPhoneNumber()
+            _uiState.value = fetchResult
         }
     }
 
     private fun fetchFoodItems() {
         viewModelScope.launch(Dispatchers.IO) {
             _uiState.value = HomeUIState.Loading
-            val fetchResult = dishesRepository.getDishes()
+            val fetchResult = dishesUseCase.getDishes()
             _uiState.value = fetchResult
         }
     }
@@ -126,7 +120,7 @@ class HomeViewModel @Inject constructor(
     fun logout() {
         viewModelScope.launch(Dispatchers.IO) {
             localDatabase.setUser(null)
-            userRepository.logout()
+            userUseCase.logout()
         }
     }
 

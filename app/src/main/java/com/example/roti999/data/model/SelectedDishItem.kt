@@ -1,4 +1,4 @@
-package com.example.roti999.data.dto
+package com.example.roti999.data.model
 
 data class SelectedDishItem(
     val id: String = "",

@@ -23,6 +23,7 @@ import com.google.firebase.FirebaseNetworkException
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
+import java.lang.Exception
 
 @AndroidEntryPoint
 class AuthenticationFragment : Fragment() {
@@ -76,7 +77,8 @@ class AuthenticationFragment : Fragment() {
         }
 
         binding.resendOtpBtn.setOnClickListener {
-            viewModel.resetState()
+            val phoneNumber = binding.phoneNumberEditText.text.toString().trim()
+            viewModel.resendOtp(phoneNumber, requireActivity())
         }
     }
 
@@ -140,22 +142,8 @@ class AuthenticationFragment : Fragment() {
             }
 
             is AuthUiState.AuthFailure -> {
+                handleException(state.e)
                 onSetLoading(false)
-                when (state.e) {
-                    is FirebaseNetworkException -> {
-                        viewModel.onSetUIEvent(ShowNoInternetDialog)
-                    }
-
-                    is FirebaseAuthInvalidCredentialsException -> {
-                        binding.otpEditTextInputLayout.error = "Invalid OTP"
-                        binding.otpEditTextInputLayout.isErrorEnabled = true
-                    }
-
-                    else -> {
-                        viewModel.onSetUIEvent(ShowToast("Authentication failed: ${state.e?.message}"))
-                        viewModel.resetState()
-                    }
-                }
             }
 
             AuthUiState.NoInternet -> {
@@ -182,10 +170,29 @@ class AuthenticationFragment : Fragment() {
         }
     }
 
+    private fun handleException(e: Exception?) {
+        when (e) {
+            is FirebaseNetworkException -> {
+                viewModel.onSetUIEvent(ShowNoInternetDialog)
+            }
+
+            is FirebaseAuthInvalidCredentialsException -> {
+                binding.otpEditTextInputLayout.error = "Invalid OTP"
+                binding.otpEditTextInputLayout.isErrorEnabled = true
+            }
+
+            else -> {
+                viewModel.onSetUIEvent(ShowToast("Authentication failed: ${e?.message}"))
+                viewModel.resetState()
+            }
+        }
+    }
+
     private fun onSetLoading(isLoading: Boolean) {
         binding.progressBar.isVisible = isLoading
         binding.sendOtpButton.isEnabled = !isLoading
         binding.verifyOtpButton.isEnabled = !isLoading && verificationId != null
+        binding.resendOtpBtn.isEnabled = !isLoading && verificationId != null
     }
 
     private fun showPhoneNumberInput() {

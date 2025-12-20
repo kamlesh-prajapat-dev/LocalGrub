@@ -1,7 +1,7 @@
 package com.example.roti999.ui.sharedviewmodel
 
 import androidx.lifecycle.ViewModel
-import com.example.roti999.data.dto.Order
+import com.example.roti999.data.model.Order
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow

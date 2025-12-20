@@ -1,6 +1,6 @@
 package com.example.roti999.data.remote.api
 
-import com.example.roti999.data.dto.NotificationRequest
+import com.example.roti999.data.model.NotificationRequest
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import kotlinx.serialization.json.Json
 import okhttp3.MediaType.Companion.toMediaType

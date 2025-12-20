@@ -2,8 +2,9 @@ package com.example.roti999.ui.screens.createprofile
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.roti999.data.dto.User
+import com.example.roti999.data.model.User
 import com.example.roti999.domain.repository.UserRepository
+import com.example.roti999.domain.usecase.UserUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -13,10 +14,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class CreateYourProfileViewModel @Inject constructor(
-    private val userRepository: UserRepository
+    private val userUseCase: UserUseCase
 ) : ViewModel() {
-
-
     private val _profileState = MutableStateFlow<ProfileUIState>(ProfileUIState.Idle)
     val profileState: StateFlow<ProfileUIState> get() = _profileState
     private val _user = MutableStateFlow<User?>(null)
@@ -28,7 +27,7 @@ class CreateYourProfileViewModel @Inject constructor(
 
     fun loadUser() {
         viewModelScope.launch {
-            val user = userRepository.getCurrentUser()
+            val user = userUseCase.getCurrentUser()
             if (user != null) {
                 _user.value = user
             } else {
@@ -50,11 +49,7 @@ class CreateYourProfileViewModel @Inject constructor(
                 }
 
                 val user = currentUser.copy(name = name, address = address)
-                userRepository.createUser(user) { profileState ->
-                    _profileState.update { profileState }
-                }
-            } else {
-                _profileState.value = ProfileUIState.ValidationErrors("User not logged in")
+                _profileState.value = userUseCase.createUser(user)
             }
         }
     }

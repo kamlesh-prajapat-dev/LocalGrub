@@ -1,6 +1,5 @@
 package com.example.roti999.ui.screens.eachorderstatus
 
-import android.annotation.SuppressLint
 import android.graphics.Typeface
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -14,7 +13,6 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.example.roti999.R
 import com.example.roti999.databinding.FragmentEachOrderStatusBinding
-import com.example.roti999.domain.model.FoodItem
 import com.example.roti999.ui.adapter.OrderSummaryAdapter
 import com.example.roti999.ui.sharedviewmodel.SharedHFToEOSFViewModel
 import com.example.roti999.util.Constant
@@ -25,10 +23,8 @@ import kotlinx.coroutines.launch
 class EachOrderStatusFragment : Fragment() {
     private var _binding: FragmentEachOrderStatusBinding? = null
     private val binding get() = _binding!!
-
     private val viewModel: EachOrderStatusViewModel by viewModels()
     private lateinit var orderSummaryAdapter: OrderSummaryAdapter
-
     private val sharedHFToEOSFViewModel: SharedHFToEOSFViewModel by activityViewModels()
 
     override fun onCreateView(
@@ -95,8 +91,6 @@ class EachOrderStatusFragment : Fragment() {
 
                     viewModel.onSetSelectItemList(selectedItems)
                     viewModel.onSetOrder(order)
-                } else {
-                    val hello = "Hello"
                 }
             }
         }

@@ -1,4 +1,4 @@
-package com.example.roti999.data.dto
+package com.example.roti999.data.model
 
 import kotlinx.serialization.Serializable
 

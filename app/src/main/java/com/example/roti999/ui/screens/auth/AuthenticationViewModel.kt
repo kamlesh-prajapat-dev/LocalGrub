@@ -4,6 +4,7 @@ import android.app.Activity
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.roti999.domain.repository.AuthRepository
+import com.example.roti999.domain.usecase.AuthUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -14,15 +15,12 @@ import javax.inject.Inject
 
 @HiltViewModel
 class AuthenticationViewModel @Inject constructor(
-    private val authRepository: AuthRepository
+    private val authUseCase: AuthUseCase
 ) : ViewModel() {
-    val authState: StateFlow<AuthUiState> = authRepository.authState
-
-    val verificationId: StateFlow<String?> = authRepository.verificationId
-
+    val authState: StateFlow<AuthUiState> = authUseCase.authState
+    val verificationId: StateFlow<String?> = authUseCase.verificationId
     private val _uiEvent = MutableSharedFlow<AuthUIEvent>()
     val uiEvent = _uiEvent.asSharedFlow()
-
     fun onSetUIEvent(event: AuthUIEvent) {
         viewModelScope.launch(Dispatchers.Default) {
             _uiEvent.emit(event)
@@ -30,7 +28,13 @@ class AuthenticationViewModel @Inject constructor(
     }
     fun sendOtp(phoneNumber: String, activity: Activity) {
         viewModelScope.launch {
-            authRepository.sendOtp(phoneNumber, activity)
+            authUseCase.sendOtp(phoneNumber, activity)
+        }
+    }
+
+    fun resendOtp(phoneNumber: String, activity: Activity) {
+        viewModelScope.launch {
+            authUseCase.resendOtp(phoneNumber, activity)
         }
     }
 
@@ -38,12 +42,11 @@ class AuthenticationViewModel @Inject constructor(
         val verificationId = verificationId.value
         if (verificationId != null) {
             viewModelScope.launch {
-                authRepository.verifyOtp(otp, verificationId)
+                authUseCase.verifyOtp(otp, verificationId)
             }
         }
     }
-
     fun resetState() {
-        authRepository.resetState()
+        authUseCase.resetState()
     }
 }
