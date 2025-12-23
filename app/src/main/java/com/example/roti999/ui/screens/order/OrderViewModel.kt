@@ -2,13 +2,12 @@ package com.example.roti999.ui.screens.order
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.roti999.data.model.OrderPlaced
-import com.example.roti999.data.model.SelectedDishItem
+import com.example.roti999.data.model.PlacedOrder
+import com.example.roti999.data.model.SelectedDish
 import com.example.roti999.data.model.User
 import com.example.roti999.domain.model.FoodItem
-import com.example.roti999.domain.repository.OrderRepository
 import com.example.roti999.domain.usecase.OrderUseCase
-import com.example.roti999.util.Constant
+import com.example.roti999.util.OrderStatus
 import com.google.firebase.Timestamp
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -58,13 +57,13 @@ class OrderViewModel @Inject constructor(
                 return@launch
             }
 
-            val orderPlaced = OrderPlaced(
+            val orderPlaced = PlacedOrder(
                 userId = user.uid,
                 userName = user.name,
                 userAddress = user.address,
                 userPhoneNumber = user.phoneNumber,
                 items = currentItems.map {
-                    SelectedDishItem(
+                    SelectedDish(
                         id = it.id,
                         name = it.name,
                         price = it.price,
@@ -73,7 +72,7 @@ class OrderViewModel @Inject constructor(
                 },
                 totalPrice = _totalPrice.value,
                 placeAt = Timestamp.now(),
-                status = Constant.PLACED.name,
+                status = OrderStatus.PLACED,
                 token = user.fcmToken
             )
 

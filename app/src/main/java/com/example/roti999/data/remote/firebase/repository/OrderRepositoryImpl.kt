@@ -1,7 +1,7 @@
 package com.example.roti999.data.remote.firebase.repository
 
-import com.example.roti999.data.model.Order
-import com.example.roti999.data.model.OrderPlaced
+import com.example.roti999.data.model.FetchedOrder
+import com.example.roti999.data.model.PlacedOrder
 import com.example.roti999.domain.model.OrderResult
 import com.example.roti999.domain.repository.OrderRepository
 import com.google.firebase.firestore.FirebaseFirestore
@@ -14,7 +14,7 @@ class OrderRepositoryImpl @Inject constructor(
     private val firestore: FirebaseFirestore
 ): OrderRepository {
     override suspend fun placeOrder(
-        orderPlaced: OrderPlaced
+        orderPlaced: PlacedOrder
     ): OrderResult {
         return try {
             var docId = ""
@@ -37,8 +37,8 @@ class OrderRepositoryImpl @Inject constructor(
                 .get()
                 .await()
             val orders = snapshot.documents.map {
-                it.toObject(Order::class.java)
-                    ?.copy(id = it.id) ?: Order()
+                it.toObject(FetchedOrder::class.java)
+                    ?.copy(id = it.id) ?: FetchedOrder()
             }
             OrderResult.OrdersSuccess(orders)
         } catch (e: Exception) {

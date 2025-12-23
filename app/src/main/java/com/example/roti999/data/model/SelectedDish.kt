@@ -1,6 +1,6 @@
 package com.example.roti999.data.model
 
-data class SelectedDishItem(
+data class SelectedDish(
     val id: String = "",
     val name: String = "",
     val price: Int = 0,

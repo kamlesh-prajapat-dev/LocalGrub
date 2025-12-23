@@ -11,19 +11,32 @@ import dagger.assisted.AssistedInject
 
 @HiltWorker
 class FCMTokenWorker @AssistedInject constructor(
-    @Assisted private val context: Context,
-    @Assisted private val workerParams: WorkerParameters,
+    @Assisted context: Context,
+    @Assisted workerParams: WorkerParameters,
     private val userUseCase: UserUseCase
-): CoroutineWorker(context, workerParams) {
+) : CoroutineWorker(context, workerParams) {
+
     override suspend fun doWork(): Result {
-        val token = inputData.getString("FCM_TOKEN") ?: return Result.failure()
+        val token = inputData.getString(KEY_FCM_TOKEN)
+            ?: return Result.failure()
 
         return try {
             userUseCase.saveNewToken(token)
             Result.success()
         } catch (e: Exception) {
-            Log.e("FCMTokenWorker", "Error saving FCM token", e)
-            Result.retry()
+            Log.e(TAG, "Error saving FCM token", e)
+
+            // Guard against infinite retries
+            if (runAttemptCount >= 3) {
+                Result.failure()
+            } else {
+                Result.retry()
+            }
         }
+    }
+
+    companion object {
+        const val KEY_FCM_TOKEN = "FCM_TOKEN"
+        private const val TAG = "FCMTokenWorker"
     }
 }

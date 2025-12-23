@@ -15,7 +15,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import com.example.roti999.R
-import com.example.roti999.data.model.Order
+import com.example.roti999.data.model.FetchedOrder
 import com.example.roti999.databinding.FragmentHistoryBinding
 import com.example.roti999.ui.adapter.OrderHistoryItemAdapter
 import com.example.roti999.ui.sharedviewmodel.SharedHFToCPFViewModel
@@ -120,8 +120,7 @@ class HistoryFragment : Fragment(), OrderHistoryItemAdapter.OrderHistoryItemClic
         binding.progressBar.isVisible = isLoading
     }
 
-
-    override fun onViewDetailsOrderHistoryItem(item: Order) {
+    override fun onViewDetailsOrderHistoryItem(item: FetchedOrder) {
         sharedHFToEOSFViewModel.onSetOrder(item)
         val action = HistoryFragmentDirections.actionHistoryFragmentToEachOrderStatusFragment()
         findNavController().navigate(action)

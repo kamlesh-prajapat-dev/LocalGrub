@@ -6,10 +6,10 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.example.roti999.data.model.SelectedDishItem
+import com.example.roti999.data.model.SelectedDish
 import com.example.roti999.databinding.OrderItemSummaryRowBinding
 
-class OrderSummaryAdapter : ListAdapter<SelectedDishItem, OrderSummaryAdapter.OrderItemViewHolder>(FoodItemDiffCallback()) {
+class OrderSummaryAdapter : ListAdapter<SelectedDish, OrderSummaryAdapter.OrderItemViewHolder>(FoodItemDiffCallback()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): OrderItemViewHolder {
         val binding =
@@ -24,18 +24,18 @@ class OrderSummaryAdapter : ListAdapter<SelectedDishItem, OrderSummaryAdapter.Or
     inner class OrderItemViewHolder(private val binding: OrderItemSummaryRowBinding) :
         RecyclerView.ViewHolder(binding.root) {
         @SuppressLint("InflateParams", "SetTextI18n")
-        fun bind(item: SelectedDishItem) {
+        fun bind(item: SelectedDish) {
             binding.itemNameAndQuantityTextView.text = "${item.name} (x${item.quantity})"
             binding.itemPriceTextView.text = "Rs. ${item.price * item.quantity}"
         }
     }
 
-    class FoodItemDiffCallback : DiffUtil.ItemCallback<SelectedDishItem>() {
-        override fun areItemsTheSame(oldItem: SelectedDishItem, newItem: SelectedDishItem): Boolean {
+    class FoodItemDiffCallback : DiffUtil.ItemCallback<SelectedDish>() {
+        override fun areItemsTheSame(oldItem: SelectedDish, newItem: SelectedDish): Boolean {
             return oldItem.id == newItem.id
         }
 
-        override fun areContentsTheSame(oldItem: SelectedDishItem, newItem: SelectedDishItem): Boolean {
+        override fun areContentsTheSame(oldItem: SelectedDish, newItem: SelectedDish): Boolean {
             return oldItem == newItem
         }
     }

@@ -14,15 +14,15 @@ class RotiApplication : Application(), Configuration.Provider {
     @Inject
     lateinit var workerFactory: HiltWorkerFactory
 
-    override fun onCreate() {
-        super.onCreate()
-        createNotificationChannel()
-    }
-
     override fun getWorkManagerConfiguration(): Configuration {
         return Configuration.Builder()
             .setWorkerFactory(workerFactory)
             .build()
+    }
+
+    override fun onCreate() {
+        super.onCreate()
+        createNotificationChannel()
     }
 
     private fun createNotificationChannel() {

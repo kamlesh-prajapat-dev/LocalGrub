@@ -15,7 +15,7 @@ import com.example.roti999.R
 import com.example.roti999.databinding.FragmentEachOrderStatusBinding
 import com.example.roti999.ui.adapter.OrderSummaryAdapter
 import com.example.roti999.ui.sharedviewmodel.SharedHFToEOSFViewModel
-import com.example.roti999.util.Constant
+import com.example.roti999.util.OrderStatus
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
@@ -59,19 +59,19 @@ class EachOrderStatusFragment : Fragment() {
             sharedHFToEOSFViewModel.order.collect { order ->
                 if (order != null) {
                     when(order.status) {
-                        Constant.PLACED.name -> {
+                        OrderStatus.PLACED -> {
                             setPlaced()
                         }
-                        Constant.CONFIRMED.name -> {
+                        OrderStatus.CONFIRMED -> {
                             setConfirmed()
                         }
-                        Constant.PREPARING.name -> {
+                        OrderStatus.PREPARING -> {
                             setPreparing()
                         }
-                        Constant.OUT_FOR_DELIVERY.name -> {
+                        OrderStatus.OUT_FOR_DELIVERY -> {
                             setOutForDelivery()
                         }
-                        Constant.DELIVERED.name -> {
+                        OrderStatus.DELIVERED -> {
                             setDelivered()
                         }
                     }
@@ -98,7 +98,7 @@ class EachOrderStatusFragment : Fragment() {
 
     private fun setPlaced() {
         binding.step1Icon.setImageResource(R.drawable.stepper_background_complete)
-        binding.step1Title.text = "ORDER ${Constant.PLACED.name}"
+        binding.step1Title.text = "ORDER ${OrderStatus.PLACED}"
         binding.step1Title.setTypeface(binding.step1Title.typeface, Typeface.BOLD)
         binding.step1Title.setTextColor(ContextCompat.getColor(requireContext(), R.color.green))
         binding.step1Line.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.green))
@@ -113,7 +113,7 @@ class EachOrderStatusFragment : Fragment() {
         setPlaced()
 
         binding.step2Icon.setImageResource(R.drawable.stepper_background_complete)
-        binding.step2Title.text = "ORDER ${Constant.CONFIRMED.name}"
+        binding.step2Title.text = "ORDER ${OrderStatus.CONFIRMED}"
         binding.step2Title.setTypeface(binding.step1Title.typeface, Typeface.BOLD)
         binding.step2Title.setTextColor(ContextCompat.getColor(requireContext(), R.color.green))
         binding.step2Line.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.green))
@@ -125,7 +125,7 @@ class EachOrderStatusFragment : Fragment() {
 
     private fun resetConfirmed() {
         binding.step2Icon.setImageResource(R.drawable.stepper_background_incomplete)
-        binding.step2Title.text = "ORDER ${Constant.CONFIRMED.name}"
+        binding.step2Title.text = "ORDER ${OrderStatus.CONFIRMED}"
         binding.step2Title.setTypeface(null, Typeface.NORMAL)
         binding.step2Title.setTextColor(ContextCompat.getColor(requireContext(), R.color.orange))
         binding.step2Line.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.orange))
@@ -136,7 +136,7 @@ class EachOrderStatusFragment : Fragment() {
         setConfirmed()
 
         binding.step3Icon.setImageResource(R.drawable.stepper_background_complete)
-        binding.step3Title.text = "ORDER ${Constant.PREPARING.name}"
+        binding.step3Title.text = "ORDER ${OrderStatus.PREPARING}"
         binding.step3Title.setTypeface(binding.step1Title.typeface, Typeface.BOLD)
         binding.step3Title.setTextColor(ContextCompat.getColor(requireContext(), R.color.green))
         binding.step3Line.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.green))
@@ -147,7 +147,7 @@ class EachOrderStatusFragment : Fragment() {
 
     private fun resetPreparing() {
         binding.step3Icon.setImageResource(R.drawable.stepper_background_incomplete)
-        binding.step3Title.text = "ORDER ${Constant.PREPARING.name}"
+        binding.step3Title.text = "ORDER ${OrderStatus.PREPARING}"
         binding.step3Title.setTypeface(null, Typeface.NORMAL)
         binding.step3Title.setTextColor(ContextCompat.getColor(requireContext(), R.color.orange))
         binding.step3Line.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.orange))
@@ -159,7 +159,7 @@ class EachOrderStatusFragment : Fragment() {
         setPreparing()
 
         binding.step4Icon.setImageResource(R.drawable.stepper_background_complete)
-        binding.step4Title.text = "ORDER ${Constant.OUT_FOR_DELIVERY.name}"
+        binding.step4Title.text = "ORDER ${OrderStatus.OUT_FOR_DELIVERY}"
         binding.step4Title.setTypeface(binding.step1Title.typeface, Typeface.BOLD)
         binding.step4Title.setTextColor(ContextCompat.getColor(requireContext(), R.color.green))
         binding.step4Line.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.green))
@@ -169,7 +169,7 @@ class EachOrderStatusFragment : Fragment() {
 
     private fun resetOutForDelivery() {
         binding.step4Icon.setImageResource(R.drawable.stepper_background_incomplete)
-        binding.step4Title.text = "ORDER ${Constant.OUT_FOR_DELIVERY.name}"
+        binding.step4Title.text = "ORDER ${OrderStatus.OUT_FOR_DELIVERY}"
         binding.step4Title.setTypeface(null, Typeface.NORMAL)
         binding.step4Title.setTextColor(ContextCompat.getColor(requireContext(), R.color.orange))
         binding.step4Line.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.orange))
@@ -182,14 +182,14 @@ class EachOrderStatusFragment : Fragment() {
         setOutForDelivery()
 
         binding.step5Icon.setImageResource(R.drawable.stepper_background_complete)
-        binding.step5Title.text = "ORDER ${Constant.DELIVERED.name}"
+        binding.step5Title.text = "ORDER ${OrderStatus.DELIVERED}"
         binding.step5Title.setTypeface(binding.step5Title.typeface, Typeface.BOLD)
         binding.step5Title.setTextColor(ContextCompat.getColor(requireContext(), R.color.green))
     }
 
     private fun resetDelivered() {
         binding.step5Icon.setImageResource(R.drawable.stepper_background_incomplete)
-        binding.step5Title.text = "ORDER ${Constant.DELIVERED.name}"
+        binding.step5Title.text = "ORDER ${OrderStatus.DELIVERED}"
         binding.step5Title.setTypeface(null, Typeface.NORMAL)
         binding.step5Title.setTextColor(ContextCompat.getColor(requireContext(), R.color.orange))
     }

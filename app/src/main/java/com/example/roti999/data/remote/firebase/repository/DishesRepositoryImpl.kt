@@ -1,6 +1,6 @@
 package com.example.roti999.data.remote.firebase.repository
 
-import com.example.roti999.data.model.DishItem
+import com.example.roti999.data.model.FetchedDish
 import com.example.roti999.domain.model.DishResult
 import com.example.roti999.domain.repository.DishesRepository
 import com.google.firebase.firestore.FirebaseFirestore
@@ -15,7 +15,7 @@ class DishesRepositoryImpl @Inject constructor(
     override suspend fun getDishes(): DishResult {
         return try {
             val snapshot = firestore.collection("dishes")
-                .whereEqualTo("isAvailable", true)
+                .whereEqualTo("available", true)
                 .get()
                 .await()
 
@@ -23,7 +23,7 @@ class DishesRepositoryImpl @Inject constructor(
 
             if (documents.isNotEmpty()) {
                 val dishes = snapshot.documents.map {
-                    it.toObject(DishItem::class.java)
+                    it.toObject(FetchedDish::class.java)
                         ?.copy(id = it.id)
                 }
                 DishResult.Success(dishes)

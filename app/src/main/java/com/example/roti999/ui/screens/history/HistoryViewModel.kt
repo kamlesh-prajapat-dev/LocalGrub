@@ -3,8 +3,7 @@ package com.example.roti999.ui.screens.history
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.roti999.data.local.LocalDatabase
-import com.example.roti999.data.model.Order
-import com.example.roti999.domain.repository.OrderRepository
+import com.example.roti999.data.model.FetchedOrder
 import com.example.roti999.domain.usecase.OrderUseCase
 import com.example.roti999.util.NetworkUtils
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -24,10 +23,10 @@ class HistoryViewModel @Inject constructor(
     private val _uiState = MutableStateFlow<HistoryUIState>(HistoryUIState.Idle)
     val uiState: StateFlow<HistoryUIState> get() = _uiState.asStateFlow()
 
-    private val _historyOrders = MutableStateFlow<List<Order>>(emptyList())
-    val historyOrders: StateFlow<List<Order>> = _historyOrders.asStateFlow()
+    private val _historyOrders = MutableStateFlow<List<FetchedOrder>>(emptyList())
+    val historyOrders: StateFlow<List<FetchedOrder>> = _historyOrders.asStateFlow()
 
-    fun onSetHistoryOrder(historyOrders: List<Order>) {
+    fun onSetHistoryOrder(historyOrders: List<FetchedOrder>) {
         _historyOrders.value = historyOrders
     }
 

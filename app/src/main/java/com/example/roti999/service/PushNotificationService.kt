@@ -1,6 +1,9 @@
 package com.example.roti999.service
 
 import android.util.Log
+import androidx.work.Constraints
+import androidx.work.ExistingWorkPolicy
+import androidx.work.NetworkType
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.workDataOf
@@ -23,12 +26,6 @@ class PushNotificationService : FirebaseMessagingService() {
     @Inject
     lateinit var notificationHelper: NotificationHelper
 
-    @Inject
-    lateinit var workManager: WorkManager
-    companion object {
-        private const val TAG = "PushNotificationService"
-    }
-
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
         remoteMessage.notification?.let {
             val orderId = remoteMessage.data["orderId"] ?: "Unknown Order"
@@ -39,14 +36,23 @@ class PushNotificationService : FirebaseMessagingService() {
     }
 
     override fun onNewToken(token: String) {
-        Log.d(TAG, "Refreshed token: $token")
 
-        val workRequest = OneTimeWorkRequestBuilder< FCMTokenWorker>()
+        val request = OneTimeWorkRequestBuilder<FCMTokenWorker>()
+            .setConstraints(
+                Constraints.Builder()
+                    .setRequiredNetworkType(NetworkType.CONNECTED)
+                    .build()
+            )
             .setInputData(
-                workDataOf("FCM_TOKEN" to token)
+                workDataOf(FCMTokenWorker.KEY_FCM_TOKEN to token)
             )
             .build()
 
-        workManager.enqueue(workRequest)
+        WorkManager.getInstance(applicationContext)
+            .enqueueUniqueWork(
+                "FCM_TOKEN_SYNC",
+                ExistingWorkPolicy.REPLACE,
+                request
+            )
     }
 }

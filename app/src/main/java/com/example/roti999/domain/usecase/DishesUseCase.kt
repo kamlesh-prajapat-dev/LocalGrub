@@ -1,6 +1,6 @@
 package com.example.roti999.domain.usecase
 
-import com.example.roti999.data.model.DishItem
+import com.example.roti999.data.model.FetchedDish
 import com.example.roti999.domain.model.DishResult
 import com.example.roti999.domain.model.FoodItem
 import com.example.roti999.domain.repository.DishesRepository
@@ -28,7 +28,7 @@ class DishesUseCase @Inject constructor(
         }
     }
 
-    private fun converter(dishItem: List<DishItem?>): List<FoodItem> {
+    private fun converter(dishItem: List<FetchedDish?>): List<FoodItem> {
         return dishItem.map {
             FoodItem(
                 id = it?.id ?: "",

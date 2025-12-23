@@ -36,4 +36,7 @@
     <string name="resend_otp_text">Did not recieve the code?</string>
     <string name="resend_btn_text">Resend</string>
     <string name="otp_title">Please enter the 6 digit code from the SMS sent to your phone</string>
+
+    <!-- WorkManager Initializer -->
+    <string name="workmanager_init_disable" translatable="false">androidx.work.impl.WorkManagerInitializer</string>
 </resources>

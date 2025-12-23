@@ -13,6 +13,7 @@ import com.example.roti999.domain.usecase.AuthUseCase
 import com.example.roti999.domain.usecase.DishesUseCase
 import com.example.roti999.domain.usecase.OrderUseCase
 import com.example.roti999.domain.usecase.UserUseCase
+import com.example.roti999.workerscheduler.SenderNotificationWorkerScheduler
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -40,13 +41,13 @@ object UseCasesModule {
     @Singleton
     fun provideOrderUseCase(
         orderRepository: OrderRepository,
-        workManager: WorkManager,
+        senderNotificationWorkerScheduler: SenderNotificationWorkerScheduler,
         ownerRepository: OwnerRepository,
         notificationRepository: NotificationRepository
     ): OrderUseCase {
         return OrderUseCase(
             orderRepository,
-            workManager = workManager,
+            senderNotificationWorkerScheduler = senderNotificationWorkerScheduler,
             ownerRepository = ownerRepository,
             notificationRepository = notificationRepository
         )
@@ -59,11 +60,5 @@ object UseCasesModule {
         localDatabase: LocalDatabase
     ): UserUseCase {
         return UserUseCase(userRepository, localDatabase)
-    }
-
-    @Provides
-    @Singleton
-    fun provideWorkManager(@ApplicationContext context: Context): WorkManager {
-        return WorkManager.getInstance(context)
     }
 }
