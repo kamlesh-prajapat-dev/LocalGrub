@@ -12,6 +12,7 @@ import com.example.roti999.databinding.OrderHistoryItemBinding
 import com.example.roti999.util.OrderStatus
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
+import java.util.Date
 
 class OrderHistoryItemAdapter(private val listener: OrderHistoryItemClickListener) : ListAdapter<FetchedOrder, OrderHistoryItemAdapter.OrderHistoryItemViewHolder>(OrderHistoryItemDiffCallback()) {
     interface OrderHistoryItemClickListener {
@@ -31,7 +32,7 @@ class OrderHistoryItemAdapter(private val listener: OrderHistoryItemClickListene
         @SuppressLint("SetTextI18n")
         fun bind(item: FetchedOrder) {
             val timestamp = item.placeAt     // Firestore Timestamp
-            val localDate = timestamp.toDate()
+            val localDate = Date(timestamp)
                 .toInstant()
                 .atZone(ZoneId.systemDefault())
                 .toLocalDate()
@@ -43,10 +44,16 @@ class OrderHistoryItemAdapter(private val listener: OrderHistoryItemClickListene
             binding.totalPriceTextView.text = "Rs. ${item.totalPrice}"
             binding.orderStatusTextView.text = item.status
 
-            if (item.status == OrderStatus.DELIVERED) {
-                binding.orderStatusTextView.setBackgroundResource(R.drawable.green_status_background)
-            } else {
-                binding.orderStatusTextView.setBackgroundResource(R.drawable.orange_status_background)
+            when (item.status) {
+                OrderStatus.DELIVERED -> {
+                    binding.orderStatusTextView.setBackgroundResource(R.drawable.green_status_background)
+                }
+                OrderStatus.CANCELLED -> {
+                    binding.orderStatusTextView.setBackgroundResource(R.drawable.red_status_background)
+                }
+                else -> {
+                    binding.orderStatusTextView.setBackgroundResource(R.drawable.orange_status_background)
+                }
             }
 
             binding.viewDetailsButton.setOnClickListener { listener.onViewDetailsOrderHistoryItem(item = item) }

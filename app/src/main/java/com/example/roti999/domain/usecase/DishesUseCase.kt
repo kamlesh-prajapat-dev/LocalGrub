@@ -5,27 +5,37 @@ import com.example.roti999.domain.model.DishResult
 import com.example.roti999.domain.model.FoodItem
 import com.example.roti999.domain.repository.DishesRepository
 import com.example.roti999.ui.screens.home.HomeUIState
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
 class DishesUseCase @Inject constructor(
     private val dishesRepository: DishesRepository
 ) {
-    suspend fun getDishes(): HomeUIState {
-        return when(val dishResult = dishesRepository.getDishes()) {
-            is DishResult.Success -> {
-                val dishes = dishResult.dishes
-                if (dishes.isNotEmpty()) {
-                    val foodItems = converter(dishes)
-                    HomeUIState.Success(foodItems)
-                } else {
-                    HomeUIState.Success(emptyList())
+    fun getDishes(): Flow<HomeUIState> {
+        return dishesRepository.observeDishes()
+            .map { dishResult ->
+                when (dishResult) {
+                    is DishResult.Success -> {
+                        val dishes = dishResult.dishes
+
+                        if (dishes.isNotEmpty()) {
+                            val foodItems = converter(dishes)
+                            HomeUIState.Success(foodItems)
+                        } else {
+                            HomeUIState.Success(emptyList())
+                        }
+                    }
+
+                    is DishResult.Error -> {
+                        HomeUIState.Error(dishResult.e)
+                    }
                 }
             }
-
-            is DishResult.Error -> {
-                HomeUIState.Error(dishResult.e)
+            .catch { exception ->
+                emit(HomeUIState.Error(exception as Exception))
             }
-        }
     }
 
     private fun converter(dishItem: List<FetchedDish?>): List<FoodItem> {

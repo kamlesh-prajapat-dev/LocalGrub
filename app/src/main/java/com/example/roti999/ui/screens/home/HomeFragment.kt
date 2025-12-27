@@ -44,11 +44,6 @@ class HomeFragment : Fragment(), FoodItemAdapter.FoodItemClickListener {
         return binding.root
     }
 
-    override fun onResume() {
-        super.onResume()
-        viewModel.loadInitialData()
-    }
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -205,10 +200,7 @@ class HomeFragment : Fragment(), FoodItemAdapter.FoodItemClickListener {
     }
     private fun showNoInternetDialog() {
         if (noInternetDialog?.isAdded == true) return
-        noInternetDialog = NoInternetDialogFragment(onClick = {
-            viewModel.reset()
-            viewModel.loadInitialData()
-        })
+        noInternetDialog = NoInternetDialogFragment()
         noInternetDialog?.show(childFragmentManager, "NoInternetDialog")
     }
     private fun onSetLoading(flag: Boolean) {

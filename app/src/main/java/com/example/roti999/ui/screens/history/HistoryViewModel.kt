@@ -11,6 +11,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -31,19 +34,25 @@ class HistoryViewModel @Inject constructor(
     }
 
     fun loadOrderHistoryItems() {
-        viewModelScope.launch(Dispatchers.IO) {
-            if (networkUtils.isInternetAvailable()) {
-                _uiState.value = HistoryUIState.Loading
-                val currentUser = localDatabase.getUser()
-                if (currentUser != null) {
-                    _uiState.value = orderUseCase.getOrders(userId = currentUser.uid)
-                } else {
-                    _uiState.value = HistoryUIState.NavigateToCreateProfile
-                }
-            } else {
-                _uiState.value = HistoryUIState.NoInternet
+
+        val currentUser = localDatabase.getUser()
+            ?: run {
+                _uiState.value = HistoryUIState.NavigateToCreateProfile
+                return
             }
+
+        if (!networkUtils.isInternetAvailable()) {
+            _uiState.value = HistoryUIState.NoInternet
         }
+
+        orderUseCase.observeOrders(currentUser.uid)
+            .onStart {
+                _uiState.value = HistoryUIState.Loading
+            }
+            .onEach { state ->
+                _uiState.value = state
+            }
+            .launchIn(viewModelScope)
     }
 
     fun reset() {

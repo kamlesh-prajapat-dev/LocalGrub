@@ -17,6 +17,8 @@ object DishFields {
 object OrderFields {
     const val COLLECTION = "orders"
     const val STATUS = "status"
+    const val PREVIOUS_STATUS = "previousStatus"
+    const val USER_ID = "userId"
 }
 
 object ShopOwnerFields {

@@ -5,7 +5,6 @@ import androidx.lifecycle.viewModelScope
 import com.example.roti999.data.local.LocalDatabase
 import com.example.roti999.data.model.User
 import com.example.roti999.domain.model.FoodItem
-import com.example.roti999.domain.repository.UserRepository
 import com.example.roti999.domain.usecase.DishesUseCase
 import com.example.roti999.domain.usecase.UserUseCase
 import com.example.roti999.util.NetworkUtils
@@ -14,7 +13,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -44,12 +45,8 @@ class HomeViewModel @Inject constructor(
         _user.value = user
     }
 
-    fun loadInitialData() {
-        if (networkUtils.isInternetAvailable()) {
-            fetchFoodItems()
-        } else {
-            _uiState.value = HomeUIState.NoInternet
-        }
+    init {
+        fetchFoodItems()
     }
 
     fun loadUser() {
@@ -66,11 +63,18 @@ class HomeViewModel @Inject constructor(
     }
 
     private fun fetchFoodItems() {
-        viewModelScope.launch(Dispatchers.IO) {
-            _uiState.value = HomeUIState.Loading
-            val fetchResult = dishesUseCase.getDishes()
-            _uiState.value = fetchResult
+        if (!networkUtils.isInternetAvailable()) {
+            _uiState.value = HomeUIState.NoInternet
         }
+
+        dishesUseCase.getDishes()
+            .onStart {
+                _uiState.value = HomeUIState.Loading
+            }
+            .onEach { state ->
+                _uiState.value = state
+            }
+            .launchIn(viewModelScope)
     }
 
     fun onIncreaseQuantity(item: FoodItem) {

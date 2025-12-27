@@ -8,7 +8,6 @@ import com.example.roti999.data.model.User
 import com.example.roti999.domain.model.FoodItem
 import com.example.roti999.domain.usecase.OrderUseCase
 import com.example.roti999.util.OrderStatus
-import com.google.firebase.Timestamp
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -71,8 +70,9 @@ class OrderViewModel @Inject constructor(
                     )
                 },
                 totalPrice = _totalPrice.value,
-                placeAt = Timestamp.now(),
+                placeAt = System.currentTimeMillis(),
                 status = OrderStatus.PLACED,
+                previousStatus = OrderStatus.PLACED,
                 token = user.fcmToken
             )
 
