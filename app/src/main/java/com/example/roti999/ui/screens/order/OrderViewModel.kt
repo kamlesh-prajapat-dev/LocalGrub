@@ -7,6 +7,7 @@ import com.example.roti999.data.model.SelectedDish
 import com.example.roti999.data.model.User
 import com.example.roti999.domain.model.FoodItem
 import com.example.roti999.domain.usecase.OrderUseCase
+import com.example.roti999.util.NetworkUtils
 import com.example.roti999.util.OrderStatus
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -17,7 +18,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class OrderViewModel @Inject constructor(
-    private val orderUseCase: OrderUseCase
+    private val orderUseCase: OrderUseCase,
+    private val networkUtils: NetworkUtils
 ) : ViewModel() {
     private val _orderUIState = MutableStateFlow<OrderUIState>(OrderUIState.Idle)
     val orderUIState: StateFlow<OrderUIState> get() = _orderUIState.asStateFlow()
@@ -42,19 +44,25 @@ class OrderViewModel @Inject constructor(
     }
 
     fun placeOrder() {
+        _orderUIState.value = OrderUIState.Loading
+
+        if (!networkUtils.isInternetAvailable()) {
+            _orderUIState.value = OrderUIState.NoInternet
+            return
+        }
+
+        val user = currentUser
+        if (user == null) {
+            _orderUIState.value = OrderUIState.ValidationError("User details not found.")
+            return
+        }
+
+        if (currentItems.isEmpty()) {
+            _orderUIState.value = OrderUIState.ValidationError("Your cart is empty.")
+            return
+        }
+
         viewModelScope.launch {
-            _orderUIState.value = OrderUIState.Loading
-
-            val user = currentUser
-            if (user == null) {
-                _orderUIState.value = OrderUIState.ValidationError("User details not found.")
-                return@launch
-            }
-
-            if (currentItems.isEmpty()) {
-                _orderUIState.value = OrderUIState.ValidationError("Your cart is empty.")
-                return@launch
-            }
 
             val orderPlaced = PlacedOrder(
                 userId = user.uid,

@@ -8,4 +8,5 @@ sealed interface OrderUIState {
     data class Success(val order: FetchedOrder): OrderUIState
     data class Error(val e: Exception): OrderUIState
     data class ValidationError(val message: String): OrderUIState
+    object NoInternet: OrderUIState
 }

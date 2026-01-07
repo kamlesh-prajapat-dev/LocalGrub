@@ -1,6 +1,7 @@
 package com.example.roti999.ui.screens.order
 
 import android.annotation.SuppressLint
+import android.app.AlertDialog
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -14,6 +15,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
+import com.example.roti999.R
 import com.example.roti999.data.model.SelectedDish
 import com.example.roti999.ui.adapter.OrderSummaryAdapter
 import com.example.roti999.databinding.FragmentOrderBinding
@@ -99,6 +101,11 @@ class OrderFragment : Fragment() {
                 Toast.makeText(requireContext(), state.message, Toast.LENGTH_SHORT).show()
                 onSetLoading(false)
             }
+
+            is OrderUIState.NoInternet -> {
+                showNoInternetDialog()
+                onSetLoading(false)
+            }
         }
     }
 
@@ -152,6 +159,18 @@ class OrderFragment : Fragment() {
         // You would show/hide a progress bar here
         binding.progressBar.isVisible = isLoading
     }
+
+    private fun showNoInternetDialog() {
+        AlertDialog.Builder(requireContext())
+            .setTitle(R.string.no_internet_connection)
+            .setMessage(R.string.check_internet_connection)
+            .setPositiveButton(R.string.ok) { dialog, _ ->
+                dialog.dismiss()
+            }
+            .create()
+            .show()
+    }
+
 
     override fun onDestroyView() {
         super.onDestroyView()

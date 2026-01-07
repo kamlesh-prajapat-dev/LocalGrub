@@ -1,5 +1,6 @@
 package com.example.roti999.ui.screens.createprofile
 
+import android.app.AlertDialog
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -116,9 +117,14 @@ class CreateYourProfileFragment : Fragment() {
             }
 
             ProfileUIState.NavigateToLogin -> {
-                setLoading(false)
                 val action = CreateYourProfileFragmentDirections.actionCreateYourProfileFragmentToAuthenticationFragment()
                 findNavController().navigate(action)
+                setLoading(false)
+            }
+
+            ProfileUIState.NoInternet -> {
+                showNoInternetDialog()
+                setLoading(false)
             }
         }
     }
@@ -143,6 +149,17 @@ class CreateYourProfileFragment : Fragment() {
             val address = binding.addressEditText.text.toString().trim()
             viewModel.editUser(name, address)
         }
+    }
+
+    private fun showNoInternetDialog() {
+        AlertDialog.Builder(requireContext())
+            .setTitle(R.string.no_internet_connection)
+            .setMessage(R.string.check_internet_connection)
+            .setPositiveButton(R.string.ok) { dialog, _ ->
+                dialog.dismiss()
+            }
+            .create()
+            .show()
     }
     private fun setLoading(isLoading: Boolean) {
         // You would show/hide a progress bar here

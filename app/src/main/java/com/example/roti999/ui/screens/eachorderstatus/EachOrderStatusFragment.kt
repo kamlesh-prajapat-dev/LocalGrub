@@ -1,5 +1,6 @@
 package com.example.roti999.ui.screens.eachorderstatus
 
+import android.app.AlertDialog
 import android.graphics.Typeface
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -34,14 +35,23 @@ class EachOrderStatusFragment : Fragment() {
     private val viewModel: EachOrderStatusViewModel by viewModels()
     private val sharedViewModel: SharedHFToEOSFViewModel by activityViewModels()
     private lateinit var orderSummaryAdapter: OrderSummaryAdapter
-    private var currentOrder: FetchedOrder? = null
 
-    private data class Step(val icon: ImageView, val title: TextView, val line: View?, val status: String)
+    private data class Step(
+        val icon: ImageView,
+        val title: TextView,
+        val line: View?,
+        val status: String
+    )
+
     private lateinit var steps: List<Step>
 
     private enum class StepState { COMPLETE, INCOMPLETE, CANCELLED }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
         _binding = FragmentEachOrderStatusBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -53,6 +63,9 @@ class EachOrderStatusFragment : Fragment() {
     }
 
     private fun setupUI() {
+        val orderId = sharedViewModel.order.value?.id ?: ""
+        viewModel.observeOrderById(orderId)
+
         orderSummaryAdapter = OrderSummaryAdapter()
         binding.orderedItemsRecyclerView.adapter = orderSummaryAdapter
 
@@ -60,50 +73,61 @@ class EachOrderStatusFragment : Fragment() {
             Step(binding.step1Icon, binding.step1Title, binding.step1Line, OrderStatus.PLACED),
             Step(binding.step2Icon, binding.step2Title, binding.step2Line, OrderStatus.CONFIRMED),
             Step(binding.step3Icon, binding.step3Title, binding.step3Line, OrderStatus.PREPARING),
-            Step(binding.step4Icon, binding.step4Title, binding.step4Line, OrderStatus.OUT_FOR_DELIVERY),
+            Step(
+                binding.step4Icon,
+                binding.step4Title,
+                binding.step4Line,
+                OrderStatus.OUT_FOR_DELIVERY
+            ),
             Step(binding.step5Icon, binding.step5Title, null, OrderStatus.DELIVERED)
         )
 
         binding.topAppBar.setNavigationOnClickListener { findNavController().navigateUp() }
 
         binding.cancelButton.setOnClickListener {
-            currentOrder?.let { viewModel.cancelOrder(it.id, it.status) }
-                ?: Toast.makeText(requireContext(), "Order not found", Toast.LENGTH_SHORT).show()
+            viewModel.cancelOrder()
         }
     }
 
     private fun observeViewModels() {
         viewLifecycleOwner.lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                launch {
-                    sharedViewModel.order.collect { order ->
-                        order?.let {
-                            currentOrder = it
-                            updateUiWithOrder(it)
+                viewModel.uiState.collect { uiState ->
+                    setLoading(uiState is EachOrderUIState.Loading)
+                    when (uiState) {
+                        is EachOrderUIState.Success -> {
+                            Toast.makeText(
+                                requireContext(),
+                                "Order Successfully Cancelled.",
+                                Toast.LENGTH_SHORT
+                            ).show()
                         }
+
+                        is EachOrderUIState.Failure -> Toast.makeText(
+                            requireContext(),
+                            uiState.exception.message,
+                            Toast.LENGTH_LONG
+                        ).show()
+
+                        is EachOrderUIState.OrderGetSuccess -> {
+                            viewModel.onSetOrder(uiState.order)
+                        }
+
+                        is EachOrderUIState.NoInternet -> {
+                            showNoInternetDialog()
+                        }
+
+                        else -> Unit
                     }
                 }
+            }
+        }
 
-                launch {
-                    viewModel.uiState.collect { uiState ->
-                        setLoading(uiState is EachOrderUIState.Loading)
-                        when (uiState) {
-                            is EachOrderUIState.Success -> {
-                                val order = currentOrder
-                                if (order != null) {
-                                    val status = order.status
-                                    currentOrder = order.copy(
-                                        previousStatus = status,
-                                        status = OrderStatus.CANCELLED
-                                    )
-                                    // After successful cancellation, update the UI with the new local state
-                                    currentOrder?.let { updateUiWithOrder(it) }
-                                }
-                                Toast.makeText(requireContext(), "Order Successfully Cancelled.", Toast.LENGTH_SHORT).show()
-                            }
-                            is EachOrderUIState.Failure -> Toast.makeText(requireContext(), uiState.exception.message, Toast.LENGTH_LONG).show()
-                            else -> Unit
-                        }
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.order.collect { order ->
+                    if (order != null) {
+                        updateUiWithOrder(order)
                     }
                 }
             }
@@ -125,11 +149,16 @@ class EachOrderStatusFragment : Fragment() {
 
     private fun updateStatusStepper(order: FetchedOrder) {
         val currentStatus = order.status
-        val isCancelable = currentStatus in listOf(OrderStatus.PLACED, OrderStatus.CONFIRMED, OrderStatus.PREPARING)
+        val isCancelable = currentStatus in listOf(
+            OrderStatus.PLACED,
+            OrderStatus.CONFIRMED,
+            OrderStatus.PREPARING
+        )
         binding.cancelButton.isVisible = isCancelable
 
         if (currentStatus == OrderStatus.CANCELLED) {
-            val lastCompletedIndex = steps.indexOfFirst { it.status == order.previousStatus }.takeIf { it != -1 } ?: -1
+            val lastCompletedIndex =
+                steps.indexOfFirst { it.status == order.previousStatus }.takeIf { it != -1 } ?: -1
 
             steps.forEachIndexed { index, step ->
                 when {
@@ -137,11 +166,14 @@ class EachOrderStatusFragment : Fragment() {
                         setStepVisibility(step, true)
                         applyStateToStep(step, StepState.COMPLETE)
                     }
+
                     index == lastCompletedIndex + 1 -> {
                         setStepVisibility(step, true)
                         applyStateToStep(step, StepState.CANCELLED)
-                        step.line?.isVisible = false // Hide the line pointing away from the CANCELLED status
+                        step.line?.isVisible =
+                            false // Hide the line pointing away from the CANCELLED status
                     }
+
                     else -> {
                         setStepVisibility(step, false) // Hide all subsequent steps
                     }
@@ -183,12 +215,14 @@ class EachOrderStatusFragment : Fragment() {
                 lineBgColor = green
                 typeFace = Typeface.BOLD
             }
+
             StepState.INCOMPLETE -> {
                 iconRes = R.drawable.stepper_background_incomplete
                 textColor = orange
                 lineBgColor = orange
                 typeFace = Typeface.NORMAL
             }
+
             StepState.CANCELLED -> {
                 iconRes = R.drawable.stepper_background_cancel
                 textColor = red
@@ -198,10 +232,22 @@ class EachOrderStatusFragment : Fragment() {
         }
 
         step.icon.setImageResource(iconRes)
-        step.title.text = if (state == StepState.CANCELLED) "ORDER CANCELLED" else "ORDER ${step.status}"
+        step.title.text =
+            if (state == StepState.CANCELLED) "ORDER CANCELLED" else "ORDER ${step.status}"
         step.title.setTextColor(textColor)
         step.title.setTypeface(null, typeFace)
         step.line?.setBackgroundColor(lineBgColor)
+    }
+
+    private fun showNoInternetDialog() {
+        AlertDialog.Builder(requireContext())
+            .setTitle(R.string.no_internet_connection)
+            .setMessage(R.string.check_internet_connection)
+            .setPositiveButton(R.string.ok) { dialog, _ ->
+                dialog.dismiss()
+            }
+            .create()
+            .show()
     }
 
     private fun setLoading(isLoading: Boolean) {

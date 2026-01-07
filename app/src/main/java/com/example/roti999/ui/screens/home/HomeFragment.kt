@@ -154,7 +154,16 @@ class HomeFragment : Fragment(), FoodItemAdapter.FoodItemClickListener {
                 if (list.isNotEmpty()) {
                     binding.showEmptyListStateTextView.isVisible = false
                     binding.foodItemsRecyclerView.isVisible = true
-                    viewModel.onChangeFoodItems(state.dishes)
+                    val selectedDishes = sharedHCOViewModel.selectItemList.value
+                    val listWithSelected = if(selectedDishes.isNotEmpty()) {
+                        list.map { item ->
+                            val isSelected = selectedDishes.any { it.id == item.id }
+                            item.copy(isSelected = isSelected)
+                        }
+                    } else {
+                        list
+                    }
+                    viewModel.onChangeFoodItems(listWithSelected)
                 } else {
                     binding.showEmptyListStateTextView.isVisible = true
                     binding.showEmptyListStateTextView.text = "No dishes found"

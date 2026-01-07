@@ -6,6 +6,7 @@ import com.example.roti999.data.model.PlacedOrder
 sealed interface OrderResult {
     data class Success(val orderPlaced: PlacedOrder, val docId: String): OrderResult
     data class Error(val e: Exception): OrderResult
-    data class OrdersSuccess(val orders: List<FetchedOrder>): OrderResult
+    data class OrdersGetSuccess(val orders: List<FetchedOrder>): OrderResult
     data class OrderCancelSuccess(val isSuccess: Boolean): OrderResult
+    data class OrderGetSuccessByOrderId(val order: FetchedOrder): OrderResult
 }

@@ -5,12 +5,10 @@ import com.example.roti999.data.model.PlacedOrder
 import com.example.roti999.domain.model.OrderResult
 import com.example.roti999.domain.repository.OrderRepository
 import com.example.roti999.util.OrderFields
-import com.example.roti999.util.OrderStatus
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
-import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
@@ -43,6 +41,7 @@ class OrderRepositoryImpl @Inject constructor(
             OrderResult.Error(e)
         }
     }
+
     override fun observeOrders(userId: String): Flow<OrderResult> = callbackFlow {
 
         val ref = realTimeDatabase.getReference(OrderFields.COLLECTION)
@@ -55,7 +54,7 @@ class OrderRepositoryImpl @Inject constructor(
                     child.getValue(FetchedOrder::class.java)
                         ?.copy(id = child.key ?: "")
                 }
-                trySend(OrderResult.OrdersSuccess(orders))
+                trySend(OrderResult.OrdersGetSuccess(orders))
             }
 
             override fun onCancelled(error: DatabaseError) {
@@ -65,6 +64,30 @@ class OrderRepositoryImpl @Inject constructor(
 
         query.addValueEventListener(listener)
 
+        awaitClose {
+            query.removeEventListener(listener)
+        }
+    }
+
+    override fun observeOrderById(orderId: String): Flow<OrderResult>  = callbackFlow {
+        val ref = realTimeDatabase.getReference(OrderFields.COLLECTION)
+        val query = ref.child(orderId)
+
+        val listener = object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                val order = snapshot.getValue(FetchedOrder::class.java)?.copy(id = orderId)
+                if (order != null) {
+                    trySend(OrderResult.OrderGetSuccessByOrderId(order))
+                } else {
+                    trySend(OrderResult.Error(Exception("Order not found")))
+                }
+            }
+            override fun onCancelled(error: DatabaseError) {
+                close(error.toException())
+            }
+        }
+
+        query.addValueEventListener(listener)
         awaitClose {
             query.removeEventListener(listener)
         }

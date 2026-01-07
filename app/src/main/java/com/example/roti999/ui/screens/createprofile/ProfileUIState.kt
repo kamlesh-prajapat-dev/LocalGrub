@@ -10,6 +10,7 @@ sealed interface ProfileUIState {
     object Success : ProfileUIState
     data class Failure(val e: Exception) : ProfileUIState
     data class ValidationErrors(val errors: String) : ProfileUIState
+    object NoInternet: ProfileUIState
 
     object NavigateToLogin: ProfileUIState
 }

@@ -100,7 +100,7 @@ class OrderUseCase @Inject constructor(
         return orderRepository.observeOrders(userId)
             .map { result ->
                 when (result) {
-                    is OrderResult.OrdersSuccess -> {
+                    is OrderResult.OrdersGetSuccess -> {
                         val sortedOrders =
                             result.orders.sortedByDescending { it.placeAt }
                         HistoryUIState.Success(sortedOrders)
@@ -118,6 +118,22 @@ class OrderUseCase @Inject constructor(
             }
     }
 
+    fun observeOrderById(orderId: String): Flow<EachOrderUIState> {
+        return orderRepository.observeOrderById(orderId)
+            .map { result ->
+                when(result) {
+                    is OrderResult.OrderGetSuccessByOrderId -> {
+                        EachOrderUIState.OrderGetSuccess(result.order)
+                    }
+                    is OrderResult.Error -> {
+                        EachOrderUIState.Failure(result.e)
+                    }
+                    else -> EachOrderUIState.Idle
+                }
+            }.catch {
+                emit(EachOrderUIState.Failure(it as Exception))
+            }
+    }
 
     private fun converter(orderPlaced: PlacedOrder, docId: String): FetchedOrder {
         return FetchedOrder(

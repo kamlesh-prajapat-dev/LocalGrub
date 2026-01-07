@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.roti999.data.model.User
 import com.example.roti999.domain.repository.UserRepository
 import com.example.roti999.domain.usecase.UserUseCase
+import com.example.roti999.util.NetworkUtils
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -14,7 +15,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class CreateYourProfileViewModel @Inject constructor(
-    private val userUseCase: UserUseCase
+    private val userUseCase: UserUseCase,
+    private val networkUtils: NetworkUtils
 ) : ViewModel() {
     private val _profileState = MutableStateFlow<ProfileUIState>(ProfileUIState.Idle)
     val profileState: StateFlow<ProfileUIState> get() = _profileState
@@ -22,24 +24,26 @@ class CreateYourProfileViewModel @Inject constructor(
     val user: StateFlow<User?> get() = _user
 
     fun onSetUser(user: User) {
-        _user.update { user }
+        _user.value = user
     }
 
     fun loadUser() {
-        viewModelScope.launch {
-            val user = userUseCase.getCurrentUser()
-            if (user != null) {
-                _user.value = user
-            } else {
-                _profileState.value = ProfileUIState.NavigateToLogin
-            }
+        val user = userUseCase.getCurrentUser()
+        if (user != null) {
+            _user.value = user
+        } else {
+            _profileState.value = ProfileUIState.NavigateToLogin
         }
     }
 
     fun editUser(name: String, address: String) {
-        viewModelScope.launch {
-            _profileState.value = ProfileUIState.Loading
+        _profileState.value = ProfileUIState.Loading
 
+        if (!networkUtils.isInternetAvailable()) {
+            _profileState.value = ProfileUIState.NoInternet
+            return
+        }
+        viewModelScope.launch {
             val currentUser = user.value
             if (currentUser != null) {
                 val validationResult = validate(name, address, currentUser)
