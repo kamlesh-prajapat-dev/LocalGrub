@@ -29,6 +29,12 @@ class CreateYourProfileFragment : Fragment() {
     private val sharedHCOViewModel: SharedHCOViewModel by activityViewModels()
     private val sharedHFToCPFViewModel: SharedHFToCPFViewModel by activityViewModels()
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        observeSharedViewModel()
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -40,24 +46,20 @@ class CreateYourProfileFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        observeSharedViewModel()
         observeViewModel()
         setupListeners()
     }
 
     private fun observeSharedViewModel() {
-        viewLifecycleOwner.lifecycleScope.launch {
-            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                sharedHCOViewModel.user.collect {
-                    if (it != null) {
-                        viewModel.onSetUser(it)
-                    } else {
-                        viewModel.loadUser()
-                    }
-                }
-            }
+        val user = sharedHCOViewModel.user.value
+        if (user != null) {
+            viewModel.onSetUser(user)
+        } else {
+            viewModel.loadUser()
         }
+
     }
+
     private fun observeViewModel() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -117,7 +119,8 @@ class CreateYourProfileFragment : Fragment() {
             }
 
             ProfileUIState.NavigateToLogin -> {
-                val action = CreateYourProfileFragmentDirections.actionCreateYourProfileFragmentToAuthenticationFragment()
+                val action =
+                    CreateYourProfileFragmentDirections.actionCreateYourProfileFragmentToAuthenticationFragment()
                 findNavController().navigate(action)
                 setLoading(false)
             }
@@ -161,6 +164,7 @@ class CreateYourProfileFragment : Fragment() {
             .create()
             .show()
     }
+
     private fun setLoading(isLoading: Boolean) {
         // You would show/hide a progress bar here
         binding.progressBar.isVisible = isLoading

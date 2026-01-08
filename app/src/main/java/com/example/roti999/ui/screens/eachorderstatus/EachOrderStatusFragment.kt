@@ -1,5 +1,6 @@
 package com.example.roti999.ui.screens.eachorderstatus
 
+import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.graphics.Typeface
 import android.os.Bundle
@@ -36,6 +37,15 @@ class EachOrderStatusFragment : Fragment() {
     private val sharedViewModel: SharedHFToEOSFViewModel by activityViewModels()
     private lateinit var orderSummaryAdapter: OrderSummaryAdapter
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        val orderId = sharedViewModel.order.value?.id
+        if (orderId != null) {
+            viewModel.observeOrderById(orderId)
+        }
+    }
+
     private data class Step(
         val icon: ImageView,
         val title: TextView,
@@ -63,9 +73,6 @@ class EachOrderStatusFragment : Fragment() {
     }
 
     private fun setupUI() {
-        val orderId = sharedViewModel.order.value?.id ?: ""
-        viewModel.observeOrderById(orderId)
-
         orderSummaryAdapter = OrderSummaryAdapter()
         binding.orderedItemsRecyclerView.adapter = orderSummaryAdapter
 
@@ -134,6 +141,7 @@ class EachOrderStatusFragment : Fragment() {
         }
     }
 
+    @SuppressLint("SetTextI18n")
     private fun updateUiWithOrder(order: FetchedOrder) {
         orderSummaryAdapter.submitList(order.items)
         viewModel.onSetSelectItemList(order.items)

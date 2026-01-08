@@ -32,6 +32,12 @@ class HistoryFragment : Fragment(), OrderHistoryItemAdapter.OrderHistoryItemClic
     private val sharedHFToCPFViewModel: SharedHFToCPFViewModel by activityViewModels()
     private lateinit var orderHistoryItemAdapter: OrderHistoryItemAdapter
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        viewModel.loadOrderHistoryItems()
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -45,11 +51,6 @@ class HistoryFragment : Fragment(), OrderHistoryItemAdapter.OrderHistoryItemClic
 
         setupRecyclerView()
         observeViewModel()
-    }
-
-    override fun onResume() {
-        super.onResume()
-        viewModel.loadOrderHistoryItems()
     }
 
     private fun setupRecyclerView() {

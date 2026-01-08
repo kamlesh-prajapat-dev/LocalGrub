@@ -25,19 +25,21 @@ class OrderViewModel @Inject constructor(
     val orderUIState: StateFlow<OrderUIState> get() = _orderUIState.asStateFlow()
     private val _totalPrice = MutableStateFlow(0.0)
     val totalPrice: StateFlow<Double> get() = _totalPrice.asStateFlow()
-    private var currentUser: User? = null
-    private var currentItems: List<FoodItem> = emptyList()
+    private val _currentUser = MutableStateFlow<User?>(null)
+    val currentUser: StateFlow<User?> get() = _currentUser.asStateFlow()
+    private val _currentItemList = MutableStateFlow<List<SelectedDish>>(emptyList())
+    val currentItems: StateFlow<List<SelectedDish>> get() = _currentItemList.asStateFlow()
     fun updateUserData(user: User) {
-        currentUser = user
+        _currentUser.value = user
     }
 
-    fun updateOrderDetails(items: List<FoodItem>) {
-        currentItems = items
+    fun updateOrderDetails(items: List<SelectedDish>) {
+        _currentItemList.value = items
         calculateTotalPrice()
     }
 
     private fun calculateTotalPrice() {
-        val total = currentItems.sumOf { item ->
+        val total = currentItems.value.sumOf { item ->
             item.price * item.quantity
         }
         _totalPrice.value = total.toDouble()
@@ -51,12 +53,13 @@ class OrderViewModel @Inject constructor(
             return
         }
 
-        val user = currentUser
+        val user = currentUser.value
         if (user == null) {
             _orderUIState.value = OrderUIState.ValidationError("User details not found.")
             return
         }
 
+        val currentItems = currentItems.value
         if (currentItems.isEmpty()) {
             _orderUIState.value = OrderUIState.ValidationError("Your cart is empty.")
             return
@@ -69,14 +72,7 @@ class OrderViewModel @Inject constructor(
                 userName = user.name,
                 userAddress = user.address,
                 userPhoneNumber = user.phoneNumber,
-                items = currentItems.map {
-                    SelectedDish(
-                        id = it.id,
-                        name = it.name,
-                        price = it.price,
-                        quantity = it.quantity
-                    )
-                },
+                items = currentItems,
                 totalPrice = _totalPrice.value,
                 placeAt = System.currentTimeMillis(),
                 status = OrderStatus.PLACED,

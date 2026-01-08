@@ -33,6 +33,12 @@ class OrderFragment : Fragment() {
     private val viewModel: OrderViewModel by viewModels()
     private lateinit var orderSummaryAdapter: OrderSummaryAdapter
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        observeSharedViewModel()
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -45,12 +51,9 @@ class OrderFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        onSetLoading(true)
         onSetRecyclerView()
-        observeSharedViewModel()
         observeViewModel()
         setupClickListeners()
-        onSetLoading(false)
     }
 
     @SuppressLint("SetTextI18n")
@@ -71,7 +74,30 @@ class OrderFragment : Fragment() {
                 }
             }
         }
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.currentItems.collect {
+                    if (it.isNotEmpty()) {
+                        orderSummaryAdapter.submitList(it)
+                    }
+                }
+            }
+        }
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.currentUser.collect { user ->
+                    if (user != null) {
+                        binding.nameTextView.text = user.name
+                        binding.phoneNumberTextView.text = user.phoneNumber
+                        binding.addressTextView.text = user.address
+                    }
+                }
+            }
+        }
     }
+
     private fun handleUIState(state: OrderUIState) {
         when (state) {
             is OrderUIState.Success -> {
@@ -110,34 +136,23 @@ class OrderFragment : Fragment() {
     }
 
     private fun observeSharedViewModel() {
-        viewLifecycleOwner.lifecycleScope.launch {
-            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                sharedHCOViewModel.user.collect { user ->
-                    if (user != null) {
-                        binding.nameTextView.text = user.name
-                        binding.phoneNumberTextView.text = user.phoneNumber
-                        binding.addressTextView.text = user.address
-                        viewModel.updateUserData(user)
-                    }
-                }
-            }
+        val user = sharedHCOViewModel.user.value
+
+        if (user != null) {
+            viewModel.updateUserData(user)
         }
 
-        viewLifecycleOwner.lifecycleScope.launch {
-            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                sharedHCOViewModel.selectItemList.collect { items ->
-                    val itemList = items.map {
-                        SelectedDish(
-                            id = it.id,
-                            price = it.price,
-                            quantity = it.quantity,
-                            name = it.name
-                        )
-                    }
-                    orderSummaryAdapter.submitList(itemList)
-                    viewModel.updateOrderDetails(items)
-                }
+        val items = sharedHCOViewModel.selectItemList.value
+        if (items.isNotEmpty()) {
+            val itemList = items.map {
+                SelectedDish(
+                    id = it.id,
+                    price = it.price,
+                    quantity = it.quantity,
+                    name = it.name
+                )
             }
+            viewModel.updateOrderDetails(itemList)
         }
     }
 
@@ -151,10 +166,12 @@ class OrderFragment : Fragment() {
             findNavController().navigate(action)
         }
     }
+
     private fun onSetRecyclerView() {
         orderSummaryAdapter = OrderSummaryAdapter()
         binding.orderItemsRecyclerView.adapter = orderSummaryAdapter
     }
+
     private fun onSetLoading(isLoading: Boolean) {
         // You would show/hide a progress bar here
         binding.progressBar.isVisible = isLoading
