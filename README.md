@@ -51,7 +51,7 @@ The project follows a modular structure based on Clean Architecture:
 
 ## 📸 Screenshots
 
-*(Add your screenshots here)*
+![App Flow](https://raw.githubusercontent.com/kamlesh-prajapat-dev/LocalGrub/update/app_flow.jpeg)
 
 ## 📄 License
 
