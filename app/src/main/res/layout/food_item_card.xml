@@ -66,21 +66,46 @@
             app:layout_constraintTop_toBottomOf="@+id/dishNameTextView" />
 
         <!-- Add Button -->
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/addBtn"
-            android:layout_width="wrap_content"
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/statusAddBtnContainer"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:backgroundTint="@color/green"
-            android:letterSpacing="0"
-            android:layout_marginTop="10dp"
-            android:text="@string/add_btn_text"
-            android:textColor="@color/white"
-            app:icon="@drawable/ic_add"
-            app:iconGravity="textEnd"
-            app:iconPadding="2dp"
-            app:iconSize="16dp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/dishDescriptionTextView" />
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="@+id/dishDescriptionTextView"
+            app:layout_constraintStart_toStartOf="@+id/dishDescriptionTextView"
+            app:layout_constraintTop_toBottomOf="@+id/dishDescriptionTextView">
+
+            <TextView
+                android:id="@+id/stockTxt"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Out of Stock"
+                android:textColor="@color/red"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:visibility="gone"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/addBtn"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/addBtn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:backgroundTint="@color/green"
+                android:letterSpacing="0"
+                android:text="@string/add_btn_text"
+                android:textColor="@color/white"
+                android:visibility="visible"
+                app:icon="@drawable/ic_add"
+                app:iconGravity="textEnd"
+                app:iconPadding="2dp"
+                app:iconSize="16dp"
+                app:layout_constraintEnd_toEndOf="parent" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
         <!-- Quantity Controls -->
         <LinearLayout

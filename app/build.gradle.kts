@@ -15,13 +15,13 @@ plugins {
 }
 
 android {
-    namespace = "com.example.roti999"
+    namespace = "com.example.localgrub"
     compileSdk {
         version = release(36)
     }
 
     defaultConfig {
-        applicationId = "com.example.roti999"
+        applicationId = "com.example.localgrub"
         minSdk = 26
         targetSdk = 36
         versionCode = 1
@@ -32,7 +32,8 @@ android {
 
     buildTypes {
         release {
-            isMinifyEnabled = false
+            isMinifyEnabled = true
+            isShrinkResources = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
@@ -48,8 +49,8 @@ android {
     }
 
     buildFeatures {
-        dataBinding = true
         viewBinding = true
+        buildConfig = true
     }
 }
 
@@ -75,10 +76,10 @@ dependencies {
     implementation(libs.firebase.firestore)
 
     // Firebase Cloud Messaging
-    implementation("com.google.firebase:firebase-messaging:25.0.1")
+    implementation(libs.firebase.messaging)
 
     // Firebase Realtime Database
-    implementation("com.google.firebase:firebase-database")
+    implementation(libs.firebase.database)
 
     // Dagger and ksp
     implementation(libs.hilt.android)
@@ -95,10 +96,7 @@ dependencies {
     implementation(libs.androidx.lifecycle.livedata.ktx)
 
     // Glide Library For image
-    implementation("com.github.bumptech.glide:glide:4.16.0")
-
-    // Gson
-    implementation("com.google.code.gson:gson:2.10.1")
+    implementation(libs.glide)
 
     // Retrofit
     implementation("com.squareup.retrofit2:retrofit:3.0.0")
@@ -106,7 +104,7 @@ dependencies {
     // Kotlin Serialization
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.9.0")
     implementation("com.jakewharton.retrofit:retrofit2-kotlinx-serialization-converter:1.0.0")
-    implementation("com.squareup.okhttp3:okhttp")
+    implementation(libs.okhttp)
 
     // Work manager
     implementation("androidx.work:work-runtime-ktx:2.8.1")

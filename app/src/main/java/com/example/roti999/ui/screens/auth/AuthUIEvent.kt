@@ -1,6 +1,0 @@
-package com.example.roti999.ui.screens.auth
-
-sealed class AuthUIEvent {
-    data class ShowToast(val message: String) : AuthUIEvent()
-    object ShowNoInternetDialog : AuthUIEvent()
-}

@@ -19,5 +19,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "Roti999"
+rootProject.name = "Local Grub"
 include(":app")

@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.example.roti999.ui.screens.history.HistoryFragment">
+    tools:context="com.example.localgrub.ui.screens.history.HistoryFragment">
 
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/appBarLayout"
@@ -17,7 +17,9 @@
             android:layout_height="?attr/actionBarSize"
             app:titleTextColor="@color/white"
             android:background="@color/orange"
-            app:title="Order History" />
+            app:title="Your Orders"
+            app:navigationIcon="@drawable/ic_arrow_back"
+            app:navigationIconTint="@color/white"/>
 
     </com.google.android.material.appbar.AppBarLayout>
 
@@ -27,13 +29,26 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:elevation="10dp" />
+        android:elevation="10dp"
+        android:visibility="gone"/>
+
+    <TextView
+        android:id="@+id/emptyStateTxt"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="You haven’t placed any orders yet.\nStart shopping to place your first order."
+        android:layout_gravity="center"
+        android:textSize="18sp"
+        android:textAlignment="center"
+        android:textColor="@color/gray_text"
+        android:visibility="gone"/>
 
     <androidx.core.widget.NestedScrollView
         android:id="@+id/orderItemsRecyclerViewContainer"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:padding="8dp"
+        android:visibility="visible"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
         <androidx.recyclerview.widget.RecyclerView

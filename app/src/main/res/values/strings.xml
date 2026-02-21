@@ -10,6 +10,10 @@
     <string name="send_otp_btn_text">Send OTP"</string>
     <string name="enter_otp_hint">Enter 6-digit OTP"</string>
     <string name="verify_otp_btn_text">Verify OTP"</string>
+    <string name="verify_phone">Verify Phone</string>
+    <string name="otp_subtitle">Enter the 6-digit code sent to\n%s</string>
+    <string name="resend_otp">Resend OTP</string>
+    <string name="didnt_receive_otp">Didn\'t receive the code?</string>
 
     <!--  Home Fragment  -->
     <string name="menu_title">Menu</string>
@@ -21,13 +25,16 @@
     <!--  Food Item Card  -->
     <string name="dish_image_content_description">Dish Image</string>
     <string name="price_text">Rs. 250</string>
+    <string name="price_format">Rs. %1$d</string>
     <string name="dish_name">Paneer Butter</string>
     <string name="dish_description">A creamy and tangy gravy with soft paneer chunks.</string>
     <string name="add_btn_text">Add</string>
     <string name="qty_text">Qty.</string>
+    <string name="quantity_format">%1$02d</string>
     <string name="qty_hyphen">-</string>
     <string name="increase_btn_text">+</string>
     <string name="decrease_btn_text">-</string>
+    <string name="out_of_stock">Out of Stock</string>
 
     <!-- No Internet Dialog -->
     <string name="no_internet_connection">No Internet Connection</string>

@@ -22,10 +22,10 @@
             android:authorities="${applicationId}.androidx-startup"
             android:exported="false"
             tools:node="merge">
-            <!-- This meta-data tag removes the default initializer for WorkManager,
-                 so that the custom Hilt one can be used. -->
+
             <meta-data
-                android:name="androidx.work.impl.WorkManagerInitializer"
+                android:name="androidx.work.WorkManagerInitializer"
+                android:value="androidx.startup"
                 tools:node="remove" />
         </provider>
 

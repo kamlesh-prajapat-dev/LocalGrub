@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.example.roti999.ui.screens.home.HomeFragment">
+    tools:context="com.example.localgrub.ui.screens.home.HomeFragment">
 
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/appBarLayout"
@@ -36,7 +36,7 @@
         android:id="@+id/showEmptyListStateTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text=""
+        android:text="Currently Menu is Empty."
         android:layout_gravity="center"
         android:visibility="gone"/>
 
@@ -45,6 +45,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:paddingBottom="80dp"
+        android:visibility="visible"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
         <androidx.recyclerview.widget.RecyclerView

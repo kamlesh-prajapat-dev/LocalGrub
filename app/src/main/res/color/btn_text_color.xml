@@ -4,7 +4,7 @@
     <!-- Disabled state -->
     <item
         android:state_enabled="false"
-        android:color="#757575" />
+        android:color="@color/text_secondary" />
 
     <!-- Enabled state -->
     <item

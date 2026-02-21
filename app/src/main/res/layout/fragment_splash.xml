@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.example.roti999.ui.screens.splash.SplashFragment">
+    tools:context="com.example.localgrub.ui.screens.splash.SplashFragment">
 
     <ImageView
         android:id="@+id/appLogoImageView"
@@ -13,7 +13,7 @@
         android:contentDescription="@string/app_name"
         android:src="@drawable/app_logo"
         app:layout_constraintBottom_toTopOf="@+id/progressBar"
-        android:background="#F5EDE3"
+        android:background="@color/surface_light"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
