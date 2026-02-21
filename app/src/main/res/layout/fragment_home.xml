@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.fragment.HomeFragment">
+    tools:context="com.example.localgrub.ui.screens.home.HomeFragment">
 
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/appBarLayout"
@@ -18,36 +18,55 @@
             android:layout_height="?attr/actionBarSize"
             app:title="Menu"
             app:menu="@menu/home_menu"
-            app:titleTextColor="@color/orange"/>
+            android:background="@color/orange"
+            app:titleTextColor="@color/white"/>
 
     </com.google.android.material.appbar.AppBarLayout>
+
+    <com.google.android.material.loadingindicator.LoadingIndicator
+        android:id="@+id/loadingIndicator"
+        style="?android:attr/progressBarStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:elevation="10dp"
+        android:visibility="gone"/>
+
+    <TextView
+        android:id="@+id/showEmptyListStateTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Currently Menu is Empty."
+        android:layout_gravity="center"
+        android:visibility="gone"/>
 
     <androidx.core.widget.NestedScrollView
         android:id="@+id/orderItemsRecyclerViewContainer"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:paddingBottom="80dp"
+        android:visibility="visible"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/foodItemsRecyclerView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:clipToPadding="false"
+            android:clipToPadding="true"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-            tools:listitem="@layout/food_item_card"
-            android:paddingBottom="80dp"/>
+            tools:listitem="@layout/food_item_card" />
     </androidx.core.widget.NestedScrollView>
 
-    <androidx.appcompat.widget.AppCompatButton
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/viewCartButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
         android:layout_margin="16dp"
-        android:background="@drawable/button_background"
-        android:text="View Cart"
-        android:textColor="@android:color/white"
-        android:visibility="gone"
-        tools:visibility="visible" />
+        app:cornerRadius="12dp"
+        android:backgroundTint="@color/button_bg_color"
+        android:textColor="@color/btn_text_color"
+        android:text="@string/cart_btn_text"
+        android:visibility="gone"/>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

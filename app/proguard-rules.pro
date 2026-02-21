@@ -19,3 +19,12 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
+
+# 1. Keep all data models in your package
+-keep class com.example.localgrub.data.model.** { *; }
+
+# 2. Keep all generated hidden classes (like $serializer) for those models
+-keep class com.example.localgrub.data.model.**$* { *; }
+
+# 3. Keep essential attributes that Kotlinx Serialization needs to read JSON
+-keepattributes *Annotation*, InnerClasses, Signature

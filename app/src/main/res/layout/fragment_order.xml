@@ -5,9 +5,9 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="16dp"
-    tools:context=".ui.fragment.OrderFragment">
+    tools:context="com.example.localgrub.ui.screens.order.OrderFragment">
 
-    <ProgressBar
+    <com.google.android.material.loadingindicator.LoadingIndicator
         android:id="@+id/progressBar"
         style="?android:attr/progressBarStyle"
         android:layout_width="wrap_content"
@@ -18,7 +18,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        tools:visibility="visible" />
+        tools:visibility="gone" />
 
     <!-- Delivery Details Section (Fixed at the Top) -->
     <com.google.android.material.card.MaterialCardView
@@ -48,8 +48,6 @@
                 style="@style/Widget.MaterialComponents.Button.TextButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:minWidth="0dp"
-                android:minHeight="0dp"
                 android:text="Edit Profile"
                 android:letterSpacing="0"
                 android:textColor="@color/green"
@@ -65,7 +63,7 @@
                 android:drawableTint="@color/orange"
                 android:drawablePadding="12dp"
                 android:gravity="center_vertical"
-                android:text=""
+                android:text="Kamlesh Prajapat"
                 android:maxLines="1"
                 android:ellipsize="end"
                 android:textAppearance="?attr/textAppearanceBody1"
@@ -82,7 +80,7 @@
                 android:drawableTint="@color/orange"
                 android:drawablePadding="12dp"
                 android:gravity="center_vertical"
-                android:text=""
+                android:text="+91 9587216569"
                 android:maxLength="14"
                 android:textAppearance="?attr/textAppearanceBody1"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -98,7 +96,7 @@
                 android:drawableTint="@color/orange"
                 android:drawablePadding="12dp"
                 android:gravity="center_vertical"
-                android:text=""
+                android:text="Sardarshahar, Churu"
                 android:maxLines="3"
                 android:ellipsize="end"
                 android:textAppearance="?attr/textAppearanceBody1"
@@ -135,42 +133,14 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
-            <TextView
-                android:id="@+id/totalPriceTextView"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Rs. 270"
-                android:textAppearance="?attr/textAppearanceHeadline6"
-                android:textColor="@color/black"
-                android:textStyle="bold"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="@+id/totalLabel" />
-
-            <TextView
-                android:id="@+id/totalLabel"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Total"
-                android:textAppearance="?attr/textAppearanceSubtitle1"
-                android:textStyle="bold"
-                app:layout_constraintBaseline_toBaselineOf="@+id/totalPriceTextView"
-                app:layout_constraintStart_toStartOf="parent" />
-
-            <View
-                android:id="@+id/divider"
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:layout_marginBottom="16dp"
-                android:background="?android:attr/listDivider"
-                app:layout_constraintBottom_toTopOf="@+id/totalLabel" />
 
             <androidx.core.widget.NestedScrollView
                 android:layout_width="match_parent"
-                android:layout_height="0dp"
+                android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:layout_marginBottom="16dp"
-                app:layout_constraintBottom_toTopOf="@+id/divider"
+                app:layout_constraintHeight_max="300dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/orderSummaryTitle">
 
                 <androidx.recyclerview.widget.RecyclerView
@@ -178,21 +148,100 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-                    tools:itemCount="10"
                     tools:listitem="@layout/order_item_summary_row" />
             </androidx.core.widget.NestedScrollView>
+
+
+            <TextView
+                android:id="@+id/totalLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Item Total"
+                android:layout_marginBottom="11dp"
+                android:textAppearance="?attr/textAppearanceSubtitle1"
+                android:textColor="@color/gray_text"
+                android:textStyle="bold"
+                app:layout_constraintBottom_toTopOf="@+id/deliveryFeeLabel"
+                app:layout_constraintStart_toStartOf="@+id/deliveryFeeLabel" />
+
+            <TextView
+                android:id="@+id/totalTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Rs. 250"
+                android:textColor="@color/gray_text"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                app:layout_constraintBottom_toBottomOf="@+id/totalLabel"
+                app:layout_constraintEnd_toEndOf="@+id/deliveryFeeTextView"
+                app:layout_constraintTop_toTopOf="@+id/totalLabel" />
+
+            <TextView
+                android:id="@+id/deliveryFeeLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Delivery Fee"
+                android:layout_marginBottom="16dp"
+                android:textAppearance="?attr/textAppearanceSubtitle1"
+                android:textColor="@color/gray_text"
+                android:textStyle="bold"
+                app:layout_constraintBottom_toTopOf="@+id/divider"
+                app:layout_constraintStart_toStartOf="@+id/grandTotalLabel" />
+
+            <TextView
+                android:id="@+id/deliveryFeeTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Rs. 20"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="@color/gray_text"
+                app:layout_constraintBottom_toBottomOf="@+id/deliveryFeeLabel"
+                app:layout_constraintEnd_toEndOf="@+id/grandTotalPriceTextView"
+                app:layout_constraintTop_toTopOf="@+id/deliveryFeeLabel" />
+
+            <TextView
+                android:id="@+id/grandTotalLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Grand Total"
+                android:textAppearance="?attr/textAppearanceSubtitle1"
+                android:textStyle="bold"
+                app:layout_constraintBottom_toBottomOf="@+id/grandTotalPriceTextView"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/grandTotalPriceTextView" />
+
+            <View
+                android:id="@+id/divider"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginBottom="16dp"
+                android:background="?android:attr/listDivider"
+                app:layout_constraintBottom_toTopOf="@+id/grandTotalLabel" />
+
+            <TextView
+                android:id="@+id/grandTotalPriceTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Rs. 270"
+                android:textAppearance="?attr/textAppearanceHeadline6"
+                android:textColor="@color/black"
+                android:textStyle="bold"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
     </com.google.android.material.card.MaterialCardView>
 
     <!-- Place Order Button (Fixed at the Bottom) -->
-    <androidx.appcompat.widget.AppCompatButton
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/placeOrderButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@drawable/button_background"
+        app:cornerRadius="12dp"
+        android:backgroundTint="@color/button_bg_color"
+        android:textColor="@color/btn_text_color"
         android:text="Place Order"
-        android:textColor="@android:color/white"
         app:layout_constraintBottom_toBottomOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

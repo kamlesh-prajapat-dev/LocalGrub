@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- Purple shades (brighter for dark surfaces) -->
+    <color name="purple_200">#FFD0BCFF</color>
+    <color name="purple_500">#FFBB86FC</color>
+    <color name="purple_700">#FF9A67EA</color>
+
+    <!-- Teal shades -->
+    <color name="teal_200">#FF03DAC5</color>
+    <color name="teal_700">#FF66FFF0</color>
+
+    <!-- Base colors (contrast flipped) -->
+    <color name="black">#FFFFFFFF</color>
+    <color name="white">#FF121212</color>
+
+    <!-- Accent colors (softened for dark UI) -->
+    <color name="orange">#FFFF8A65</color>
+    <color name="green">#FF81C784</color>
+    <color name="red">#FFE57373</color>
+
+    <!-- Text colors -->
+    <color name="gray_text">#FFBDBDBD</color>
+    <color name="text_secondary">#FFBDBDBD</color>
+
+    <!-- Buttons / disabled state -->
+    <color name="enabled_btn_color">#FF616161</color>
+
+    <!-- Surface / card background -->
+    <color name="surface_light">#FF1E1E1E</color>
+
+</resources>
+

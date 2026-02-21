@@ -9,16 +9,19 @@ plugins {
     // Ksp plugin and Dagger hilt plugin
     alias(libs.plugins.kotlinKsp)
     alias(libs.plugins.hiltAndroid)
+
+    // Kotlin Serialization Plugin
+    kotlin("plugin.serialization") version "2.2.21"
 }
 
 android {
-    namespace = "com.example.roti999"
+    namespace = "com.example.localgrub"
     compileSdk {
         version = release(36)
     }
 
     defaultConfig {
-        applicationId = "com.example.roti999"
+        applicationId = "com.example.localgrub"
         minSdk = 26
         targetSdk = 36
         versionCode = 1
@@ -29,7 +32,8 @@ android {
 
     buildTypes {
         release {
-            isMinifyEnabled = false
+            isMinifyEnabled = true
+            isShrinkResources = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
@@ -45,8 +49,8 @@ android {
     }
 
     buildFeatures {
-        dataBinding = true
         viewBinding = true
+        buildConfig = true
     }
 }
 
@@ -71,9 +75,17 @@ dependencies {
     // Firebase Firestore Database
     implementation(libs.firebase.firestore)
 
+    // Firebase Cloud Messaging
+    implementation(libs.firebase.messaging)
+
+    // Firebase Realtime Database
+    implementation(libs.firebase.database)
+
     // Dagger and ksp
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)
+    implementation(libs.androidx.hilt.common)
+    implementation(libs.androidx.hilt.work)
 
     // Navigation
     implementation(libs.androidx.navigation.fragment.ktx)
@@ -84,8 +96,16 @@ dependencies {
     implementation(libs.androidx.lifecycle.livedata.ktx)
 
     // Glide Library For image
-    implementation("com.github.bumptech.glide:glide:4.16.0")
+    implementation(libs.glide)
 
-    // Gson
-    implementation("com.google.code.gson:gson:2.10.1")
+    // Retrofit
+    implementation("com.squareup.retrofit2:retrofit:3.0.0")
+
+    // Kotlin Serialization
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.9.0")
+    implementation("com.jakewharton.retrofit:retrofit2-kotlinx-serialization-converter:1.0.0")
+    implementation(libs.okhttp)
+
+    // Work manager
+    implementation("androidx.work:work-runtime-ktx:2.8.1")
 }
