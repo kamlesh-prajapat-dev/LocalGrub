@@ -21,6 +21,8 @@
     <string name="logout">Logout"</string>
     <string name="cart_btn_text">View Cart</string>
     <string name="error">Error</string>
+    <string name="offers_title">Special Offers</string>
+    <string name="view_all">View All</string>
 
     <!--  Food Item Card  -->
     <string name="dish_image_content_description">Dish Image</string>

@@ -34,6 +34,11 @@ class HistoryViewModel @Inject constructor(
             _uiState.value = HistoryUIState.NoInternet
         }
 
+        if (uid.isBlank()) {
+            _uiState.value = HistoryUIState.Success(emptyList())
+            return
+        }
+
         orderUseCase.observeOrders(uid)
             .onStart {
                 _uiState.value = HistoryUIState.Loading

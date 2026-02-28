@@ -23,12 +23,12 @@ class DishesUseCase @Inject constructor(
                     }
 
                     is DishResult.Error -> {
-                        HomeUIState.DishGetFailure(dishResult.e.toGetReqDomainFailure("Menu Data"))
+                        HomeUIState.FirebaseGetFailure(dishResult.e.toGetReqDomainFailure("Menu Data"))
                     }
                 }
             }
             .catch { exception ->
-                emit(HomeUIState.DishGetFailure(exception.toGetReqDomainFailure("Menu Data")))
+                emit(HomeUIState.FirebaseGetFailure(exception.toGetReqDomainFailure("Menu Data")))
             }
     }
 

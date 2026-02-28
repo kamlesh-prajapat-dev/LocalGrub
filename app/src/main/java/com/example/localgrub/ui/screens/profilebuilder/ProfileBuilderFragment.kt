@@ -1,4 +1,4 @@
-package com.example.localgrub.ui.screens.createprofile
+package com.example.localgrub.ui.screens.profilebuilder
 
 import android.app.AlertDialog
 import android.os.Bundle
@@ -17,19 +17,19 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.example.localgrub.R
-import com.example.localgrub.databinding.FragmentCreateYourProfileBinding
+import com.example.localgrub.databinding.FragmentProfileBuilderBinding
 import com.example.localgrub.domain.model.failure.WriteReqDomainFailure
 import com.example.localgrub.ui.sharedviewmodel.SharedHCOViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
-class CreateYourProfileFragment : Fragment() {
-    private val viewModel: CreateYourProfileViewModel by viewModels()
-    private var _binding: FragmentCreateYourProfileBinding? = null
+class ProfileBuilderFragment : Fragment() {
+    private val viewModel: ProfileBuilderViewModel by viewModels()
+    private var _binding: FragmentProfileBuilderBinding? = null
     private val binding get() = _binding!!
     private val sharedHCOViewModel: SharedHCOViewModel by activityViewModels()
-    private val navArgs: CreateYourProfileFragmentArgs by navArgs()
+    private val navArgs: ProfileBuilderFragmentArgs by navArgs()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -44,7 +44,7 @@ class CreateYourProfileFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        _binding = FragmentCreateYourProfileBinding.inflate(inflater, container, false)
+        _binding = FragmentProfileBuilderBinding.inflate(inflater, container, false)
         return binding.root
     }
 
@@ -77,17 +77,17 @@ class CreateYourProfileFragment : Fragment() {
         }
     }
 
-    private fun handleUIState(state: ProfileUIState) {
+    private fun handleUIState(state: ProfileBuilderUIState) {
         when (state) {
-            is ProfileUIState.Idle -> {
+            is ProfileBuilderUIState.Idle -> {
                 setLoading(false)
             }
 
-            is ProfileUIState.Loading -> {
+            is ProfileBuilderUIState.Loading -> {
                 setLoading(true)
             }
 
-            is ProfileUIState.Failure -> {
+            is ProfileBuilderUIState.Failure -> {
                 when (val failure = state.failure) {
                     WriteReqDomainFailure.Aborted -> {
                         Toast.makeText(requireContext(), "Aborted", Toast.LENGTH_LONG).show()
@@ -159,7 +159,7 @@ class CreateYourProfileFragment : Fragment() {
                 setLoading(false)
             }
 
-            is ProfileUIState.Success -> {
+            is ProfileBuilderUIState.Success -> {
                 sharedHCOViewModel.onSetUser(user = state.user)
                 Toast.makeText(
                     requireContext(),
@@ -170,7 +170,7 @@ class CreateYourProfileFragment : Fragment() {
                 setLoading(false)
             }
 
-            is ProfileUIState.ValidationErrors -> {
+            is ProfileBuilderUIState.ValidationErrors -> {
                 val msgForName = state.msgForName
                 if (msgForName != null) {
                     binding.nameEditText.error = msgForName
@@ -190,7 +190,7 @@ class CreateYourProfileFragment : Fragment() {
                 setLoading(false)
             }
 
-            ProfileUIState.NoInternet -> {
+            ProfileBuilderUIState.NoInternet -> {
                 showNoInternetDialog()
                 setLoading(false)
             }

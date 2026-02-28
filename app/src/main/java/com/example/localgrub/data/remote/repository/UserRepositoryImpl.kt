@@ -37,6 +37,18 @@ class UserRepositoryImpl @Inject constructor(
         }
     }
 
+    override suspend fun saveUser(user: NewUser): UserResult {
+        return try {
+            val documentReference = firestore.collection(UserRepositoryConstant.USERS_COLLECTION_NAME)
+                .add(user)
+                .await()
+
+            UserResult.Success(user = user, uid = documentReference.id)
+        } catch (e: Exception) {
+            UserResult.Failure(e)
+        }
+    }
+
     override suspend fun getUserByPhoneNumber(phoneNumber: String): UserResult {
         if (phoneNumber.isBlank()) {
             return UserResult.Failure(

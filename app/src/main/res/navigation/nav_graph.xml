@@ -11,8 +11,8 @@
         android:label="Splash Fragment"
         tools:layout="@layout/fragment_splash">
         <action
-            android:id="@+id/action_splashFragment_to_authenticationFragment"
-            app:destination="@id/authenticationFragment"
+            android:id="@+id/action_splashFragment_to_loginFragment"
+            app:destination="@id/loginFragment"
             app:popUpTo="@id/splashFragment"
             app:popUpToInclusive="true"/>
 
@@ -24,13 +24,19 @@
     </fragment>
 
     <fragment
-        android:id="@+id/authenticationFragment"
-        android:name="com.example.localgrub.ui.screens.auth.login.AuthenticationFragment"
-        android:label="Authentication Fragment"
-        tools:layout="@layout/fragment_authentication">
+        android:id="@+id/loginFragment"
+        android:name="com.example.localgrub.ui.screens.auth.login.LoginFragment"
+        android:label="Login Fragment"
+        tools:layout="@layout/fragment_login">
 
         <action
-            android:id="@+id/action_authenticationFragment_to_otpFragment"
+            android:id="@+id/action_loginFragment_to_homeFragment"
+            app:destination="@id/homeFragment"
+            app:popUpTo="@id/loginFragment"
+            app:popUpToInclusive="true"/>
+
+        <action
+            android:id="@+id/action_loginFragment_to_otpFragment"
             app:destination="@id/otpFragment"/>
     </fragment>
 
@@ -47,7 +53,7 @@
         <action
             android:id="@+id/action_otpFragment_to_homeFragment"
             app:destination="@id/homeFragment"
-            app:popUpTo="@id/authenticationFragment"
+            app:popUpTo="@id/loginFragment"
             app:popUpToInclusive="true"/>
     </fragment>
     <fragment
@@ -57,8 +63,8 @@
         tools:layout="@layout/fragment_home" >
 
         <action
-            android:id="@+id/action_homeFragment_to_createYourProfileFragment"
-            app:destination="@id/createYourProfileFragment"/>
+            android:id="@+id/action_homeFragment_to_profileBuilderFragment"
+            app:destination="@id/profileBuilderFragment"/>
 
         <action
             android:id="@+id/action_homeFragment_to_orderFragment"
@@ -69,17 +75,17 @@
             app:destination="@id/historyFragment"/>
 
         <action
-            android:id="@+id/action_homeFragment_to_authenticationFragment"
-            app:destination="@id/authenticationFragment"
+            android:id="@+id/action_homeFragment_to_loginFragment"
+            app:destination="@id/loginFragment"
             app:popUpTo="@id/homeFragment"
             app:popUpToInclusive="true"/>
     </fragment>
 
     <fragment
-        android:id="@+id/createYourProfileFragment"
-        android:name="com.example.localgrub.ui.screens.createprofile.CreateYourProfileFragment"
+        android:id="@+id/profileBuilderFragment"
+        android:name="com.example.localgrub.ui.screens.profilebuilder.ProfileBuilderFragment"
         android:label="Create Your Profile Fragment"
-        tools:layout="@layout/fragment_create_your_profile">
+        tools:layout="@layout/fragment_profile_builder">
 
         <argument
             android:name="user"
@@ -88,9 +94,9 @@
             android:defaultValue="@null"/>
 
         <action
-            android:id="@+id/action_createYourProfileFragment_to_orderFragment"
+            android:id="@+id/action_profileBuilderFragment_to_orderFragment"
             app:destination="@id/orderFragment"
-            app:popUpTo="@id/createYourProfileFragment"
+            app:popUpTo="@id/profileBuilderFragment"
             app:popUpToInclusive="true"/>
     </fragment>
 
@@ -101,8 +107,8 @@
         tools:layout="@layout/fragment_order">
 
         <action
-            android:id="@+id/action_orderFragment_to_createYourProfileFragment"
-            app:destination="@+id/createYourProfileFragment"/>
+            android:id="@+id/action_orderFragment_to_profileBuilderFragment"
+            app:destination="@+id/profileBuilderFragment"/>
 
         <action
             android:id="@+id/action_orderFragment_to_eachOrderStatusFragment"
@@ -129,9 +135,9 @@
 
     <fragment
         android:id="@+id/eachOrderStatusFragment"
-        android:name="com.example.localgrub.ui.screens.eachorderstatus.EachOrderStatusFragment"
+        android:name="com.example.localgrub.ui.screens.orderstatus.OrderStatusFragment"
         android:label="Each Order Status Fragment"
-        tools:layout="@layout/fragment_each_order_status">
+        tools:layout="@layout/fragment_order_status">
 
         <argument
             android:name="orderId"

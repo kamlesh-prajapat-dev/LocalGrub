@@ -7,8 +7,10 @@ import com.example.localgrub.domain.mapper.firestore.FirestoreFailureMapper
 import com.example.localgrub.domain.mapper.firestore.FirestoreWriteFailureMapper
 import com.example.localgrub.domain.model.result.UserResult
 import com.example.localgrub.domain.repository.UserRepository
-import com.example.localgrub.ui.screens.createprofile.ProfileUIState
+import com.example.localgrub.ui.screens.auth.login.LoginUIState
+import com.example.localgrub.ui.screens.profilebuilder.ProfileBuilderUIState
 import com.example.localgrub.ui.screens.home.HomeUIState
+import com.example.localgrub.util.DataNotFoundException
 import javax.inject.Inject
 
 class UserUseCase @Inject constructor(
@@ -18,44 +20,60 @@ class UserUseCase @Inject constructor(
     fun getLocalUser() = localDatabase.getUser()
     fun setLocalUser(user: GetUser?) = localDatabase.setUser(user)
 
-    suspend fun saveUser(user: GetUser): ProfileUIState {
+    suspend fun saveUser(user: GetUser): ProfileBuilderUIState {
         val uid = user.uid
         val newUser = convertGetUserToNewUser(user)
-        return when (val result = userRepository.saveUser(user = newUser, uid = uid)) {
+        return when (val result = if (uid.isNotBlank()) userRepository.saveUser(
+            user = newUser,
+            uid = uid
+        ) else userRepository.saveUser(user = newUser)) {
             is UserResult.Failure -> {
-                ProfileUIState.Failure(FirestoreWriteFailureMapper.map(result.e, user))
+                ProfileBuilderUIState.Failure(FirestoreWriteFailureMapper.map(result.e, user))
             }
 
             is UserResult.Success -> {
                 val user = convertNewUserToGetUser(result.user, result.uid)
                 localDatabase.setUser(user)
-                ProfileUIState.Success(user)
+                ProfileBuilderUIState.Success(user)
             }
         }
     }
 
-//    suspend fun getUserByPhoneNumber(phoneNumber: String): HomeUIState {
-//        return when (val result = userRepository.getUserByPhoneNumber(phoneNumber)) {
-//            is UserResult.Failure -> {
-//                HomeUIState.UserGetFailure(FirestoreFailureMapper.map(result.failure, phoneNumber))
-//            }
-//
-//            is UserResult.Success -> {
-//                val user = convertNewUserToGetUser(result.user, result.uid)
-//                if (user.isProfileCompleted) {
-//                    localDatabase.setUser(user)
-//                    HomeUIState.OrderState
-//                } else {
-//                    HomeUIState.ProfileState
-//                }
-//            }
-//        }
-//    }
+    suspend fun getUserByPhoneNumber(phoneNumber: String): LoginUIState {
+        return when (val result = userRepository.getUserByPhoneNumber(phoneNumber)) {
+            is UserResult.Failure -> {
+                val failure = result.e
+                when (failure) {
+                    is DataNotFoundException -> {
+                        localDatabase.setUser(
+                            user = GetUser(
+                                phoneNumber = phoneNumber
+                            )
+                        )
+                        LoginUIState.HomeState
+                    }
+
+                    else -> LoginUIState.UserGetFailure(
+                        FirestoreFailureMapper.map(
+                            result.e,
+                            phoneNumber
+                        )
+                    )
+                }
+            }
+
+            is UserResult.Success -> {
+                val user = convertNewUserToGetUser(result.user, result.uid)
+                localDatabase.setUser(user)
+                LoginUIState.HomeState
+            }
+        }
+    }
 
     suspend fun getUserByUid(uid: String, phoneNumber: String? = null): HomeUIState {
         return when (val result = userRepository.getUserByUid(uid)) {
             is UserResult.Failure -> {
-                HomeUIState.UserGetFailure(FirestoreFailureMapper.map(result.e, uid))
+                HomeUIState.FirestoreGetFailure(FirestoreFailureMapper.map(result.e, uid))
             }
 
             is UserResult.Success -> {

@@ -1,4 +1,4 @@
-package com.example.localgrub.ui.screens.eachorderstatus
+package com.example.localgrub.ui.screens.orderstatus
 
 import android.annotation.SuppressLint
 import android.app.AlertDialog
@@ -21,7 +21,7 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.example.localgrub.R
 import com.example.localgrub.data.model.FetchedOrder
-import com.example.localgrub.databinding.FragmentEachOrderStatusBinding
+import com.example.localgrub.databinding.FragmentOrderStatusBinding
 import com.example.localgrub.domain.mapper.firebase.GetReqDomainFailure
 import com.example.localgrub.domain.mapper.firebase.WriteReqDomainFailure
 import com.example.localgrub.ui.adapter.OrderSummaryAdapter
@@ -30,14 +30,14 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
-class EachOrderStatusFragment : Fragment() {
-    private var _binding: FragmentEachOrderStatusBinding? = null
+class OrderStatusFragment : Fragment() {
+    private var _binding: FragmentOrderStatusBinding? = null
     private val binding get() = _binding!!
-    private val viewModel: EachOrderStatusViewModel by viewModels()
+    private val viewModel: OrderStatusViewModel by viewModels()
     private val orderSummaryAdapter: OrderSummaryAdapter by lazy {
         OrderSummaryAdapter()
     }
-    val navArgs: EachOrderStatusFragmentArgs by navArgs()
+    val navArgs: OrderStatusFragmentArgs by navArgs()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -62,7 +62,7 @@ class EachOrderStatusFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        _binding = FragmentEachOrderStatusBinding.inflate(inflater, container, false)
+        _binding = FragmentOrderStatusBinding.inflate(inflater, container, false)
         return binding.root
     }
 
@@ -99,9 +99,9 @@ class EachOrderStatusFragment : Fragment() {
         viewLifecycleOwner.lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.uiState.collect { uiState ->
-                    setLoading(uiState is EachOrderUIState.Loading)
+                    setLoading(uiState is OrderStatusUIState.Loading)
                     when (uiState) {
-                        is EachOrderUIState.Success -> {
+                        is OrderStatusUIState.Success -> {
                             Toast.makeText(
                                 requireContext(),
                                 "Order Successfully Cancelled.",
@@ -109,7 +109,7 @@ class EachOrderStatusFragment : Fragment() {
                             ).show()
                         }
 
-                        is EachOrderUIState.OrderGetFailure -> {
+                        is OrderStatusUIState.OrderGetFailure -> {
                             when (val failure = uiState.failure) {
                                 is GetReqDomainFailure.DataNotFount -> {
                                     Toast.makeText(
@@ -149,15 +149,15 @@ class EachOrderStatusFragment : Fragment() {
                             }
                         }
 
-                        is EachOrderUIState.OrderGetSuccess -> {
+                        is OrderStatusUIState.OrderGetSuccess -> {
                             viewModel.onSetOrder(uiState.order)
                         }
 
-                        is EachOrderUIState.NoInternet -> {
+                        is OrderStatusUIState.NoInternet -> {
                             showNoInternetDialog()
                         }
 
-                        is EachOrderUIState.CancelOrderFailure -> {
+                        is OrderStatusUIState.CancelOrderFailure -> {
                             when (val failure = uiState.failure) {
                                 is WriteReqDomainFailure.Cancelled -> Unit
                                 is WriteReqDomainFailure.DataNotFound -> {
@@ -323,7 +323,9 @@ class EachOrderStatusFragment : Fragment() {
 
         step.icon.setImageResource(iconRes)
         step.title.text =
-            if (state == StepState.CANCELLED) "ORDER CANCELLED" else "ORDER ${step.status}"
+            if (state == StepState.CANCELLED) {
+                OrderStatus.CANCELLED
+            } else step.status
         step.title.setTextColor(textColor)
         step.title.setTypeface(null, typeFace)
         step.line?.setBackgroundColor(lineBgColor)

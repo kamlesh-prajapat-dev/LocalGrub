@@ -11,4 +11,8 @@ interface UserRepository {
         user: NewUser,
         uid: String
     ): UserResult
+
+    suspend fun saveUser(
+        user: NewUser
+    ): UserResult
 }

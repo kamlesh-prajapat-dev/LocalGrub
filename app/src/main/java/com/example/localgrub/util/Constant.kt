@@ -46,3 +46,19 @@ object UserFields {
     const val COLLECTION = "users"
     const val TOKEN = "fcmToken"
 }
+
+object OfferType {
+    const val PERCENTAGE = "Percentage"
+    const val FIXED = "Fixed"
+}
+
+object OfferStatus {
+    const val ACTIVE = "Active"
+    const val INACTIVE = "Inactive"
+    const val EXPIRED = "Expired"
+}
+
+object OfferConstant {
+    const val COLLECTION_NAME = "offers"
+    const val OFFER_STATUS = "offerStatus"
+}
