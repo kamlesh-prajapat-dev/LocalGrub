@@ -31,7 +31,7 @@ object AppModule {
     @Provides
     @Singleton
     fun provideSharedPreferences(@ApplicationContext context: Context): SharedPreferences {
-        return context.getSharedPreferences("GlowPointPrefs", Context.MODE_PRIVATE)
+        return context.getSharedPreferences("LocalGrubPrefs", Context.MODE_PRIVATE)
     }
 
     @Provides

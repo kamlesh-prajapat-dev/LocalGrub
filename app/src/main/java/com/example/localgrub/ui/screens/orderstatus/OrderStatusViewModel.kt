@@ -1,4 +1,4 @@
-package com.example.localgrub.ui.screens.eachorderstatus
+package com.example.localgrub.ui.screens.orderstatus
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -20,7 +20,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class EachOrderStatusViewModel @Inject constructor(
+class OrderStatusViewModel @Inject constructor(
     private val orderUseCase: OrderUseCase,
     private val networkUtils: NetworkUtils,
     private val userUseCase: UserUseCase
@@ -46,8 +46,8 @@ class EachOrderStatusViewModel @Inject constructor(
 
     private val _selectItemList = MutableStateFlow<List<SelectedDish>>(emptyList())
 
-    private val _uiState = MutableStateFlow<EachOrderUIState>(EachOrderUIState.Idle)
-    val uiState: StateFlow<EachOrderUIState> get() = _uiState.asStateFlow()
+    private val _uiState = MutableStateFlow<OrderStatusUIState>(OrderStatusUIState.Idle)
+    val uiState: StateFlow<OrderStatusUIState> get() = _uiState.asStateFlow()
 
     fun onSetSelectItemList(selectItemList: List<SelectedDish>) {
         _selectItemList.value = selectItemList
@@ -55,13 +55,13 @@ class EachOrderStatusViewModel @Inject constructor(
 
     fun observeOrderById(orderId: String) {
         if (!networkUtils.isInternetAvailable()) {
-            _uiState.value = EachOrderUIState.NoInternet
+            _uiState.value = OrderStatusUIState.NoInternet
             return
         }
 
         orderUseCase.observeOrderById(orderId)
             .onStart {
-                _uiState.value = EachOrderUIState.Loading
+                _uiState.value = OrderStatusUIState.Loading
             }
             .onEach { state ->
                 _uiState.value = state
@@ -70,10 +70,10 @@ class EachOrderStatusViewModel @Inject constructor(
     }
 
     fun cancelOrder() {
-        _uiState.value = EachOrderUIState.Loading
+        _uiState.value = OrderStatusUIState.Loading
 
         if (!networkUtils.isInternetAvailable()) {
-            _uiState.value = EachOrderUIState.NoInternet
+            _uiState.value = OrderStatusUIState.NoInternet
             return
         }
 

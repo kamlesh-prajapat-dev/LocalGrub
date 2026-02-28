@@ -19,8 +19,10 @@ import com.example.localgrub.data.model.FoodItem
 import com.example.localgrub.databinding.FragmentHomeBinding
 import com.example.localgrub.domain.model.failure.GetReqDomainFailure
 import com.example.localgrub.ui.adapter.FoodItemAdapter
+import com.example.localgrub.ui.adapter.OfferSliderAdapter
 import com.example.localgrub.ui.components.NoInternetDialogFragment
 import com.example.localgrub.ui.sharedviewmodel.SharedHCOViewModel
+import com.google.android.material.tabs.TabLayoutMediator
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -37,10 +39,20 @@ class HomeFragment : Fragment(), FoodItemAdapter.FoodItemClickListener {
         FoodItemAdapter(this)
     }
 
+    private val offerAdapter: OfferSliderAdapter by lazy {
+        OfferSliderAdapter()
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         viewModel.fetchFoodItems()
+        viewModel.fetchOffers()
+    }
+
+    override fun onResume() {
+        super.onResume()
+
         viewModel.loadCurrentUser()
     }
 
@@ -55,9 +67,15 @@ class HomeFragment : Fragment(), FoodItemAdapter.FoodItemClickListener {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        setupOfferSlider()
         setupRecyclerView()
         observeViewModel()
         setupListeners()
+    }
+
+    private fun setupOfferSlider() {
+        binding.offerSliderViewPager.adapter = offerAdapter
+        TabLayoutMediator(binding.sliderIndicator, binding.offerSliderViewPager) { _, _ -> }.attach()
     }
 
     private fun setupRecyclerView() {
@@ -95,6 +113,21 @@ class HomeFragment : Fragment(), FoodItemAdapter.FoodItemClickListener {
                     viewModel.foodItems.collectLatest { foodAdapter.submitList(it) }
                 }
                 launch {
+                    viewModel.offers.collectLatest {
+                        if (it.isEmpty()) {
+                            binding.offerSliderContainer.visibility = View.GONE
+                            binding.offerTitle.visibility = View.GONE
+                            return@collectLatest
+                        } else {
+                            binding.offerSliderContainer.visibility = View.VISIBLE
+                            binding.offerTitle.visibility = View.VISIBLE
+                            offerAdapter.submitList(it)
+                        }
+                        // Optional: Hide slider if no offers
+                        // binding.offerSliderContainer.isVisible = it.isNotEmpty()
+                    }
+                }
+                launch {
                     viewModel.isCartVisible.collectLatest { isVisible ->
                         binding.viewCartButton.isVisible = isVisible
                     }
@@ -107,8 +140,8 @@ class HomeFragment : Fragment(), FoodItemAdapter.FoodItemClickListener {
         when (state) {
             is HomeUIState.Loading -> onSetLoading(true)
             is HomeUIState.DishGetSuccess -> handleDishGetSuccess(state.dishes)
-            is HomeUIState.DishGetFailure -> handleDishGetFailure(state.failure)
-            is HomeUIState.UserGetFailure -> handleUserGetFailure(state.failure)
+            is HomeUIState.FirebaseGetFailure -> handleDishGetFailure(state.failure)
+            is HomeUIState.FirestoreGetFailure -> handleUserGetFailure(state.failure)
             is HomeUIState.OrderState -> navigateToOrder(state)
             is HomeUIState.ProfileState -> navigateToProfile(state)
             HomeUIState.LoginState -> navigateToLogin()
@@ -119,6 +152,11 @@ class HomeFragment : Fragment(), FoodItemAdapter.FoodItemClickListener {
 
             HomeUIState.Idle -> {
                 updateEmptyStateVisibility(viewModel.foodItems.value.isEmpty())
+                onSetLoading(false)
+            }
+
+            is HomeUIState.OfferGetSuccess -> {
+                viewModel.onSetOffers(state.offers)
                 onSetLoading(false)
             }
         }

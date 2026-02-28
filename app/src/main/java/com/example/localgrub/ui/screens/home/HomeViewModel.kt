@@ -3,9 +3,11 @@ package com.example.localgrub.ui.screens.home
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.localgrub.data.model.FoodItem
+import com.example.localgrub.data.model.GetOffer
 import com.example.localgrub.data.model.GetUser
 import com.example.localgrub.domain.usecase.AuthUseCase
 import com.example.localgrub.domain.usecase.DishesUseCase
+import com.example.localgrub.domain.usecase.OfferUseCase
 import com.example.localgrub.domain.usecase.UserUseCase
 import com.example.localgrub.util.NetworkUtils
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -24,12 +26,12 @@ class HomeViewModel @Inject constructor(
     private val userUseCase: UserUseCase,
     private val authUseCase: AuthUseCase,
     private val dishesUseCase: DishesUseCase,
+    private val offerUseCase: OfferUseCase,
     private val networkUtils: NetworkUtils
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<HomeUIState>(HomeUIState.Idle)
     val uiState: StateFlow<HomeUIState> = _uiState.asStateFlow()
-
     private val _foodItems = MutableStateFlow<List<FoodItem>>(emptyList())
     val foodItems: StateFlow<List<FoodItem>> = _foodItems.asStateFlow()
 
@@ -38,6 +40,24 @@ class HomeViewModel @Inject constructor(
 
     private val _user = MutableStateFlow<GetUser?>(null)
     val user: StateFlow<GetUser?> = _user.asStateFlow()
+
+    private val _offers = MutableStateFlow<List<GetOffer>>(emptyList())
+    val offers: StateFlow<List<GetOffer>> get() = _offers.asStateFlow()
+
+    fun onSetOffers(offers: List<GetOffer>) {
+        _offers.value = offers
+    }
+
+    fun fetchOffers() {
+        if (!networkUtils.isInternetAvailable()) {
+            _uiState.value = HomeUIState.NoInternet
+        }
+
+        offerUseCase.getOffer()
+            .onStart { _uiState.value = HomeUIState.Loading }
+            .onEach { state -> _uiState.value = state }
+            .launchIn(viewModelScope)
+    }
 
     fun onChangeFoodItems(items: List<FoodItem>) {
         _foodItems.value = items
@@ -56,40 +76,50 @@ class HomeViewModel @Inject constructor(
     }
 
     fun loadCurrentUser() {
-        val currentUser = authUseCase.getCurrentUser()
-        if (currentUser != null) {
-            _user.value = GetUser(
-                uid = currentUser.uid,
-                phoneNumber = currentUser.phoneNumber!!
-            )
+//        val currentUser = authUseCase.getCurrentUser()
+//        if (currentUser != null) {
+//            _user.value = GetUser(
+//                uid = currentUser.uid,
+//                phoneNumber = currentUser.phoneNumber!!
+//            )
+//        } else {
+//            _uiState.value = HomeUIState.LoginState
+//        }
+
+        val localUser = userUseCase.getLocalUser()
+        if (localUser != null) {
+            _user.value = localUser
         } else {
             _uiState.value = HomeUIState.LoginState
         }
     }
 
     fun loadUser() {
-        val currentUser = authUseCase.getCurrentUser() ?: run {
-            _uiState.value = HomeUIState.LoginState
-            return
-        }
+//        val currentUser = authUseCase.getCurrentUser() ?: run {
+//            _uiState.value = HomeUIState.LoginState
+//            return
+//        }
 
         val localUser = userUseCase.getLocalUser()
-        if (localUser?.profileCompleted == true) {
+        if (localUser != null && localUser.profileCompleted) {
             _uiState.value = HomeUIState.OrderState(localUser)
         } else if (localUser != null) {
-            _uiState.value = HomeUIState.ProfileState(
-                user = GetUser(
-                    uid = currentUser.uid,
-                    phoneNumber = currentUser.phoneNumber!!
-                )
-            )
+//            _uiState.value = HomeUIState.ProfileState(
+//                user = GetUser (
+//                    uid = currentUser.uid,
+//                    phoneNumber = currentUser.phoneNumber!!
+//                )
+//            )
+            _uiState.value = HomeUIState.ProfileState(localUser)
         } else {
-            viewModelScope.launch {
-                _uiState.value = HomeUIState.Loading
-                val fetchResult =
-                    userUseCase.getUserByUid(currentUser.uid, currentUser.phoneNumber!!)
-                _uiState.value = fetchResult
-            }
+//            viewModelScope.launch {
+//                _uiState.value = HomeUIState.Loading
+//                val fetchResult =
+//                    userUseCase.getUserByUid(currentUser.uid, currentUser.phoneNumber!!)
+//                _uiState.value = fetchResult
+//            }
+
+            _uiState.value = HomeUIState.LoginState
         }
     }
 

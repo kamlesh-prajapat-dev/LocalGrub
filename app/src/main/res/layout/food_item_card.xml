@@ -20,9 +20,9 @@
             android:layout_height="100dp"
             android:contentDescription="@string/dish_image_content_description"
             android:scaleType="centerCrop"
+            android:src="@drawable/ic_person"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            tools:srcCompat="@tools:sample/backgrounds/scenic" />
+            app:layout_constraintTop_toTopOf="parent" />
 
         <!-- Price -->
         <TextView
@@ -94,7 +94,6 @@
                 android:id="@+id/addBtn"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
                 android:backgroundTint="@color/green"
                 android:letterSpacing="0"
                 android:text="@string/add_btn_text"
@@ -104,7 +103,9 @@
                 app:iconGravity="textEnd"
                 app:iconPadding="2dp"
                 app:iconSize="16dp"
-                app:layout_constraintEnd_toEndOf="parent" />
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <!-- Quantity Controls -->

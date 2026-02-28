@@ -1,4 +1,4 @@
-package com.example.localgrub.ui.screens.createprofile
+package com.example.localgrub.ui.screens.profilebuilder
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -14,12 +14,12 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class CreateYourProfileViewModel @Inject constructor(
+class ProfileBuilderViewModel @Inject constructor(
     private val userUseCase: UserUseCase,
     private val networkUtils: NetworkUtils
 ) : ViewModel() {
-    private val _uiState = MutableStateFlow<ProfileUIState>(ProfileUIState.Idle)
-    val uiState: StateFlow<ProfileUIState> get() = _uiState.asStateFlow()
+    private val _uiState = MutableStateFlow<ProfileBuilderUIState>(ProfileBuilderUIState.Idle)
+    val uiState: StateFlow<ProfileBuilderUIState> get() = _uiState.asStateFlow()
     private val _user = MutableStateFlow<GetUser?>(null)
     val user: StateFlow<GetUser?> get() = _user.asStateFlow()
 
@@ -28,10 +28,10 @@ class CreateYourProfileViewModel @Inject constructor(
     }
 
     fun editUser(name: String, address: String) {
-        _uiState.value = ProfileUIState.Loading
+        _uiState.value = ProfileBuilderUIState.Loading
 
         if (!networkUtils.isInternetAvailable()) {
-            _uiState.value = ProfileUIState.NoInternet
+            _uiState.value = ProfileBuilderUIState.NoInternet
             return
         }
 
@@ -41,14 +41,14 @@ class CreateYourProfileViewModel @Inject constructor(
             val validationMsgForAddress = validateAddress(address)
 
             if (validationMsgForAddress != null || validationMsgForName != null) {
-                _uiState.value = ProfileUIState.ValidationErrors(
+                _uiState.value = ProfileBuilderUIState.ValidationErrors(
                     msgForName = validationMsgForName,
                     msgForAddress = validationMsgForAddress,
                     null
                 )
                 return
             } else if (name == currentUser.name && address == currentUser.address) {
-                _uiState.value = ProfileUIState.ValidationErrors(
+                _uiState.value = ProfileBuilderUIState.ValidationErrors(
                     null,
                     null,
                     "No changes to save."

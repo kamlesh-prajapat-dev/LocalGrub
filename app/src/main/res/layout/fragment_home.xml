@@ -16,7 +16,7 @@
             android:id="@+id/topAppBar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            app:title="Menu"
+            app:title="@string/menu_title"
             app:menu="@menu/home_menu"
             android:background="@color/orange"
             app:titleTextColor="@color/white"/>
@@ -44,17 +44,76 @@
         android:id="@+id/orderItemsRecyclerViewContainer"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:paddingBottom="80dp"
         android:visibility="visible"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/foodItemsRecyclerView"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:clipToPadding="true"
-            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-            tools:listitem="@layout/food_item_card" />
+            android:orientation="vertical"
+            android:paddingBottom="100dp">
+
+            <!-- Offers Section Header -->
+            <TextView
+                android:id="@+id/offerTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingHorizontal="16dp"
+                android:paddingTop="16dp"
+                android:paddingBottom="8dp"
+                android:text="@string/offers_title"
+                android:textAppearance="?attr/textAppearanceHeadline6"
+                android:textStyle="bold" />
+
+            <!-- Slider Section Container -->
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/offerSliderContainer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <androidx.viewpager2.widget.ViewPager2
+                    android:id="@+id/offerSliderViewPager"
+                    android:layout_width="match_parent"
+                    android:layout_height="180dp"
+                    android:clipToPadding="false"
+                    android:clipChildren="false"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <com.google.android.material.tabs.TabLayout
+                    android:id="@+id/sliderIndicator"
+                    android:layout_width="6dp"
+                    android:layout_height="6dp"
+                    android:layout_marginTop="4dp"
+                    android:background="@android:color/transparent"
+                    app:tabBackground="@drawable/slider_indicator_selector"
+                    app:tabGravity="center"
+                    app:tabIndicatorHeight="0dp"
+                    app:tabMaxWidth="6dp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/offerSliderViewPager"
+                    app:layout_constraintStart_toStartOf="parent" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <!-- Menu Section Header -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingHorizontal="16dp"
+                android:paddingTop="24dp"
+                android:paddingBottom="8dp"
+                android:text="@string/menu_title"
+                android:textAppearance="?attr/textAppearanceHeadline6"
+                android:textStyle="bold" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/foodItemsRecyclerView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:nestedScrollingEnabled="false"
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                tools:listitem="@layout/food_item_card" />
+        </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 
     <com.google.android.material.button.MaterialButton
@@ -64,8 +123,8 @@
         android:layout_gravity="bottom"
         android:layout_margin="16dp"
         app:cornerRadius="12dp"
-        android:backgroundTint="@color/button_bg_color"
-        android:textColor="@color/btn_text_color"
+        android:backgroundTint="@color/orange"
+        android:textColor="@color/white"
         android:text="@string/cart_btn_text"
         android:visibility="gone"/>
 

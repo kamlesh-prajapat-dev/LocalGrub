@@ -12,7 +12,7 @@ import com.example.localgrub.domain.model.result.TokenResult
 import com.example.localgrub.domain.repository.NotificationRepository
 import com.example.localgrub.domain.repository.OrderRepository
 import com.example.localgrub.domain.repository.TokenRepository
-import com.example.localgrub.ui.screens.eachorderstatus.EachOrderUIState
+import com.example.localgrub.ui.screens.orderstatus.OrderStatusUIState
 import com.example.localgrub.ui.screens.history.HistoryUIState
 import com.example.localgrub.ui.screens.order.OrderUIState
 import com.example.localgrub.util.UnknownException
@@ -53,7 +53,7 @@ class OrderUseCase @Inject constructor(
         }
     }
 
-    suspend fun cancelOrder(orderId: String, cancelStatus: String, status: String): EachOrderUIState {
+    suspend fun cancelOrder(orderId: String, cancelStatus: String, status: String): OrderStatusUIState {
         return when (val result = orderRepository.cancelOrder(orderId, cancelStatus, status)) {
             is OrderResult.OrderCancelSuccess -> {
                 when (val notifyResult = notifyOwner(orderId)) {
@@ -65,14 +65,14 @@ class OrderUseCase @Inject constructor(
                         Log.e("OrderUseCase", "Error sending notification", notifyResult.e)
                     }
                 }
-                EachOrderUIState.Success(result.isSuccess)
+                OrderStatusUIState.Success(result.isSuccess)
             }
 
             is OrderResult.Failure -> {
-                EachOrderUIState.CancelOrderFailure(failure = result.e.toWriteReqDomainFailure(orderId))
+                OrderStatusUIState.CancelOrderFailure(failure = result.e.toWriteReqDomainFailure(orderId))
             }
 
-            else -> EachOrderUIState.Idle
+            else -> OrderStatusUIState.Idle
         }
     }
 
@@ -126,20 +126,20 @@ class OrderUseCase @Inject constructor(
             }
     }
 
-    fun observeOrderById(orderId: String): Flow<EachOrderUIState> {
+    fun observeOrderById(orderId: String): Flow<OrderStatusUIState> {
         return orderRepository.observeOrderById(orderId)
             .map { result ->
                 when(result) {
                     is OrderResult.OrderGetSuccessByOrderId -> {
-                        EachOrderUIState.OrderGetSuccess(result.order)
+                        OrderStatusUIState.OrderGetSuccess(result.order)
                     }
                     is OrderResult.Failure -> {
-                        EachOrderUIState.OrderGetFailure(result.e.toGetReqDomainFailure(orderId))
+                        OrderStatusUIState.OrderGetFailure(result.e.toGetReqDomainFailure(orderId))
                     }
-                    else -> EachOrderUIState.Idle
+                    else -> OrderStatusUIState.Idle
                 }
             }.catch {
-                emit(EachOrderUIState.OrderGetFailure(it.toGetReqDomainFailure(orderId)))
+                emit(OrderStatusUIState.OrderGetFailure(it.toGetReqDomainFailure(orderId)))
             }
     }
 

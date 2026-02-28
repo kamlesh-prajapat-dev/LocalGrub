@@ -4,11 +4,13 @@ import com.example.localgrub.data.local.LocalDatabase
 import com.example.localgrub.domain.repository.AuthRepository
 import com.example.localgrub.domain.repository.DishesRepository
 import com.example.localgrub.domain.repository.NotificationRepository
+import com.example.localgrub.domain.repository.OfferRepository
 import com.example.localgrub.domain.repository.OrderRepository
 import com.example.localgrub.domain.repository.TokenRepository
 import com.example.localgrub.domain.repository.UserRepository
 import com.example.localgrub.domain.usecase.AuthUseCase
 import com.example.localgrub.domain.usecase.DishesUseCase
+import com.example.localgrub.domain.usecase.OfferUseCase
 import com.example.localgrub.domain.usecase.OrderUseCase
 import com.example.localgrub.domain.usecase.TokenUseCase
 import com.example.localgrub.domain.usecase.UserUseCase
@@ -66,5 +68,13 @@ object UseCasesModule {
         tokenRepository: TokenRepository
     ): TokenUseCase {
         return TokenUseCase(tokenRepository)
+    }
+
+    @Provides
+    @Singleton
+    fun provideOfferUseCase(
+        offerRepository: OfferRepository
+    ): OfferUseCase {
+        return OfferUseCase(offerRepository)
     }
 }

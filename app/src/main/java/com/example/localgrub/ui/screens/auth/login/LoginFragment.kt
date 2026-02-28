@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.core.view.isVisible
 import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
@@ -15,23 +16,24 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import com.example.localgrub.R
-import com.example.localgrub.databinding.FragmentAuthenticationBinding
+import com.example.localgrub.databinding.FragmentLoginBinding
+import com.example.localgrub.domain.model.failure.GetReqDomainFailure
 import com.example.localgrub.ui.screens.auth.AuthViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
-class AuthenticationFragment : Fragment() {
-    private var _binding: FragmentAuthenticationBinding? = null
+class LoginFragment : Fragment() {
+    private var _binding: FragmentLoginBinding? = null
     private val binding get() = _binding!!
-    private val viewModel: AuthenticationViewModel by viewModels()
+    private val viewModel: LoginViewModel by viewModels()
     private val sharedViewModel: AuthViewModel by activityViewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        _binding = FragmentAuthenticationBinding.inflate(inflater, container, false)
+        _binding = FragmentLoginBinding.inflate(inflater, container, false)
         return binding.root
     }
 
@@ -84,10 +86,36 @@ class AuthenticationFragment : Fragment() {
                             navigateToOtp(it.phoneNumber)
                             onSetLoading(false)
                         }
+
+                        LoginUIState.HomeState -> {
+                            val action = LoginFragmentDirections.actionLoginFragmentToHomeFragment()
+                            findNavController().navigate(action)
+                            onSetLoading(false)
+                        }
+
+                        is LoginUIState.UserGetFailure -> {
+                            when (val failure = it.failure) {
+                                is GetReqDomainFailure.DataNotFound -> Unit
+                                is GetReqDomainFailure.InvalidRequest -> showToast(failure.message)
+                                GetReqDomainFailure.NoInternet -> showNoInternetDialog()
+                                is GetReqDomainFailure.PermissionDenied -> showToast(failure.message)
+                                is GetReqDomainFailure.Unknown -> showToast(
+                                    failure.cause.message ?: getString(R.string.error)
+                                )
+
+                                GetReqDomainFailure.Cancelled -> Unit
+                            }
+                            onSetLoading(false)
+                        }
                     }
                 }
             }
         }
+    }
+
+    private fun showToast(message: String?) {
+        Toast.makeText(requireContext(), message ?: getString(R.string.error), Toast.LENGTH_SHORT)
+            .show()
     }
 
     private fun navigateToOtp(phoneNumber: String) {
@@ -103,7 +131,7 @@ class AuthenticationFragment : Fragment() {
             )
         }
         val action =
-            AuthenticationFragmentDirections.actionAuthenticationFragmentToOtpFragment(phoneNumber)
+            LoginFragmentDirections.actionLoginFragmentToOtpFragment(phoneNumber)
         findNavController().navigate(action)
         viewModel.reset()
     }
