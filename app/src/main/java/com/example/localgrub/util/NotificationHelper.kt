@@ -5,26 +5,29 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import androidx.core.app.NotificationCompat
+import androidx.core.os.bundleOf
+import androidx.navigation.NavDeepLinkBuilder
 import com.example.localgrub.R
 import com.example.localgrub.ui.activity.MainActivity
 
 
 class NotificationHelper {
 
-    fun showOrderStatusNotification(context: Context, orderId: String, body: String, title: String) {
+    fun showOrderStatusNotification(
+        context: Context,
+        orderId: String,
+        body: String,
+        title: String
+    ) {
 
-        val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        val notificationManager =
+            context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
-        val intent = Intent(context, MainActivity::class.java).apply {
-            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
-        }
-
-        val pendingIntent = PendingIntent.getActivity(
-            context,
-            100,                               // requestCode (any unique number)
-            intent,
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-        )
+        val pendingIntent = NavDeepLinkBuilder(context)
+            .setGraph(R.navigation.nav_graph)
+            .setDestination(R.id.eachOrderStatusFragment)
+            .setArguments(bundleOf("orderId" to orderId))
+            .createPendingIntent()
 
         val notification = NotificationCompat.Builder(context, "ORDER_STATUS_CHANNEL")
             .setSmallIcon(R.drawable.ic_cart) // You can use your app's icon here

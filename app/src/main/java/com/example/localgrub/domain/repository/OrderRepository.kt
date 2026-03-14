@@ -1,6 +1,6 @@
 package com.example.localgrub.domain.repository
 
-import com.example.localgrub.data.model.PlacedOrder
+import com.example.localgrub.data.model.firebase.PlacedOrder
 import com.example.localgrub.domain.model.result.OrderResult
 import kotlinx.coroutines.flow.Flow
 

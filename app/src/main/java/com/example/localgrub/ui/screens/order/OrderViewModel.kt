@@ -2,9 +2,9 @@ package com.example.localgrub.ui.screens.order
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.localgrub.data.model.PlacedOrder
-import com.example.localgrub.data.model.SelectedDish
-import com.example.localgrub.data.model.GetUser
+import com.example.localgrub.data.model.firebase.PlacedOrder
+import com.example.localgrub.data.model.firebase.SelectedDish
+import com.example.localgrub.data.model.firebase.GetUser
 import com.example.localgrub.domain.usecase.OrderUseCase
 import com.example.localgrub.util.NetworkUtils
 import com.example.localgrub.util.OrderStatus
@@ -47,7 +47,7 @@ class OrderViewModel @Inject constructor(
     fun placeOrder() {
         _orderUIState.value = OrderUIState.Loading
 
-        if (!networkUtils.isInternetAvailable()) {
+        if (!networkUtils.hasInternetAccess()) {
             _orderUIState.value = OrderUIState.NoInternet
             return
         }
@@ -65,7 +65,6 @@ class OrderViewModel @Inject constructor(
         }
 
         viewModelScope.launch {
-
             val orderPlaced = PlacedOrder(
                 userId = user.uid,
                 userName = user.name,

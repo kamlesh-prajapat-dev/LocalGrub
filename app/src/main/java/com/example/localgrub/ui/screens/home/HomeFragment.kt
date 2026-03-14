@@ -15,7 +15,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import com.example.localgrub.R
-import com.example.localgrub.data.model.FoodItem
+import com.example.localgrub.data.model.firebase.FoodItem
 import com.example.localgrub.databinding.FragmentHomeBinding
 import com.example.localgrub.domain.model.failure.GetReqDomainFailure
 import com.example.localgrub.ui.adapter.FoodItemAdapter
@@ -38,7 +38,6 @@ class HomeFragment : Fragment(), FoodItemAdapter.FoodItemClickListener {
     private val foodAdapter: FoodItemAdapter by lazy {
         FoodItemAdapter(this)
     }
-
     private val offerAdapter: OfferSliderAdapter by lazy {
         OfferSliderAdapter()
     }
@@ -204,7 +203,7 @@ class HomeFragment : Fragment(), FoodItemAdapter.FoodItemClickListener {
             is GetReqDomainFailure.DataNotFound -> {
                 val user = viewModel.user.value
                 val action =
-                    HomeFragmentDirections.actionHomeFragmentToCreateYourProfileFragment(user)
+                    HomeFragmentDirections.actionHomeFragmentToProfileBuilderFragment(user)
                 findNavController().navigate(action)
                 viewModel.reset()
             }
@@ -235,7 +234,7 @@ class HomeFragment : Fragment(), FoodItemAdapter.FoodItemClickListener {
 
     private fun navigateToProfile(state: HomeUIState.ProfileState) {
         findNavController().navigate(
-            HomeFragmentDirections.actionHomeFragmentToCreateYourProfileFragment(
+            HomeFragmentDirections.actionHomeFragmentToProfileBuilderFragment(
                 state.user
             )
         )
@@ -244,7 +243,7 @@ class HomeFragment : Fragment(), FoodItemAdapter.FoodItemClickListener {
     }
 
     private fun navigateToLogin() {
-        findNavController().navigate(HomeFragmentDirections.actionHomeFragmentToAuthenticationFragment())
+        findNavController().navigate(HomeFragmentDirections.actionHomeFragmentToLoginFragment())
         viewModel.reset()
         onSetLoading(false)
     }
@@ -266,8 +265,8 @@ class HomeFragment : Fragment(), FoodItemAdapter.FoodItemClickListener {
                     }
 
                     R.id.action_logout -> {
-                        viewModel.logout()
-                        findNavController().navigate(HomeFragmentDirections.actionHomeFragmentToAuthenticationFragment())
+                        val user = viewModel.user.value
+                        viewModel.logout(user = user)
                         true
                     }
 

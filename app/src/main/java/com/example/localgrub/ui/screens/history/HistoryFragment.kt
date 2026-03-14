@@ -15,7 +15,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.example.localgrub.R
-import com.example.localgrub.data.model.FetchedOrder
+import com.example.localgrub.data.model.firebase.FetchedOrder
 import com.example.localgrub.databinding.FragmentHistoryBinding
 import com.example.localgrub.domain.mapper.firebase.GetReqDomainFailure
 import com.example.localgrub.ui.adapter.OrderHistoryItemAdapter

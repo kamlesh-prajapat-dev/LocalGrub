@@ -21,8 +21,7 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.example.localgrub.R
 import com.example.localgrub.databinding.FragmentOtpBinding
-import com.example.localgrub.domain.model.failure.AuthError
-import com.example.localgrub.domain.model.failure.WriteReqDomainFailure
+import com.example.localgrub.domain.model.failure.GetReqDomainFailure
 import com.example.localgrub.ui.screens.auth.AuthViewModel
 import com.example.localgrub.util.AppConstant.OTP_VALIDITY_MS
 import dagger.hilt.android.AndroidEntryPoint
@@ -42,27 +41,18 @@ class OtpFragment : Fragment() {
 
         val newPhoneNumber = navArgs.phoneNumber
         if (newPhoneNumber.isNotBlank()) {
-            val verificationId = sharedViewModel.verificationId.value
-            val token = sharedViewModel.token.value
+            val response = sharedViewModel.response.value
             val otpSentTime = sharedViewModel.otpSentTime.value
-            val oldPhoneNumber = sharedViewModel.phoneNumber.value
 
-            if (verificationId != null && token != null && otpSentTime != 0L) {
+            if (response != null && otpSentTime != 0L) {
                 viewModel.setInitialData(
-                    verificationId = verificationId,
-                    token = token,
-                    otpSentTime = otpSentTime
+                    response = response,
+                    otpSentTime = otpSentTime,
+                    phoneNumber = newPhoneNumber
                 )
             }
-
-            viewModel.sentOtp(
-                activity = requireActivity(),
-                phoneNumber = newPhoneNumber,
-                oldPhoneNumber = oldPhoneNumber
-            )
         } else {
-            Toast.makeText(requireContext(), "Something went wrong.", Toast.LENGTH_SHORT)
-                .show()
+            showToast("Something went wrong.")
         }
     }
 
@@ -126,16 +116,18 @@ class OtpFragment : Fragment() {
     }
 
     private fun navigationTask() {
-        val verificationId = viewModel.verificationId.value
-        val token = viewModel.token.value
+        val response = viewModel.response.value
         val otpSentTime = viewModel.otpSentTime.value
+        val phoneNumber = viewModel.phoneNumber.value
 
-        if (verificationId != null && token != null && otpSentTime != 0L) {
+        if (response != null && otpSentTime != 0L && phoneNumber != null) {
             sharedViewModel.setInitialData(
-                verificationId = verificationId,
-                token = token,
-                otpSentTime = otpSentTime
+                response = response,
+                otpSentTime = otpSentTime,
+                phoneNumber = phoneNumber
             )
+        } else {
+            showToast("Something went wrong.")
         }
         findNavController().navigateUp()
     }
@@ -165,16 +157,14 @@ class OtpFragment : Fragment() {
 
         binding.tvResendOtp.setOnClickListener {
             val phoneNumber = viewModel.phoneNumber.value
-            val token = viewModel.token.value
-            if (phoneNumber != null && token != null) {
+            val response = viewModel.response.value
+            if (phoneNumber != null && response != null) {
                 viewModel.resendOtp(
+                    response = response,
                     phoneNumber = phoneNumber,
-                    token = token,
-                    activity = requireActivity()
                 )
             } else
-                Toast.makeText(requireContext(), "Something went wrong.", Toast.LENGTH_SHORT)
-                    .show()
+                showToast("Something went wrong.")
         }
     }
 
@@ -183,38 +173,6 @@ class OtpFragment : Fragment() {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.uiState.collect {
                     when (it) {
-                        is OtpUIState.AuthFailure -> {
-                            when (it.error) {
-                                is AuthError.InvalidOtp -> {
-                                    Toast.makeText(
-                                        requireContext(),
-                                        "Invalid credentials",
-                                        Toast.LENGTH_SHORT
-                                    ).show()
-                                }
-
-                                is AuthError.FirebaseError -> {
-                                    Toast.makeText(
-                                        requireContext(),
-                                        it.error.message,
-                                        Toast.LENGTH_SHORT
-                                    ).show()
-                                }
-
-                                is AuthError.NetworkError -> {
-                                    showNoInternetDialog()
-                                }
-
-                                is AuthError.Unknown -> {
-                                    Toast.makeText(
-                                        requireContext(),
-                                        it.error.throwable?.message,
-                                        Toast.LENGTH_SHORT
-                                    ).show()
-                                }
-                            }
-                            onSetLoading(false)
-                        }
 
                         OtpUIState.Idle -> {
                             onSetLoading(false)
@@ -224,45 +182,19 @@ class OtpFragment : Fragment() {
                             onSetLoading(true)
                         }
 
-                        is OtpUIState.Success -> {
-                            val user = it.user
-                            if (user != null) {
-                                viewModel.saveUserToken(user.uid)
-                            } else {
-                                Toast.makeText(
-                                    requireContext(),
-                                    "Something went wrong. Please try after some time.",
-                                    Toast.LENGTH_SHORT
-                                ).show()
-                            }
-                            onSetLoading(false)
-                        }
-
                         is OtpUIState.Validation -> {
                             binding.otpEditText.error = it.message
                             onSetLoading(false)
                         }
 
-                        is OtpUIState.OnVerificationCompleted -> {
-                            val credential = it.credential
-                            val smsCode = credential.smsCode
-                            if (smsCode != null)
-                                binding.otpEditText.setText(smsCode)
-                            else
-                                Toast.makeText(
-                                    requireContext(),
-                                    "Something went wrong.",
-                                    Toast.LENGTH_SHORT
-                                )
-                                    .show()
-                            viewModel.verifyOtp(credential)
+                        OtpUIState.NoInternet -> {
+                            showNoInternetDialog()
                             onSetLoading(false)
                         }
 
-                        is OtpUIState.Verification -> {
+                        is OtpUIState.OtpSuccessfullySent -> {
                             viewModel.setInitialData(
-                                verificationId = it.verificationId,
-                                token = it.token,
+                                response = it.response,
                                 otpSentTime = it.otpSentTime
                             )
                             Toast.makeText(
@@ -275,134 +207,40 @@ class OtpFragment : Fragment() {
                             onSetLoading(false)
                         }
 
-                        is OtpUIState.TokenUpdateFailure -> {
+                        is OtpUIState.LoginSuccess -> {
+                            val user = it.user
+                            viewModel.saveUserToken(user.uid)
+                            onSetLoading(false)
+                        }
+
+                        is OtpUIState.Failure -> {
                             when (val failure = it.failure) {
-                                WriteReqDomainFailure.Aborted -> {
-                                    Toast.makeText(requireContext(), "Aborted", Toast.LENGTH_LONG)
-                                        .show()
-                                }
+                                is GetReqDomainFailure.DataNotFound -> showToast(failure.message)
+                                is GetReqDomainFailure.InvalidRequest -> showToast(failure.message)
+                                GetReqDomainFailure.NoInternet -> showNoInternetDialog()
+                                is GetReqDomainFailure.PermissionDenied -> showToast(failure.message)
+                                is GetReqDomainFailure.Unknown -> showToast(
+                                    failure.cause.message ?: getString(R.string.error)
+                                )
 
-                                is WriteReqDomainFailure.AlreadyExists -> {
-                                    Toast.makeText(
-                                        requireContext(),
-                                        failure.message,
-                                        Toast.LENGTH_LONG
-                                    ).show()
-                                }
-
-                                is WriteReqDomainFailure.Cancelled -> {
-                                    Toast.makeText(
-                                        requireContext(),
-                                        failure.message,
-                                        Toast.LENGTH_LONG
-                                    ).show()
-                                }
-
-                                WriteReqDomainFailure.DataLoss -> {
-                                    Toast.makeText(requireContext(), "Data Loss", Toast.LENGTH_LONG)
-                                        .show()
-                                }
-
-                                WriteReqDomainFailure.DeadlineExceeded -> {
-                                    Toast.makeText(
-                                        requireContext(),
-                                        "Deadline Exceed",
-                                        Toast.LENGTH_LONG
-                                    ).show()
-                                }
-
-                                WriteReqDomainFailure.FailedPrecondition -> {
-                                    Toast.makeText(
-                                        requireContext(),
-                                        "Failed Precondition",
-                                        Toast.LENGTH_LONG
-                                    ).show()
-                                }
-
-                                WriteReqDomainFailure.Internal -> {
-                                    Toast.makeText(requireContext(), "Internal", Toast.LENGTH_LONG)
-                                        .show()
-                                }
-
-                                WriteReqDomainFailure.InvalidArgument -> {
-                                    Toast.makeText(
-                                        requireContext(),
-                                        "Invalid Argument",
-                                        Toast.LENGTH_LONG
-                                    ).show()
-                                }
-
-                                WriteReqDomainFailure.NetworkUnavailable -> {
-                                    showNoInternetDialog()
-                                }
-
-                                is WriteReqDomainFailure.NotFound -> {
-                                    Toast.makeText(
-                                        requireContext(),
-                                        failure.message,
-                                        Toast.LENGTH_LONG
-                                    ).show()
-                                }
-
-                                WriteReqDomainFailure.OutOfRange -> {}
-                                is WriteReqDomainFailure.PermissionDenied -> {
-                                    Toast.makeText(
-                                        requireContext(),
-                                        failure.message,
-                                        Toast.LENGTH_LONG
-                                    ).show()
-                                }
-
-                                WriteReqDomainFailure.ResourceExhausted -> {
-                                    Toast.makeText(
-                                        requireContext(),
-                                        "Resource Exhausted",
-                                        Toast.LENGTH_LONG
-                                    ).show()
-
-                                }
-
-                                is WriteReqDomainFailure.Unauthenticated -> {
-                                    Toast.makeText(
-                                        requireContext(),
-                                        failure.message,
-                                        Toast.LENGTH_LONG
-                                    ).show()
-                                }
-
-                                WriteReqDomainFailure.Unimplemented -> {
-                                    Toast.makeText(
-                                        requireContext(),
-                                        "Unimplemented",
-                                        Toast.LENGTH_LONG
-                                    ).show()
-                                }
-
-                                is WriteReqDomainFailure.Unknown -> {
-                                    Toast.makeText(
-                                        requireContext(),
-                                        failure.cause.message,
-                                        Toast.LENGTH_LONG
-                                    ).show()
-                                }
+                                GetReqDomainFailure.Cancelled -> Unit
                             }
-                            navigateToHome()
                             onSetLoading(false)
                         }
 
-                        is OtpUIState.TokenUpdateSuccess -> {
+                        OtpUIState.HomeState -> {
                             navigateToHome()
-                            onSetLoading(false)
-                        }
-
-                        OtpUIState.NoInternet -> {
-                            showNoInternetDialog()
                             onSetLoading(false)
                         }
                     }
                 }
             }
         }
+    }
+
+    private fun showToast(message: String?) {
+        Toast.makeText(requireContext(), message ?: getString(R.string.error), Toast.LENGTH_SHORT)
+            .show()
     }
 
     private fun navigateToHome() {

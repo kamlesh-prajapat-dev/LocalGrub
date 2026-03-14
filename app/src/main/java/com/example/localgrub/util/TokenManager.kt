@@ -6,7 +6,6 @@ import com.google.firebase.messaging.FirebaseMessaging
 import kotlinx.coroutines.tasks.await
 
 object TokenManager {
-
     suspend fun getFCMToken(): String? {
         return try {
             val token =

@@ -16,9 +16,11 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import com.example.localgrub.R
+import com.example.localgrub.data.model.api.response.OtpResponse
 import com.example.localgrub.databinding.FragmentLoginBinding
 import com.example.localgrub.domain.model.failure.GetReqDomainFailure
 import com.example.localgrub.ui.screens.auth.AuthViewModel
+import com.example.localgrub.util.AppConstant
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
@@ -46,10 +48,23 @@ class LoginFragment : Fragment() {
 
     private fun setupListeners() {
         binding.sendOtpButton.setOnClickListener {
-            val phoneNumber = binding.phoneNumberEditText.text.toString().trim()
-            viewModel.loginUser(
-                phoneNumber = phoneNumber
-            )
+            val newPhoneNumber = binding.phoneNumberEditText.text.toString().trim()
+            val oldPhoneNumber = sharedViewModel.phoneNumber.value
+            val oldOtpSentTime = sharedViewModel.otpSentTime.value
+            val oldResponse = sharedViewModel.response.value
+
+            if ((oldPhoneNumber == null || newPhoneNumber != oldPhoneNumber) && (oldOtpSentTime == 0L || System.currentTimeMillis() - oldOtpSentTime >= AppConstant.OTP_VALIDITY_MS)) {
+                viewModel.loginUser(
+                    phoneNumber = newPhoneNumber
+                )
+            } else {
+                navigateToOtp(
+                    phoneNumber = oldPhoneNumber ?: "",
+                    response = oldResponse ?: OtpResponse("", ""),
+                    otpSentTime = oldOtpSentTime,
+                    message = "OTP already sent. Please wait before requesting again."
+                )
+            }
         }
 
         binding.phoneNumberEditText.addTextChangedListener {
@@ -82,20 +97,19 @@ class LoginFragment : Fragment() {
                             onSetLoading(false)
                         }
 
-                        is LoginUIState.OtpSent -> {
-                            navigateToOtp(it.phoneNumber)
+                        is LoginUIState.OtpSentSuccessfully -> {
+                            navigateToOtp(
+                                phoneNumber = it.phoneNumber,
+                                response = it.response,
+                                otpSentTime = it.currentTimeMillis,
+                                message = it.string
+                            )
                             onSetLoading(false)
                         }
 
-                        LoginUIState.HomeState -> {
-                            val action = LoginFragmentDirections.actionLoginFragmentToHomeFragment()
-                            findNavController().navigate(action)
-                            onSetLoading(false)
-                        }
-
-                        is LoginUIState.UserGetFailure -> {
+                        is LoginUIState.Failure -> {
                             when (val failure = it.failure) {
-                                is GetReqDomainFailure.DataNotFound -> Unit
+                                is GetReqDomainFailure.DataNotFound -> showToast(failure.message)
                                 is GetReqDomainFailure.InvalidRequest -> showToast(failure.message)
                                 GetReqDomainFailure.NoInternet -> showNoInternetDialog()
                                 is GetReqDomainFailure.PermissionDenied -> showToast(failure.message)
@@ -118,18 +132,18 @@ class LoginFragment : Fragment() {
             .show()
     }
 
-    private fun navigateToOtp(phoneNumber: String) {
-        val verificationId = sharedViewModel.verificationId.value
-        val token = sharedViewModel.token.value
-        val otpSentTime = sharedViewModel.otpSentTime.value
+    private fun navigateToOtp(
+        phoneNumber: String,
+        response: OtpResponse,
+        otpSentTime: Long,
+        message: String
+    ) {
+        showToast(message)
 
-        if (verificationId != null && token != null && otpSentTime != 0L) {
-            sharedViewModel.setInitialData(
-                verificationId = verificationId,
-                token = token,
-                otpSentTime = otpSentTime
-            )
-        }
+        sharedViewModel.setInitialData(
+            response = response,
+            otpSentTime = otpSentTime
+        )
         val action =
             LoginFragmentDirections.actionLoginFragmentToOtpFragment(phoneNumber)
         findNavController().navigate(action)

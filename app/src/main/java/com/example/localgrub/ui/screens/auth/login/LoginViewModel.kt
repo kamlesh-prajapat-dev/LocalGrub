@@ -2,7 +2,7 @@ package com.example.localgrub.ui.screens.auth.login
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.localgrub.domain.usecase.UserUseCase
+import com.example.localgrub.domain.usecase.LoginUseCase
 import com.example.localgrub.util.NetworkUtils
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -14,8 +14,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class LoginViewModel @Inject constructor(
-    private val networkUtils: NetworkUtils,
-    private val userUseCase: UserUseCase
+    private val loginUseCase: LoginUseCase,
+    private val networkUtils: NetworkUtils
 ) : ViewModel() {
     private val _uiState = MutableStateFlow<LoginUIState>(LoginUIState.Idle)
     val uiState: StateFlow<LoginUIState> get() = _uiState.asStateFlow()
@@ -25,7 +25,7 @@ class LoginViewModel @Inject constructor(
     ) {
         _uiState.value = LoginUIState.Loading
 
-        if(!networkUtils.isInternetAvailable()) {
+        if(!networkUtils.hasInternetAccess()) {
             _uiState.value = LoginUIState.NoInternet
             return
         }
@@ -37,13 +37,8 @@ class LoginViewModel @Inject constructor(
             return
         }
 
-//        _uiState.value = LoginUIState.OtpSent(phoneNumber)
-        findUserByPhoneNumber(phoneNumber = phoneNumber)
-    }
-
-    private fun findUserByPhoneNumber(phoneNumber: String) {
         viewModelScope.launch(Dispatchers.IO) {
-            _uiState.value = userUseCase.getUserByPhoneNumber("+91$phoneNumber")
+            _uiState.value = loginUseCase.sendOtp(phoneNumber = phoneNumber)
         }
     }
 

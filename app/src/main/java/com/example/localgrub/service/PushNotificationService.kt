@@ -19,8 +19,8 @@ class PushNotificationService : FirebaseMessagingService() {
     lateinit var notificationHelper: NotificationHelper
 
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
+        val orderId = remoteMessage.data["ORDER_ID"] ?: ""
         remoteMessage.notification?.let {
-            val orderId = remoteMessage.data["orderId"] ?: "Unknown Order"
             val body = it.body ?: "Order Status"
             val title = it.title ?: "Order Status"
             notificationHelper.showOrderStatusNotification(applicationContext, orderId, body, title)

@@ -30,12 +30,6 @@
         tools:layout="@layout/fragment_login">
 
         <action
-            android:id="@+id/action_loginFragment_to_homeFragment"
-            app:destination="@id/homeFragment"
-            app:popUpTo="@id/loginFragment"
-            app:popUpToInclusive="true"/>
-
-        <action
             android:id="@+id/action_loginFragment_to_otpFragment"
             app:destination="@id/otpFragment"/>
     </fragment>
@@ -89,7 +83,7 @@
 
         <argument
             android:name="user"
-            app:argType="com.example.localgrub.data.model.GetUser"
+            app:argType="com.example.localgrub.data.model.firebase.GetUser"
             app:nullable="true"
             android:defaultValue="@null"/>
 
@@ -138,6 +132,9 @@
         android:name="com.example.localgrub.ui.screens.orderstatus.OrderStatusFragment"
         android:label="Each Order Status Fragment"
         tools:layout="@layout/fragment_order_status">
+
+        <deepLink
+            app:uri="myapp://orders/{orderId}" />
 
         <argument
             android:name="orderId"

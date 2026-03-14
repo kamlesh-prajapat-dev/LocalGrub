@@ -1,4 +1,4 @@
-package com.example.localgrub.data.model
+package com.example.localgrub.data.model.firebase
 
 import com.example.localgrub.util.OfferStatus
 import com.example.localgrub.util.OfferType

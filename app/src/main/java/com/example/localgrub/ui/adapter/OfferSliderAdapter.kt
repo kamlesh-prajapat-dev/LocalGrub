@@ -8,7 +8,7 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.localgrub.R
-import com.example.localgrub.data.model.GetOffer
+import com.example.localgrub.data.model.firebase.GetOffer
 import com.example.localgrub.databinding.ItemOfferCardBinding
 
 class OfferSliderAdapter : ListAdapter<GetOffer, OfferSliderAdapter.OfferViewHolder>(OfferDiffCallback()) {

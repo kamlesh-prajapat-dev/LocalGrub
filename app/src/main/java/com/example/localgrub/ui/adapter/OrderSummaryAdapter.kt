@@ -6,7 +6,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.example.localgrub.data.model.SelectedDish
+import com.example.localgrub.data.model.firebase.SelectedDish
 import com.example.localgrub.databinding.OrderItemSummaryRowBinding
 
 class OrderSummaryAdapter : ListAdapter<SelectedDish, OrderSummaryAdapter.OrderItemViewHolder>(FoodItemDiffCallback()) {

@@ -51,7 +51,7 @@ class SplashFragment : Fragment() {
                         }
 
                         SplashUIState.Authentication -> navigateAction {
-                            val action = SplashFragmentDirections.actionSplashFragmentToAuthenticationFragment()
+                            val action = SplashFragmentDirections.actionSplashFragmentToLoginFragment()
                             findNavController().navigate(action)
                         }
 

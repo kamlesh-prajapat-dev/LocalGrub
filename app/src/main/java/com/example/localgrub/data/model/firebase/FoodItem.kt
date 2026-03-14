@@ -1,4 +1,4 @@
-package com.example.localgrub.data.model
+package com.example.localgrub.data.model.firebase
 
 data class FoodItem(
     val id: String = "",

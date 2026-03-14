@@ -1,7 +1,7 @@
 package com.example.localgrub.data.remote.repository
 
-import com.example.localgrub.data.model.FetchedOrder
-import com.example.localgrub.data.model.PlacedOrder
+import com.example.localgrub.data.model.firebase.FetchedOrder
+import com.example.localgrub.data.model.firebase.PlacedOrder
 import com.example.localgrub.data.remote.mapper.ErrorMapper
 import com.example.localgrub.domain.model.result.OrderResult
 import com.example.localgrub.domain.repository.OrderRepository

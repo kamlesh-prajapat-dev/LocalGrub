@@ -1,6 +1,6 @@
 package com.example.localgrub.ui.screens.profilebuilder
 
-import com.example.localgrub.data.model.GetUser
+import com.example.localgrub.data.model.firebase.GetUser
 import com.example.localgrub.domain.model.failure.WriteReqDomainFailure
 
 sealed interface ProfileBuilderUIState {

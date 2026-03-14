@@ -16,7 +16,12 @@ import javax.inject.Inject
 class SenderNotificationWorkerScheduler @Inject constructor(
     @param:ApplicationContext private val context: Context
 ) {
-    fun retryNotification(orderId: String) {
+    fun retryNotification(
+        userId: String,
+        orderId: String,
+        status: String,
+        userName: String
+    ) {
 
         val constraints = Constraints.Builder()
             .setRequiredNetworkType(NetworkType.CONNECTED)
@@ -30,7 +35,12 @@ class SenderNotificationWorkerScheduler @Inject constructor(
                 TimeUnit.MINUTES
             )
             .setInputData(
-                workDataOf("ORDER_ID" to orderId)
+                workDataOf(
+                    "ORDER_ID" to orderId,
+                    "USER_ID" to userId,
+                    "STATUS" to status,
+                    "USER_NAME" to userName
+                )
             )
             .build()
 

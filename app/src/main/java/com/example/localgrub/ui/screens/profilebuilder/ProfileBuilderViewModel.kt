@@ -2,7 +2,7 @@ package com.example.localgrub.ui.screens.profilebuilder
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.localgrub.data.model.GetUser
+import com.example.localgrub.data.model.firebase.GetUser
 import com.example.localgrub.domain.usecase.UserUseCase
 import com.example.localgrub.util.NetworkUtils
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -30,7 +30,7 @@ class ProfileBuilderViewModel @Inject constructor(
     fun editUser(name: String, address: String) {
         _uiState.value = ProfileBuilderUIState.Loading
 
-        if (!networkUtils.isInternetAvailable()) {
+        if (!networkUtils.hasInternetAccess()) {
             _uiState.value = ProfileBuilderUIState.NoInternet
             return
         }
