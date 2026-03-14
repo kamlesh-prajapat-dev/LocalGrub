@@ -7,7 +7,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.localgrub.R
-import com.example.localgrub.data.model.FetchedOrder
+import com.example.localgrub.data.model.firebase.FetchedOrder
 import com.example.localgrub.databinding.OrderHistoryItemBinding
 import com.example.localgrub.util.OrderStatus
 import java.time.ZoneId

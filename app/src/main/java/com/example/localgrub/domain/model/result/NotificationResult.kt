@@ -1,6 +1,6 @@
 package com.example.localgrub.domain.model.result
 
 sealed interface NotificationResult {
-    data class Success(val isSuccess: Boolean = false): NotificationResult
-    data class Error(val e: Exception): NotificationResult
+    data class Success(val message: String) : NotificationResult
+    data class Failure(val exception: Exception) : NotificationResult
 }

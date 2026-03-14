@@ -1,6 +1,6 @@
 package com.example.localgrub.data.remote.repository
 
-import com.example.localgrub.data.model.GetOffer
+import com.example.localgrub.data.model.firebase.GetOffer
 import com.example.localgrub.data.remote.mapper.ErrorMapper
 import com.example.localgrub.domain.model.result.OfferResult
 import com.example.localgrub.domain.repository.OfferRepository

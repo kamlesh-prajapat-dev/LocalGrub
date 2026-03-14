@@ -1,13 +1,14 @@
 package com.example.localgrub.domain.repository
 
-import com.example.localgrub.data.model.NotificationRequest
-import com.example.localgrub.data.remote.api.NotificationApi
-import okhttp3.ResponseBody
-import retrofit2.Response
-import javax.inject.Singleton
+import com.example.localgrub.data.model.api.request.NotificationRequest
+import com.example.localgrub.domain.model.result.NotificationResult
 
-@Singleton
-class NotificationRepository {
+interface NotificationRepository {
+    suspend fun sendNotification(notificationRequest: NotificationRequest): NotificationResult
 
-    suspend fun sendNotification(notificationRequest: NotificationRequest): Response<ResponseBody> = NotificationApi.api.sendNotification(notificationRequest)
+    suspend fun saveToken(userId: String, token: String): NotificationResult
+
+    suspend fun updateToken(userId: String, token: String): NotificationResult
+
+    suspend fun deleteToken(userId: String): NotificationResult
 }

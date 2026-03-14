@@ -1,8 +1,8 @@
 package com.example.localgrub.ui.sharedviewmodel
 
 import androidx.lifecycle.ViewModel
-import com.example.localgrub.data.model.GetUser
-import com.example.localgrub.data.model.FoodItem
+import com.example.localgrub.data.model.firebase.GetUser
+import com.example.localgrub.data.model.firebase.FoodItem
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow

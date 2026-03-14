@@ -1,7 +1,6 @@
 package com.example.localgrub.domain.repository
 
-import com.example.localgrub.data.model.GetUser
-import com.example.localgrub.data.model.NewUser
+import com.example.localgrub.data.model.firebase.NewUser
 import com.example.localgrub.domain.model.result.UserResult
 
 interface UserRepository {

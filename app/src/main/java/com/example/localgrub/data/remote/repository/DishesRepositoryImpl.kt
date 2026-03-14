@@ -1,6 +1,6 @@
 package com.example.localgrub.data.remote.repository
 
-import com.example.localgrub.data.model.FetchedDish
+import com.example.localgrub.data.model.firebase.FetchedDish
 import com.example.localgrub.data.remote.mapper.ErrorMapper
 import com.example.localgrub.domain.model.result.DishResult
 import com.example.localgrub.domain.repository.DishesRepository

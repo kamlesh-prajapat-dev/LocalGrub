@@ -1,9 +1,9 @@
 package com.example.localgrub.domain.usecase
 
-import com.example.localgrub.data.model.FetchedDish
+import com.example.localgrub.data.model.firebase.FetchedDish
 import com.example.localgrub.domain.mapper.firebase.toGetReqDomainFailure
 import com.example.localgrub.domain.model.result.DishResult
-import com.example.localgrub.data.model.FoodItem
+import com.example.localgrub.data.model.firebase.FoodItem
 import com.example.localgrub.domain.repository.DishesRepository
 import com.example.localgrub.ui.screens.home.HomeUIState
 import kotlinx.coroutines.flow.Flow

@@ -16,7 +16,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import com.example.localgrub.R
-import com.example.localgrub.data.model.SelectedDish
+import com.example.localgrub.data.model.firebase.SelectedDish
 import com.example.localgrub.ui.adapter.OrderSummaryAdapter
 import com.example.localgrub.databinding.FragmentOrderBinding
 import com.example.localgrub.domain.mapper.firebase.WriteReqDomainFailure
@@ -34,12 +34,6 @@ class OrderFragment : Fragment() {
         OrderSummaryAdapter()
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-
-        observeSharedViewModel()
-    }
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -52,6 +46,7 @@ class OrderFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        observeSharedViewModel()
         onSetRecyclerView()
         observeViewModel()
         setupClickListeners()
@@ -161,10 +156,14 @@ class OrderFragment : Fragment() {
     }
 
     private fun observeSharedViewModel() {
-        val user = sharedHCOViewModel.user.value
-
-        if (user != null) {
-            viewModel.updateUserData(user)
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                sharedHCOViewModel.user.collect { user ->
+                    if (user != null) {
+                        viewModel.updateUserData(user)
+                    }
+                }
+            }
         }
 
         val items = sharedHCOViewModel.selectItemList.value
@@ -189,7 +188,7 @@ class OrderFragment : Fragment() {
             val user = viewModel.user.value
             if (user != null) {
                 val action =
-                    OrderFragmentDirections.actionOrderFragmentToCreateYourProfileFragment(user)
+                    OrderFragmentDirections.actionOrderFragmentToProfileBuilderFragment(user)
                 findNavController().navigate(action)
             } else {
                 Toast.makeText(requireContext(), "Something went wrong.", Toast.LENGTH_SHORT).show()

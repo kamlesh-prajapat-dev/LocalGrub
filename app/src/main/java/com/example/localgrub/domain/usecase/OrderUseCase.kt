@@ -1,21 +1,18 @@
 package com.example.localgrub.domain.usecase
 
 import android.util.Log
-import com.example.localgrub.data.model.FetchedOrder
-import com.example.localgrub.data.model.NotificationRequest
-import com.example.localgrub.data.model.PlacedOrder
+import com.example.localgrub.data.model.api.request.NotificationRequest
+import com.example.localgrub.data.model.firebase.FetchedOrder
+import com.example.localgrub.data.model.firebase.PlacedOrder
 import com.example.localgrub.domain.mapper.firebase.toGetReqDomainFailure
 import com.example.localgrub.domain.mapper.firebase.toWriteReqDomainFailure
 import com.example.localgrub.domain.model.result.NotificationResult
 import com.example.localgrub.domain.model.result.OrderResult
-import com.example.localgrub.domain.model.result.TokenResult
 import com.example.localgrub.domain.repository.NotificationRepository
 import com.example.localgrub.domain.repository.OrderRepository
-import com.example.localgrub.domain.repository.TokenRepository
-import com.example.localgrub.ui.screens.orderstatus.OrderStatusUIState
 import com.example.localgrub.ui.screens.history.HistoryUIState
 import com.example.localgrub.ui.screens.order.OrderUIState
-import com.example.localgrub.util.UnknownException
+import com.example.localgrub.ui.screens.orderstatus.OrderStatusUIState
 import com.example.localgrub.workerscheduler.SenderNotificationWorkerScheduler
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
@@ -24,20 +21,35 @@ import javax.inject.Inject
 
 class OrderUseCase @Inject constructor(
     private val orderRepository: OrderRepository,
-    private val tokenRepository: TokenRepository,
     private val notificationRepository: NotificationRepository,
     private val senderNotificationWorkerScheduler: SenderNotificationWorkerScheduler
 ) {
     suspend fun placeOrder(orderPlaced: PlacedOrder): OrderUIState {
         return when (val result = orderRepository.placeOrder(orderPlaced)) {
             is OrderResult.OrderCreateSuccess -> {
-                when (val notifyResult = notifyOwner(result.docId)) {
+                val orderId = result.docId
+                when (val notifyResult = notifyOwner(
+                    userId = orderPlaced.userId,
+                    orderId = orderId,
+                    status = orderPlaced.status,
+                    userName = orderPlaced.userName
+                )) {
                     is NotificationResult.Success -> {
-                        Log.d("OrderUseCase", "Notification sent successfully")
+                        Log.i("OrderUseCase", notifyResult.message)
                     }
 
-                    is NotificationResult.Error -> {
-                        Log.e("OrderUseCase", "Error sending notification", notifyResult.e)
+                    is NotificationResult.Failure -> {
+                        Log.e(
+                            "OrderUseCase",
+                            notifyResult.exception.message,
+                            notifyResult.exception
+                        )
+                        senderNotificationWorkerScheduler.retryNotification(
+                            userId = orderPlaced.userId,
+                            orderId = orderId,
+                            status = orderPlaced.status,
+                            userName = orderPlaced.userName
+                        )
                     }
                 }
 
@@ -53,55 +65,68 @@ class OrderUseCase @Inject constructor(
         }
     }
 
-    suspend fun cancelOrder(orderId: String, cancelStatus: String, status: String): OrderStatusUIState {
+    suspend fun cancelOrder(
+        orderId: String,
+        userId: String,
+        userName: String,
+        cancelStatus: String,
+        status: String
+    ): OrderStatusUIState {
         return when (val result = orderRepository.cancelOrder(orderId, cancelStatus, status)) {
             is OrderResult.OrderCancelSuccess -> {
-                when (val notifyResult = notifyOwner(orderId)) {
+                when (val notifyResult = notifyOwner(
+                    userId = userId,
+                    orderId = orderId,
+                    status = cancelStatus,
+                    userName = userName
+                )) {
                     is NotificationResult.Success -> {
-                        Log.d("OrderUseCase", "Notification sent successfully")
+                        Log.d("OrderUseCase", notifyResult.message)
                     }
 
-                    is NotificationResult.Error -> {
-                        Log.e("OrderUseCase", "Error sending notification", notifyResult.e)
+                    is NotificationResult.Failure -> {
+                        Log.e(
+                            "OrderUseCase",
+                            notifyResult.exception.message,
+                            notifyResult.exception
+                        )
+                        senderNotificationWorkerScheduler.retryNotification(
+                            userId = userId,
+                            orderId = orderId,
+                            status = cancelStatus,
+                            userName = userName
+                        )
                     }
                 }
                 OrderStatusUIState.Success(result.isSuccess)
             }
 
             is OrderResult.Failure -> {
-                OrderStatusUIState.CancelOrderFailure(failure = result.e.toWriteReqDomainFailure(orderId))
+                OrderStatusUIState.CancelOrderFailure(
+                    failure = result.e.toWriteReqDomainFailure(
+                        orderId
+                    )
+                )
             }
 
             else -> OrderStatusUIState.Idle
         }
     }
 
-    private suspend fun notifyOwner(docId: String): NotificationResult {
-        return when (val result = tokenRepository.getToken(docId)) {
-            is TokenResult.TokenGetSuccess -> {
-                val token = result.tokenData.token
-                if (token.isBlank())
-                    return NotificationResult.Error(Exception("Invalid token"))
-                val response = notificationRepository.sendNotification(
-                    NotificationRequest(
-                        token = token,
-                        title = "New Order Received",
-                        body = "You have a new order! Order ID: $docId",
-                        orderId = docId
-                    )
-                )
+    private suspend fun notifyOwner(
+        userId: String,
+        orderId: String,
+        status: String,
+        userName: String
+    ): NotificationResult {
+        val data = NotificationRequest(
+            userId = userId,
+            orderId = orderId,
+            status = status,
+            userName = userName
+        )
 
-                NotificationResult.Success(true)
-            }
-
-            is TokenResult.Failure -> {
-                val exception = result.exception
-                senderNotificationWorkerScheduler.retryNotification(orderId = docId)
-                return NotificationResult.Error(result.exception)
-            }
-
-            else -> NotificationResult.Error(UnknownException("Invalid token"))
-        }
+        return notificationRepository.sendNotification(data)
     }
 
     fun observeOrders(userId: String): Flow<HistoryUIState> {
@@ -129,13 +154,15 @@ class OrderUseCase @Inject constructor(
     fun observeOrderById(orderId: String): Flow<OrderStatusUIState> {
         return orderRepository.observeOrderById(orderId)
             .map { result ->
-                when(result) {
+                when (result) {
                     is OrderResult.OrderGetSuccessByOrderId -> {
                         OrderStatusUIState.OrderGetSuccess(result.order)
                     }
+
                     is OrderResult.Failure -> {
                         OrderStatusUIState.OrderGetFailure(result.e.toGetReqDomainFailure(orderId))
                     }
+
                     else -> OrderStatusUIState.Idle
                 }
             }.catch {

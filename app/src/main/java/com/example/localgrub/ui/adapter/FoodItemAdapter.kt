@@ -9,7 +9,7 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.localgrub.R
-import com.example.localgrub.data.model.FoodItem
+import com.example.localgrub.data.model.firebase.FoodItem
 import com.example.localgrub.databinding.FoodItemCardBinding
 
 class FoodItemAdapter(private val listener: FoodItemClickListener) :

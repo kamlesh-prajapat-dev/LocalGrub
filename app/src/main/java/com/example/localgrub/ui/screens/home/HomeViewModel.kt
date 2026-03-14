@@ -2,15 +2,17 @@ package com.example.localgrub.ui.screens.home
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.localgrub.data.model.FoodItem
-import com.example.localgrub.data.model.GetOffer
-import com.example.localgrub.data.model.GetUser
-import com.example.localgrub.domain.usecase.AuthUseCase
+import com.example.localgrub.data.model.firebase.FoodItem
+import com.example.localgrub.data.model.firebase.GetOffer
+import com.example.localgrub.data.model.firebase.GetUser
 import com.example.localgrub.domain.usecase.DishesUseCase
+import com.example.localgrub.domain.usecase.LoginUseCase
 import com.example.localgrub.domain.usecase.OfferUseCase
 import com.example.localgrub.domain.usecase.UserUseCase
+import com.example.localgrub.util.AppLogger
 import com.example.localgrub.util.NetworkUtils
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -24,7 +26,7 @@ import javax.inject.Inject
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val userUseCase: UserUseCase,
-    private val authUseCase: AuthUseCase,
+    private val loginUseCase: LoginUseCase,
     private val dishesUseCase: DishesUseCase,
     private val offerUseCase: OfferUseCase,
     private val networkUtils: NetworkUtils
@@ -49,7 +51,7 @@ class HomeViewModel @Inject constructor(
     }
 
     fun fetchOffers() {
-        if (!networkUtils.isInternetAvailable()) {
+        if (!networkUtils.hasInternetAccess()) {
             _uiState.value = HomeUIState.NoInternet
         }
 
@@ -65,7 +67,7 @@ class HomeViewModel @Inject constructor(
     }
 
     fun fetchFoodItems() {
-        if (!networkUtils.isInternetAvailable()) {
+        if (!networkUtils.hasInternetAccess()) {
             _uiState.value = HomeUIState.NoInternet
         }
 
@@ -76,16 +78,6 @@ class HomeViewModel @Inject constructor(
     }
 
     fun loadCurrentUser() {
-//        val currentUser = authUseCase.getCurrentUser()
-//        if (currentUser != null) {
-//            _user.value = GetUser(
-//                uid = currentUser.uid,
-//                phoneNumber = currentUser.phoneNumber!!
-//            )
-//        } else {
-//            _uiState.value = HomeUIState.LoginState
-//        }
-
         val localUser = userUseCase.getLocalUser()
         if (localUser != null) {
             _user.value = localUser
@@ -95,30 +87,12 @@ class HomeViewModel @Inject constructor(
     }
 
     fun loadUser() {
-//        val currentUser = authUseCase.getCurrentUser() ?: run {
-//            _uiState.value = HomeUIState.LoginState
-//            return
-//        }
-
         val localUser = userUseCase.getLocalUser()
         if (localUser != null && localUser.profileCompleted) {
             _uiState.value = HomeUIState.OrderState(localUser)
         } else if (localUser != null) {
-//            _uiState.value = HomeUIState.ProfileState(
-//                user = GetUser (
-//                    uid = currentUser.uid,
-//                    phoneNumber = currentUser.phoneNumber!!
-//                )
-//            )
             _uiState.value = HomeUIState.ProfileState(localUser)
         } else {
-//            viewModelScope.launch {
-//                _uiState.value = HomeUIState.Loading
-//                val fetchResult =
-//                    userUseCase.getUserByUid(currentUser.uid, currentUser.phoneNumber!!)
-//                _uiState.value = fetchResult
-//            }
-
             _uiState.value = HomeUIState.LoginState
         }
     }
@@ -158,15 +132,31 @@ class HomeViewModel @Inject constructor(
         _isCartVisible.value = _foodItems.value.any { it.isSelected }
     }
 
-    fun logout() {
-        userUseCase.setLocalUser(null)
-        authUseCase.logout()
+    fun logout(user: GetUser?) {
+        if (user != null) {
+            val userId = user.uid
+            if (userId.isBlank()) {
+                AppLogger.e("HomeViewModel-logout", "User ID is blank. Here receive userId as blank.")
+                _uiState.value = HomeUIState.LoginState
+                return
+            }
+            _uiState.value = HomeUIState.Loading
+            if (!networkUtils.hasInternetAccess()) {
+                _uiState.value = HomeUIState.NoInternet
+                return
+            }
+            viewModelScope.launch(Dispatchers.IO) {
+                _uiState.value = loginUseCase.logout(userId)
+            }
+        } else {
+            _uiState.value = HomeUIState.LoginState
+        }
     }
 
     fun reset() {
         _uiState.value = HomeUIState.Idle
     }
-    
+
     companion object {
         private const val MAX_QUANTITY = 99
     }

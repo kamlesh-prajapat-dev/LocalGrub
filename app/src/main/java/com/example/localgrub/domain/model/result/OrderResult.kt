@@ -1,7 +1,7 @@
 package com.example.localgrub.domain.model.result
 
-import com.example.localgrub.data.model.FetchedOrder
-import com.example.localgrub.data.model.PlacedOrder
+import com.example.localgrub.data.model.firebase.FetchedOrder
+import com.example.localgrub.data.model.firebase.PlacedOrder
 
 sealed interface OrderResult {
     data class OrderCreateSuccess(val orderPlaced: PlacedOrder, val docId: String): OrderResult

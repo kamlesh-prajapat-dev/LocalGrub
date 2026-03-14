@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -14,6 +16,12 @@ plugins {
     kotlin("plugin.serialization") version "2.2.21"
 }
 
+val localProperties = Properties()
+val localPropertiesFile = rootProject.file("local.properties")
+if (localPropertiesFile.exists()) {
+    localProperties.load(localPropertiesFile.inputStream())
+}
+
 android {
     namespace = "com.example.localgrub"
     compileSdk {
@@ -28,6 +36,25 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        buildConfigField(
+            "String",
+            "MSG91_AUTH_KEY",
+            "\"${localProperties.getProperty("MSG91_AUTH_KEY")}\"")
+        buildConfigField(
+            "String",
+            "WIDGET_ID",
+            "\"${localProperties.getProperty("WIDGET_ID")}\""
+        )
+        buildConfigField(
+            "String",
+            "API_BASE_URL",
+            "\"${localProperties.getProperty("API_BASE_URL")}\""
+        )
+        buildConfigField(
+            "String",
+            "MSG91_API_BASE_URL",
+            "\"${localProperties.getProperty("MSG91_API_BASE_URL")}\""
+        )
     }
 
     buildTypes {
@@ -44,8 +71,10 @@ android {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
-    kotlinOptions {
-        jvmTarget = "11"
+    kotlin {
+        compilerOptions {
+            jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_11)
+        }
     }
 
     buildFeatures {
@@ -104,7 +133,10 @@ dependencies {
     // Kotlin Serialization
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.9.0")
     implementation("com.jakewharton.retrofit:retrofit2-kotlinx-serialization-converter:1.0.0")
-    implementation(libs.okhttp)
+    implementation("com.squareup.okhttp3:okhttp:5.3.2")
+    implementation("com.squareup.okhttp3:logging-interceptor:5.3.2")
+
+    implementation("com.msg91.lib:sendotp:1.0.0")
 
     // Work manager
     implementation("androidx.work:work-runtime-ktx:2.8.1")

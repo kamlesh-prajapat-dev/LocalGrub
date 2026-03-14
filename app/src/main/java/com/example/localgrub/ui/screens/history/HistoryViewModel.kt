@@ -2,7 +2,7 @@ package com.example.localgrub.ui.screens.history
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.localgrub.data.model.FetchedOrder
+import com.example.localgrub.data.model.firebase.FetchedOrder
 import com.example.localgrub.domain.usecase.OrderUseCase
 import com.example.localgrub.util.NetworkUtils
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -30,7 +30,7 @@ class HistoryViewModel @Inject constructor(
     }
 
     fun loadOrderHistoryItems(uid: String) {
-        if (!networkUtils.isInternetAvailable()) {
+        if (!networkUtils.hasInternetAccess()) {
             _uiState.value = HistoryUIState.NoInternet
         }
 

@@ -1,9 +1,8 @@
-package com.example.localgrub.data.model
+package com.example.localgrub.data.model.firebase
 
 import com.example.localgrub.util.OrderStatus
 
-data class FetchedOrder(
-    val id: String = "",
+data class PlacedOrder(
     val userId: String = "",
     val userName: String = "",
     val userAddress: String = "",
@@ -12,6 +11,5 @@ data class FetchedOrder(
     val totalPrice: Double = 0.0,
     val placeAt: Long = 0L,
     val status: String = OrderStatus.PLACED,
-    val previousStatus: String = OrderStatus.PLACED,
-    val name: String = "",
+    val previousStatus: String = OrderStatus.PLACED
 )

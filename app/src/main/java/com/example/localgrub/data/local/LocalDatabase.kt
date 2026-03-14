@@ -2,7 +2,7 @@ package com.example.localgrub.data.local
 
 import android.content.SharedPreferences
 import androidx.core.content.edit
-import com.example.localgrub.data.model.GetUser
+import com.example.localgrub.data.model.firebase.GetUser
 import kotlinx.serialization.json.Json
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -13,6 +13,21 @@ class LocalDatabase @Inject constructor(
 ) {
     companion object {
         private const val USER = "user"
+        private const val JWT_TOKEN = "jwt_token"
+    }
+
+    fun setToken(token: String?) {
+        sharedPreferences.edit {
+            if (token == null) {
+                remove(JWT_TOKEN)
+            } else {
+                putString(JWT_TOKEN, token)
+            }
+        }
+    }
+
+    fun getToken(): String? {
+        return sharedPreferences.getString(JWT_TOKEN, null)
     }
 
     fun setUser(user: GetUser?) {
@@ -20,7 +35,6 @@ class LocalDatabase @Inject constructor(
             if (user == null) {
                 remove(USER)
             } else {
-                // Serialize the object to a JSON string
                 putString(USER, Json.encodeToString(user))
             }
         }
@@ -31,7 +45,6 @@ class LocalDatabase @Inject constructor(
         if (jsonString.isNullOrEmpty() || jsonString == "null") return null
 
         return try {
-            // Deserialize the JSON string back into the object
             Json.decodeFromString<GetUser>(jsonString)
         } catch (e: Exception) {
             e.printStackTrace()

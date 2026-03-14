@@ -1,6 +1,6 @@
 package com.example.localgrub.data.remote.repository
 
-import com.example.localgrub.data.model.NewUser
+import com.example.localgrub.data.model.firebase.NewUser
 import com.example.localgrub.domain.model.result.UserResult
 import com.example.localgrub.domain.repository.UserRepository
 import com.example.localgrub.util.DataNotFoundException

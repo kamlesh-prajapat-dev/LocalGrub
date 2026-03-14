@@ -4,7 +4,7 @@ import android.content.Context
 import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
-import com.example.localgrub.domain.usecase.TokenUseCase
+import com.example.localgrub.domain.usecase.NotificationUseCase
 import com.example.localgrub.domain.usecase.UserUseCase
 import com.example.localgrub.util.AppLogger
 import dagger.assisted.Assisted
@@ -14,7 +14,7 @@ import dagger.assisted.AssistedInject
 class FCMTokenWorker @AssistedInject constructor(
     @Assisted context: Context,
     @Assisted workerParams: WorkerParameters,
-    private val tokenUseCase: TokenUseCase,
+    private val notificationUseCase: NotificationUseCase,
     private val userUseCase: UserUseCase
 ) : CoroutineWorker(context, workerParams) {
 
@@ -25,7 +25,7 @@ class FCMTokenWorker @AssistedInject constructor(
         return try {
             val user = userUseCase.getLocalUser()
             if (user != null) {
-                tokenUseCase.saveUserToken(token = token, userId = user.uid)
+                notificationUseCase.updateToken(token = token, userId = user.uid)
             } else {
                 AppLogger.e(
                     TAG,

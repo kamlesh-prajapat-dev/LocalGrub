@@ -2,9 +2,9 @@ package com.example.localgrub.ui.screens.orderstatus
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.localgrub.data.model.FetchedOrder
-import com.example.localgrub.data.model.GetUser
-import com.example.localgrub.data.model.SelectedDish
+import com.example.localgrub.data.model.firebase.FetchedOrder
+import com.example.localgrub.data.model.firebase.GetUser
+import com.example.localgrub.data.model.firebase.SelectedDish
 import com.example.localgrub.domain.usecase.OrderUseCase
 import com.example.localgrub.domain.usecase.UserUseCase
 import com.example.localgrub.util.NetworkUtils
@@ -54,7 +54,7 @@ class OrderStatusViewModel @Inject constructor(
     }
 
     fun observeOrderById(orderId: String) {
-        if (!networkUtils.isInternetAvailable()) {
+        if (!networkUtils.hasInternetAccess()) {
             _uiState.value = OrderStatusUIState.NoInternet
             return
         }
@@ -69,18 +69,22 @@ class OrderStatusViewModel @Inject constructor(
             .launchIn(viewModelScope)
     }
 
-    fun cancelOrder() {
+    fun cancelOrder(order: FetchedOrder) {
         _uiState.value = OrderStatusUIState.Loading
 
-        if (!networkUtils.isInternetAvailable()) {
+        if (!networkUtils.hasInternetAccess()) {
             _uiState.value = OrderStatusUIState.NoInternet
             return
         }
 
         viewModelScope.launch {
-            val orderId = order.value?.id ?: return@launch
-            val status = order.value?.status ?: return@launch
-            _uiState.value = orderUseCase.cancelOrder(orderId, OrderStatus.CANCELLED, status)
+            _uiState.value = orderUseCase.cancelOrder(
+                orderId = order.id,
+                userId = order.userId,
+                userName = order.userName,
+                cancelStatus = OrderStatus.CANCELLED,
+                status = order.status
+            )
         }
     }
 }

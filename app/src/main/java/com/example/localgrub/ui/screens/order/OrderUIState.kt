@@ -1,6 +1,6 @@
 package com.example.localgrub.ui.screens.order
 
-import com.example.localgrub.data.model.FetchedOrder
+import com.example.localgrub.data.model.firebase.FetchedOrder
 import com.example.localgrub.domain.mapper.firebase.WriteReqDomainFailure
 
 sealed interface OrderUIState {

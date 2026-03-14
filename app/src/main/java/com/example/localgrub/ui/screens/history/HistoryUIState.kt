@@ -1,6 +1,6 @@
 package com.example.localgrub.ui.screens.history
 
-import com.example.localgrub.data.model.FetchedOrder
+import com.example.localgrub.data.model.firebase.FetchedOrder
 import com.example.localgrub.domain.mapper.firebase.GetReqDomainFailure
 
 sealed interface HistoryUIState {

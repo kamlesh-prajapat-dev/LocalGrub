@@ -1,4 +1,4 @@
-package com.example.localgrub.data.model
+package com.example.localgrub.data.model.firebase
 
 import java.io.Serializable
 
